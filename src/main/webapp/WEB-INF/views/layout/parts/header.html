@@ -1,0 +1,29 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+	<header layout:fragment="header(lang, sign)"
+		class="fixed-top bg-header">
+		<nav class="navbar navbar-dark">
+			<a class="navbar-brand h1 mb-0" th:href="@{/}">Brand</a>
+			<form th:if="${lang}" id="fomLang" class="form-inline ml-auto"
+				th:action="@{/system/lang}" method="post">
+				<div class="dropdown">
+					<a class="nav-link dropdown-toggle text-light" href="#"
+						role="button" data-toggle="dropdown">[[#{|label.lang.${#locale.language}|}]]</a>
+					<div class="dropdown-menu">
+						<input type="hidden" id="lang" name="lang">
+						<button class="dropdown-item" type="button"
+							onclick="$('#lang').val('ja');$('#fomLang').submit();">[[#{label.lang.ja}]]</button>
+						<button class="dropdown-item" type="button"
+							onclick="$('#lang').val('en');$('#fomLang').submit();">[[#{label.lang.en}]]</button>
+					</div>
+				</div>
+			</form>
+			<a th:if="${sign}" class="btn btn-success text-none-sm ml-3"
+				style="width: 120px;" th:href="@{/auth/signin}" role="button"><i
+				class="fas fa-user"></i><span>&nbsp;[[#{label.login}]]</span></a>
+		</nav>
+	</header>
+</body>
+</html>

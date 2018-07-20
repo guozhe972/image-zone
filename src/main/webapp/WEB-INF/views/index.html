@@ -1,0 +1,107 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>Top</title>
+<meta name="description" content="写真販売｜カメラマン｜株式会社XXXX">
+<style>
+@media ( max-width : 767px) {
+	div.media>img {
+		width: 25%;
+		height: 25%;
+	}
+}
+</style>
+</head>
+<body layout:fragment="body" class="pt-header pb-footer">
+	<header layout:replace="~{layout/parts/header::header(true, true)}"></header>
+	<div class="jumbotron rounded-0">
+		<div class="container">
+			<h1 class="display-4">[[#{label.welcome}]]</h1>
+			<p>This is a template for a simple marketing or informational
+				website. It includes a large callout called a jumbotron and three
+				supporting pieces of content. Use it as a starting point to create
+				something more unique.</p>
+			<p>
+				<a class="btn btn-primary btn-lg" th:href="@{/signup/input}"
+					role="button" style="width: 200px;">[[#{label.signup}]]</a>
+			</p>
+		</div>
+	</div>
+	<div class="container bg-main pb-3">
+		<div class="media">
+			<img class="align-self-start mr-3" th:src="@{/images/step1.png}"
+				alt="Step 1">
+			<div class="media-body">
+				<h4 class="mt-0">Upload photo</h4>
+				<ol class="pl-3">
+					<li class="mb-2">Cras sit amet nibh libero, in gravida nulla.
+						Nulla vel metus scelerisque ante sollicitudin. Cras purus odio,
+						vestibulum in vulputate at, tempus viverra turpis. Fusce
+						condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue
+						felis in faucibus.</li>
+					<li class="mb-2">Donec sed odio dui. Nullam quis risus eget
+						urna mollis ornare vel eu leo. Cum sociis natoque penatibus et
+						magnis dis parturient montes, nascetur ridiculus mus.</li>
+				</ol>
+			</div>
+		</div>
+		<hr>
+		<div class="media">
+			<img class="align-self-start mr-3" th:src="@{/images/step2.png}"
+				alt="Step 2">
+			<div class="media-body">
+				<h4 class="mt-0">Set price</h4>
+				<ol class="pl-3">
+					<li class="mb-2">Cras sit amet nibh libero, in gravida nulla.
+						Nulla vel metus scelerisque ante sollicitudin. Cras purus odio,
+						vestibulum in vulputate at, tempus viverra turpis. Fusce
+						condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue
+						felis in faucibus.</li>
+					<li class="mb-2">Donec sed odio dui. Nullam quis risus eget
+						urna mollis ornare vel eu leo. Cum sociis natoque penatibus et
+						magnis dis parturient montes, nascetur ridiculus mus.</li>
+				</ol>
+			</div>
+		</div>
+		<hr>
+		<div class="media">
+			<img class="align-self-start mr-3" th:src="@{/images/step3.png}"
+				alt="Step 3">
+			<div class="media-body">
+				<h4 class="mt-0">Publish folder</h4>
+				<ol class="pl-3">
+					<li class="mb-2">Cras sit amet nibh libero, in gravida nulla.
+						Nulla vel metus scelerisque ante sollicitudin. Cras purus odio,
+						vestibulum in vulputate at, tempus viverra turpis. Fusce
+						condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue
+						felis in faucibus.</li>
+					<li class="mb-2">Donec sed odio dui. Nullam quis risus eget
+						urna mollis ornare vel eu leo. Cum sociis natoque penatibus et
+						magnis dis parturient montes, nascetur ridiculus mus.</li>
+				</ol>
+			</div>
+		</div>
+		<hr>
+		<div class="media">
+			<img class="align-self-start mr-3" th:src="@{/images/step4.png}"
+				alt="Step 4">
+			<div class="media-body">
+				<h4 class="mt-0">Make money</h4>
+				<ol class="pl-3">
+					<li class="mb-2">Cras sit amet nibh libero, in gravida nulla.
+						Nulla vel metus scelerisque ante sollicitudin. Cras purus odio,
+						vestibulum in vulputate at, tempus viverra turpis. Fusce
+						condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue
+						felis in faucibus.</li>
+					<li class="mb-2">Donec sed odio dui. Nullam quis risus eget
+						urna mollis ornare vel eu leo. Cum sociis natoque penatibus et
+						magnis dis parturient montes, nascetur ridiculus mus.</li>
+				</ol>
+			</div>
+		</div>
+	</div>
+	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
+</body>
+</html>

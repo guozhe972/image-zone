@@ -1,0 +1,195 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>user home</title>
+<style>
+label.custom-file-label::after {
+	content: "[(#{input.file.button})]";
+}
+</style>
+<script>
+	$(function() {
+		function resetFile(obj) {
+			$(obj).val('');
+			$(obj).next('label.custom-file-label').text(
+					'[(#{input.file.content})]');
+		}
+
+		function checkFile(obj) {
+			if (obj.files.length == 0)
+				return false;
+
+			var size = 0;
+			for (var i = 0; i < obj.files.length; i++) {
+				size += obj.files[i].size;
+				if (!/.+(\.zip|\.jpg|\.jpeg)$/.test(obj.files[i].name
+						.toLowerCase()))
+					return false;
+			}
+
+			if (size > Number('[(${@applicationProperties.getProperty("upload.file.size")})]'))
+				return false;
+
+			return true;
+		}
+
+		$(':file.custom-file-input').change(
+				function() {
+					var files = [];
+					$.each($(this).get(0).files, function(idx, val) {
+						files.push(val.name);
+					});
+					if (files.length == 0) {
+						$(this).next('label.custom-file-label').text(
+								'[(#{input.file.content})]');
+					} else {
+						$(this).next('label.custom-file-label').text(
+								files.join(', '));
+					}
+				});
+
+		$('form[data-type="upload"]').submit(function(event) {
+			event.preventDefault();
+			if (!window.FormData) {
+				resetFile(files);
+				var errors = [ 'アップロードできない環境です' ];
+				showAlertError(errors);
+				return;
+			}
+
+			var form = $(this).get(0);
+			var files = $(form).find(':file').get(0);
+			if (!checkFile(files)) {
+				resetFile(files);
+				var errors = [ '[(#{message.upload.error})]' ];
+				showAlertError(errors);
+				return;
+			}
+
+			var ajaxReq = $.ajax({
+				url : '[(@{/user/upload})]',
+				method : 'POST',
+				cache : false,
+				data : new FormData(form),
+				contentType : false,
+				processData : false,
+				dataType : 'json',
+				beforeSend : function(xhr) {
+					$('.progress-bar').text('');
+					$('.progress-bar').css('width', '0%');
+					$('#mdlUpload').modal('show');
+				},
+				xhr : function() {
+					var xhr = $.ajaxSettings.xhr();
+					xhr.upload.onprogress = function(e) {
+						var perc = Math.round((e.loaded / e.total) * 100);
+						$('.progress-bar').text(perc + '%');
+						$('.progress-bar').css('width', perc + '%');
+					};
+					return xhr;
+				}
+			});
+			ajaxReq.done(function(data) {
+				// do nothing
+			});
+			ajaxReq.fail(function(jqXHR) {
+				var errors = [];
+				if (jqXHR.status == 400) {
+					$.each(jqXHR.responseJSON.errors, function(idx, val) {
+						errors.push(val);
+					});
+				} else {
+					errors.push('[(#{message.upload.error})]');
+				}
+				showAlertError(errors);
+			});
+			ajaxReq.always(function() {
+				resetFile(files);
+				$('#mdlUpload').modal('hide');
+			});
+		});
+
+	});
+</script>
+</head>
+<body layout:fragment="body" class="pt-header">
+	<header layout:insert="~{layout/parts/navbar::user(0)}"
+		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<th:block layout:replace="~{layout/parts/dialog::progress}" />
+	<div class="container bg-main pt-3">
+
+		<th:block layout:replace="~{layout/parts/alert::error}" />
+
+		<th:block th:each="form,stat : ${folders}">
+			<form data-type="upload" class="mw-form mx-auto"
+				th:action="@{/user/upload}" method="post" th:object="${form}"
+				enctype="multipart/form-data">
+				<div class="form-group">
+					<label th:for="${#ids.next('seq')}"
+						th:text="*{name}?:|#{label.folder} *{seq}|"></label> <input
+						type="hidden" th:id="${#ids.seq('seq')}" name="seq"
+						th:value="*{seq}" />
+					<div class="custom-file">
+						<input type="file" class="custom-file-input"
+							th:id="${#ids.seq('files')}" name="files"
+							accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
+							multiple required> <label th:for="${#ids.prev('files')}"
+							class="custom-file-label text-truncate"
+							th:text="#{input.file.content}"></label>
+					</div>
+				</div>
+				<div class="form-group d-xs-flex justify-content-around">
+					<button type="submit" class="btn btn-primary text-none-sm">
+						<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
+					</button>
+					<button type="button" class="btn btn-danger text-none-sm ml-3"
+						data-toggle="modal" data-target="#mdlClear"
+						th:onclick="|$('#folder').val(*{seq});|">
+						<i class="fas fa-trash-alt"></i><span>&nbsp;初期化</span>
+					</button>
+					<button type="button" class="btn btn-success text-none-sm ml-3">
+						<i class="fas fa-share-alt"></i><span>&nbsp;公開</span>
+					</button>
+					<a class="btn btn-primary text-none-sm ml-3"
+						th:href="@{|/user/folder/*{seq}|}" role="button"> <i
+						class="far fa-eye"></i><span>&nbsp;確認</span>
+					</a>
+				</div>
+			</form>
+			<hr th:unless="${stat.last}">
+		</th:block>
+
+		<form id="fomClear" class="mw-form mx-auto" th:action="@{/user/clear}"
+			method="post">
+			<input type="hidden" id="folder" name="folder" />
+			<div id="mdlClear" class="modal fade" tabindex="-1" role="dialog"
+				data-backdrop="static" data-keyboard="false">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">確認</h5>
+							<button type="button" class="close" data-dismiss="modal">
+								<span>&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<p>初期化しますか。</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary"
+								data-dismiss="modal">いいえ</button>
+							<button type="submit" class="btn btn-primary"
+								onclick="$('#fomClear').submit();">はい</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+
+	</div>
+</body>
+</html>

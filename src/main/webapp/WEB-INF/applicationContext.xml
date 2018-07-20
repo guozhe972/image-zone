@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:sec="http://www.springframework.org/schema/security"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-4.3.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security-4.2.xsd
+        http://mybatis.org/schema/mybatis-spring
+        http://mybatis.org/schema/mybatis-spring.xsd
+        ">
+
+	<mvc:resources mapping="/css/**" location="/WEB-INF/css/" />
+	<mvc:resources mapping="/webfonts/**"
+		location="/WEB-INF/webfonts/" />
+	<mvc:resources mapping="/js/**" location="/WEB-INF/js/" />
+	<mvc:resources mapping="/images/**"
+		location="/WEB-INF/images/" />
+	<mvc:resources mapping="/upload/**"
+		location="file:/apl/imgz/upload/" />
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="i18n/messages" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+		<property name="defaultLocale" value="ja" />
+	</bean>
+
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<bean
+				class="org.springframework.http.converter.StringHttpMessageConverter">
+				<constructor-arg value="UTF-8" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<task:annotation-driven executor="taskExecutor" />
+	<task:executor id="taskExecutor" pool-size="10"
+		queue-capacity="30" keep-alive="60" />
+
+	<context:annotation-config />
+	<context:component-scan
+		base-package="com.cncsys.imgz.controller" />
+	<context:component-scan
+		base-package="com.cncsys.imgz.service" />
+	<context:component-scan
+		base-package="com.cncsys.imgz.helper" />
+	<context:property-placeholder
+		location="classpath:application.properties" />
+	<bean id="applicationProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:application.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="templateResolver"
+		class="org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver">
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".html" />
+		<property name="templateMode" value="HTML" />
+		<property name="cacheable" value="false" />
+	</bean>
+	<bean id="templateEngine"
+		class="org.thymeleaf.spring4.SpringTemplateEngine">
+		<property name="templateResolver" ref="templateResolver" />
+		<property name="additionalDialects">
+			<set>
+				<bean
+					class="org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect" />
+				<bean class="nz.net.ultraq.thymeleaf.LayoutDialect" />
+			</set>
+		</property>
+	</bean>
+	<bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">
+		<property name="templateEngine" ref="templateEngine" />
+		<property name="characterEncoding" value="UTF-8" />
+	</bean>
+
+
+	<bean id="dataSource"
+		class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/imgzone" />
+	</bean>
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<tx:annotation-driven />
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage"
+			value="com.cncsys.imgz.entity" />
+		<property name="typeHandlers">
+			<list>
+				<bean class="com.cncsys.imgz.handler.LocalDateTypeHandler" />
+				<bean class="com.cncsys.imgz.handler.DateTimeTypeHandler" />
+			</list>
+		</property>
+		<property name="mapperLocations"
+			value="classpath:mappers/*.xml" />
+	</bean>
+	<mybatis:scan base-package="com.cncsys.imgz.mapper" />
+
+	<bean id="filterMultipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="${upload.file.size}" />
+		<property name="uploadTempDir" ref="uploadTempDirResource" />
+	</bean>
+	<bean id="uploadTempDirResource"
+		class="org.springframework.core.io.FileSystemResource">
+		<constructor-arg value="${upload.file.path}/tmp" />
+	</bean>
+
+	<bean
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetClass"
+			value="org.springframework.security.core.context.SecurityContextHolder" />
+		<property name="targetMethod" value="setStrategyName" />
+		<property name="arguments"
+			value="MODE_INHERITABLETHREADLOCAL" />
+	</bean>
+	<sec:http pattern="/css/**" security="none" />
+	<sec:http pattern="/webfonts/**" security="none" />
+	<sec:http pattern="/js/**" security="none" />
+	<sec:http pattern="/images/**" security="none" />
+	<bean id="authenticationSuccessHandler"
+		class="com.cncsys.imgz.handler.AuthenticationSuccessHandlerImpl" />
+	<sec:http>
+		<sec:intercept-url pattern="/" access="permitAll" />
+		<sec:intercept-url pattern="/system/**"
+			access="permitAll" />
+		<sec:intercept-url pattern="/signup/**"
+			access="permitAll" />
+		<sec:intercept-url pattern="/auth/**"
+			access="permitAll" />
+		<sec:intercept-url pattern="/admin/**"
+			access="hasAuthority('ADMIN')" />
+		<sec:intercept-url pattern="/user/**"
+			access="hasAuthority('USER')" />
+		<sec:intercept-url pattern="/guest/**"
+			access="hasAuthority('GUEST')" />
+		<sec:intercept-url pattern="/**"
+			access="isAuthenticated()" />
+		<sec:form-login login-page="/auth/signin"
+			username-parameter="usernm" password-parameter="passwd"
+			login-processing-url="/login"
+			authentication-success-handler-ref="authenticationSuccessHandler"
+			authentication-failure-url="/auth/signin?error" />
+		<sec:logout logout-url="/logout" logout-success-url="/"
+			invalidate-session="true" />
+		<sec:anonymous granted-authority="NONE" />
+		<sec:session-management>
+			<sec:concurrency-control max-sessions="-1" />
+		</sec:session-management>
+	</sec:http>
+	<bean id="userDetailsService"
+		class="com.cncsys.imgz.service.UserDetailsServiceImpl" />
+	<bean id="passwordEncoder"
+		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+	<sec:authentication-manager>
+		<sec:authentication-provider
+			user-service-ref="userDetailsService">
+			<sec:password-encoder ref="passwordEncoder" />
+		</sec:authentication-provider>
+	</sec:authentication-manager>
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/" />
+			<mvc:mapping path="/signup/*" />
+			<mvc:mapping path="/auth/*" />
+			<bean class="com.cncsys.imgz.handler.LoggedInUserHandler" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+
+	<bean id="mailSender"
+		class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="protocol" value="smtp" />
+		<property name="host" value="${email.host}" />
+		<property name="port" value="${email.port}" />
+		<!-- <property name="username" value="user" /> <property name="password"
+			value="1234" /> <property name="javaMailProperties"> <props> <prop key="mail.smtp.auth">true</prop>
+			<prop key="mail.smtp.starttls.enable">true</prop> </props> </property> -->
+	</bean>
+
+</beans>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+	<div layout:fragment="error" id="altError"
+		class="alert alert-danger alert-dismissible fade show"
+		th:style="${#lists.isEmpty(errors)}? 'display: none;'" role="alert">
+		<button type="button" class="close"
+			onclick="$('#altError').fadeOut(300);">&times;</button>
+		<div>
+			<div th:each="msg : ${errors}" th:text="${msg}"></div>
+		</div>
+	</div>
+
+	<div layout:fragment="info" id="altInfo"
+		class="alert alert-success alert-dismissible fade show"
+		th:style="${#lists.isEmpty(infos)}? 'display: none;'" role="alert">
+		<button type="button" class="close"
+			onclick="$('#altInfo').fadeOut(300);">&times;</button>
+		<div>
+			<div th:each="msg : ${infos}" th:text="${msg}"></div>
+		</div>
+	</div>
+
+	<div layout:fragment="warn" id="altWarn"
+		class="alert alert-warning alert-dismissible fade show"
+		th:style="${#lists.isEmpty(warns)}? 'display: none;'" role="alert">
+		<button type="button" class="close"
+			onclick="$('#altWarn').fadeOut(300);">&times;</button>
+		<div>
+			<div th:each="msg : ${warns}" th:text="${msg}"></div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>[[#{title.signup}]]</title>
+<script>
+	$(function() {
+		const check = '<i class="fas fa-check-circle text-success"></i>';
+		const times = '<i class="fas fa-times-circle text-danger"></i>';
+
+		$('[data-toggle="tooltip"]').tooltip();
+		//$('#username').tooltip();
+		//$('#password').tooltip();
+
+		$('#username').on('input', function(){
+			checkUsername($(this).val());
+		});
+		function checkUsername(name) {
+			var label = $('label[for="username"]');
+			label.children('i').remove();
+			if (name.length == 0)
+				return false;
+
+			if (name.length >= 4 && name.length <= 16
+					&& /^[a-zA-Z0-9]+[a-zA-Z0-9_\-\.]*$/.test(name)) {
+				label.append(check);
+				return true;
+			}
+
+			label.append(times);
+			return false;
+		}
+
+		/*
+		$('#username').change(function() {
+			if (checkUsername($(this).val())) {
+				var label = $('label[for="username"]');
+				var name = $(this).val();
+
+				$.ajax({
+					url : '[(@{/signup/check})]',
+					method : 'POST',
+					headers : {
+						'[(${_csrf.headerName})]' : '[(${_csrf.token})]'
+					},
+					cache : false,
+					timeout : 10000,
+					contentType : "application/json",
+					data : JSON.stringify({
+						username : name
+					})
+				}).done(function(data, textStatus, jqXHR) {
+					if (data == 'true') {
+						label.children('i').remove();
+						label.append(times);
+					}
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					// do nothing
+				});
+			}
+		});
+		 */
+
+		$('#password').on('input', function(){
+			checkPassword($(this).val());
+			confirmPassword($(this).val(), $('#confirm').val());
+		});
+		function checkPassword(password) {
+			var label = $('label[for="password"]');
+			label.children('i').remove();
+			if (password.length == 0)
+				return;
+
+			var strength = 0;
+			if (password.length >= 4 && password.length <= 16
+					&& /^[\u0020-\u007e]+$/.test(password)) {
+				if (/[a-zA-Z]+/.test(password))
+					strength++;
+				if (/[0-9]+/.test(password))
+					strength++;
+			}
+
+			if (strength == 2) {
+				label.append(check);
+			} else {
+				label.append(times);
+			}
+		}
+
+		$('#confirm').on('input', function(){
+			confirmPassword($('#password').val(), $(this).val());
+		});
+		function confirmPassword(password, confirm) {
+			var label = $('label[for="confirm"]');
+			label.children('i').remove();
+			if (confirm.length == 0)
+				return;
+
+			if (password == confirm) {
+				label.append(check);
+			} else {
+				label.append(times);
+			}
+		}
+	});
+</script>
+</head>
+<body layout:fragment="body"
+	class="pt-header pb-footer d-flex align-items-center">
+	<header layout:replace="~{layout/parts/header::header(true, true)}"></header>
+	<div class="container bg-main">
+		<form class="mw-form mx-auto pt-3" th:action="@{/signup/mail}"
+			th:object="${signupForm}" method="post" autocomplete="off">
+			<h4>[[#{label.signup}]]</h4>
+			<hr>
+			<div th:if="${#fields.hasErrors('code')}"
+				class="alert alert-danger alert-dismissible fade show" role="alert">
+				<div th:each="err : ${#fields.errors('code')}" th:text="${err}">code
+					error</div>
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+			<div class="form-group row">
+				<label for="username" class="col-sm-4 col-form-label text-sm-right">ユーザー名</label>
+				<div class="col-sm-8">
+					<input type="text" th:field="*{username}" class="form-control"
+						data-toggle="tooltip" data-trigger="focus" data-html="true"
+						data-placement="bottom" th:title="#{tooltip.signup.username}"
+						th:errorclass="is-invalid" maxlength="16" placeholder="" required
+						autofocus>
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('username')}" th:errors="*{username}">username
+						error</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="email" class="col-sm-4 col-form-label text-sm-right">メールアドレス</label>
+				<div class="col-sm-8">
+					<input type="email" th:field="*{email}" class="form-control"
+						th:errorclass="is-invalid" placeholder="" required>
+					<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+						th:errors="*{email}">email error</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="password" class="col-sm-4 col-form-label text-sm-right">パスワード<span
+					id="result"></span></label>
+				<div class="col-sm-8">
+					<input type="password" th:field="*{password}" class="form-control"
+						data-toggle="tooltip" data-trigger="focus" data-html="true"
+						data-placement="bottom" th:title="#{tooltip.signup.password}"
+						th:errorclass="is-invalid" maxlength="16" placeholder="" required>
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password
+						error</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="confirm" class="col-sm-4 col-form-label text-sm-right">パスワード確認</label>
+				<div class="col-sm-8">
+					<input type="password" th:field="*{confirm}" class="form-control"
+						th:errorclass="is-invalid" maxlength="16" placeholder="" required>
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('confirm')}" th:errors="*{confirm}">confirm
+						error</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="offset-sm-4 col-sm-8">
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" id="chkAccept"
+							th:checked="false"
+							onchange="$('#btnRegister').prop('disabled', !$(this).prop('checked'));">
+						<label class="form-check-label" for="chkAccept">I accept
+							the terms and conditions. </label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="offset-sm-4 col-sm-8">
+					<button id="btnRegister" type="submit"
+						class="btn btn-primary btn-block-sm" style="width: 150px;"
+						disabled>登録</button>
+					<small class="form-text text-muted">You will receive an
+						email to complete the registration and validation process. Be sure
+						to check your spam folders. </small>
+				</div>
+			</div>
+		</form>
+	</div>
+	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
+</body>
+</html>

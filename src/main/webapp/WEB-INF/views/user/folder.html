@@ -1,0 +1,65 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>user folder</title>
+</head>
+<body layout:fragment="body" class="pt-header">
+	<header layout:insert="~{layout/parts/navbar::user(-1)}"
+		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<div class="container-fluid bg-main pt-3">
+
+		<div class="row justify-content-between">
+			<div class="col-6">
+				<a class="btn btn-success" th:href="@{/user/home}" role="button"><i
+					class="fas fa-arrow-left"></i><span>&nbsp;戻る</span></a>
+			</div>
+			<div class="col-6 text-right">
+				<button type="button" class="btn btn-success">一括金額設定</button>
+			</div>
+		</div>
+
+		<hr class="mb-0">
+
+		<div class="row pr-3">
+
+			<div th:each="form,stat : ${photos}" th:object="${form}"
+				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pt-3 pr-0">
+				<div class="card img-thumbnail pb-0">
+					<img class="card-img-top img-fluid" th:src="@{|/upload/*{link}|}"
+						alt="thumbnail">
+					<div class="card-footer p-1 bg-white">
+						<div th:id="|altInfo${stat.count}|"
+							class="alert alert-success alert-dismissible mb-1 py-2 fade show"
+							style="display: none;" role="alert">
+							<button type="button" class="close py-2"
+								th:onclick="|$('#altInfo${stat.count}').fadeOut(300);|">&times;</button>
+							<div>
+								<div>
+									<small>設定完了</small>
+								</div>
+							</div>
+						</div>
+						<div class="input-group input-group-sm">
+							<div class="input-group-prepend">
+								<span class="input-group-text font-weight-bold"
+									id="inputGroup-sizing-sm">￥</span>
+							</div>
+							<input type="number" th:id="${#ids.seq('price')}" name="price"
+								class="form-control text-right num-only" th:value="*{price}">
+							<div class="input-group-append">
+								<button type="button" class="btn btn-primary btn-sm"
+									th:onclick="|$('#altInfo${stat.count}').fadeIn(150);|">確定</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>

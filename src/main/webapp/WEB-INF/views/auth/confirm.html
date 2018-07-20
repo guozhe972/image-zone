@@ -1,0 +1,44 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>confirm</title>
+</head>
+<body layout:fragment="body"
+	class="pt-header pb-footer d-flex align-items-center">
+	<header layout:replace="~{layout/parts/header::header(false, false)}"></header>
+	<div class="container bg-main pb-5">
+		<form class="mw-form mx-auto pt-3" th:action="@{/signup/register}"
+			th:object="${signupForm}" method="post">
+			<h4>[[#{label.confirm}]]</h4>
+			<hr>
+			<div class="form-group row">
+				<label for="username" class="col-sm-4 col-form-label text-sm-right">ユーザー名</label>
+				<div class="col-sm-8">
+					<input type="text" th:field="*{username}" class="form-control"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="email" class="col-sm-4 col-form-label text-sm-right">メールアドレス</label>
+				<div class="col-sm-8">
+					<input type="email" th:field="*{email}" class="form-control"
+						readonly>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="username" class="col-sm-4 col-form-label text-sm-right">確認コード</label>
+				<div class="col-sm-8 input-group">
+					<input type="text" th:field="*{code}" class="form-control"
+						placeholder="" maxlength="6" required autofocus>
+					<div class="input-group-append">
+						<button type="submit" class="btn btn-primary"
+							style="width: 100px;">確認</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

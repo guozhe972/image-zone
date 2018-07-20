@@ -1,0 +1,78 @@
+body {
+	min-height: 100vh;
+	height: 100%;
+}
+
+footer {
+	width: 100%;
+	height: auto;
+	line-height: 30px;
+}
+
+.pt-header {
+	padding-top: 56px;
+}
+
+.pb-footer {
+	padding-bottom: 60px;
+}
+
+.bg-main {
+	background-color: #ffffff;
+}
+
+.bg-header {
+	background-color: #2c3e50;
+}
+
+.bg-footer {
+	background-color: #dee2e6;
+}
+
+.mw-form {
+	max-width: 580px;
+}
+
+@media ( max-width : 575px) {
+	.text-none-sm {
+		width: auto !important;
+	}
+	.text-none-sm>span {
+		display: none;
+	}
+	.btn-block-sm {
+		display: block !important;
+		width: 100% !important;
+	}
+	.d-xs-flex {
+		display: -ms-flexbox !important;
+		display: flex !important;
+	}
+}
+
+@media ( max-width : 767px) {
+	.text-none-md {
+		width: auto !important;
+	}
+	.text-none-md>span {
+		display: none;
+	}
+	.offcanvas-collapse {
+		position: fixed;
+		top: 56px;
+		bottom: 0;
+		right: 100%;
+		width: 100%;
+		padding-right: 1rem;
+		padding-left: 1rem;
+		overflow-y: auto;
+		background-color: #343a40;
+		transition-timing-function: ease-in-out;
+		transition-duration: .3s;
+		transition-property: right, visibility;
+	}
+	.offcanvas-collapse.open {
+		right: 0;
+		visibility: visible;
+	}
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cncsys.imgz.mapper.FolderMapper">
+
+	<select id="selectFolderListByUser" resultType="FolderEntity">
+		select username, seq, name, status, guest, expiredt
+		from folder
+		where
+		username = #{username}
+	</select>
+
+	<select id="selectOneFolderByUser" resultType="FolderEntity">
+		select username, seq, name, status, guest, expiredt
+		from folder
+		where
+		username = #{username} and seq = #{seq}
+	</select>
+
+	<insert id="createFolder">
+		insert into folder (username, status)
+		values (#{username}, #{status})
+	</insert>
+
+</mapper>

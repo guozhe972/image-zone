@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE xml>
+<Context>
+	<Resource name="jdbc/imgzone" auth="Container"
+		type="javax.sql.DataSource"
+		factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+		driverClassName="org.postgresql.Driver"
+		url="jdbc:postgresql://localhost:5432/imgzone?currentSchema=public"
+		username="postgres" password="p@ssword" defaultAutoCommit="false"
+		initialSize="10" maxActive="30" maxIdle="20" maxWait="30000"
+		validationQuery="SELECT 1" />
+</Context>
