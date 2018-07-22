@@ -44,10 +44,6 @@ footer {
 		display: block !important;
 		width: 100% !important;
 	}
-	.d-xs-flex {
-		display: -ms-flexbox !important;
-		display: flex !important;
-	}
 }
 
 @media ( max-width : 767px) {

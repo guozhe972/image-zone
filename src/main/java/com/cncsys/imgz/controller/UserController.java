@@ -33,12 +33,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cncsys.imgz.entity.FolderEntity;
+import com.cncsys.imgz.entity.PhotoEntity;
+import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.model.FolderForm;
 import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
 import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.FolderService;
+import com.cncsys.imgz.service.PhotoService;
 
 @Controller
 @RequestMapping("/user")
@@ -47,14 +50,23 @@ public class UserController {
 	@Value("${upload.file.path}")
 	private String UPLOAD_PATH;
 
+	@Value("${upload.file.original}")
+	private String ORIGINAL_PATH;
+
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private FileHelper fileHelper;
 
 	@Autowired
 	private AsyncService asyncService;
 
 	@Autowired
 	private FolderService folderService;
+
+	@Autowired
+	private PhotoService photoService;
 
 	@Autowired
 	private FolderValidator uploadValidator;
@@ -108,18 +120,17 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		File tempPath = new File(UPLOAD_PATH + File.separator + user.getUsername());
-		if (!tempPath.exists()) {
-			tempPath.mkdirs();
-		}
+		String tempPath = UPLOAD_PATH + "/" +
+				user.getUsername() + "/" + form.getSeq() + "/" + "temp";
+		fileHelper.createDirectory(tempPath);
 
 		int cnt = 1;
 		String uuid = UUID.randomUUID().toString();
 		List<String> fileList = new ArrayList<String>();
 		for (MultipartFile file : form.getFiles()) {
 			String fileName = file.getOriginalFilename();
-			fileName = uuid + String.format("_%08d%s", cnt++, fileName.substring(fileName.lastIndexOf(".")));
-			String uploadFile = tempPath.getPath() + File.separator + fileName;
+			fileName = uuid + String.format("_%08d%s", cnt++, fileHelper.getExtension(fileName));
+			String uploadFile = tempPath + "/" + fileName;
 			try {
 				file.transferTo(new File(uploadFile));
 			} catch (IllegalStateException | IOException e) {
@@ -134,12 +145,8 @@ public class UserController {
 
 	@PostMapping("/clear")
 	public String clear(@RequestParam("folder") int folder, RedirectAttributes redirectAttributes) {
-
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
-
-		File folderPath = new File(
-				UPLOAD_PATH + File.separator + user.getUsername() + File.separator + String.valueOf(folder));
 
 		if (folder == 3) {
 			List<String> errors = new ArrayList<String>();
@@ -148,11 +155,20 @@ public class UserController {
 			errors.add("あいうえお error 3");
 			redirectAttributes.addFlashAttribute("errors", errors);
 		} else {
-			if (folderPath.exists()) {
-				for (File child : folderPath.listFiles()) {
-					child.delete();
+			photoService.clearFolder(user.getUsername(), folder);
+			File folderPath = new File(UPLOAD_PATH + "/" +
+					user.getUsername() + "/" + String.valueOf(folder));
+			fileHelper.delete(folderPath);
+
+			File originPath = new File(ORIGINAL_PATH + "/" +
+					user.getUsername() + "/" + String.valueOf(folder));
+			if (originPath.exists()) {
+				List<String> lstSold = new ArrayList<String>();
+				// TODO: 購入済みの写真リストを取得する
+				for (File child : originPath.listFiles()) {
+					if (!lstSold.contains(child.getName()))
+						child.delete();
 				}
-				folderPath.delete();
 			}
 		}
 
@@ -164,23 +180,44 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		File folderPath = new File(
-				UPLOAD_PATH + File.separator + user.getUsername() + File.separator + String.valueOf(seq));
-
 		List<PhotoForm> photos = new ArrayList<PhotoForm>();
+
+		File folderPath = new File(UPLOAD_PATH + "/" +
+				user.getUsername() + "/" + String.valueOf(seq));
 		if (folderPath.exists()) {
-			for (File image : folderPath.listFiles()) {
-				if (image.getName().startsWith("thumbnail_")) {
-					PhotoForm form = new PhotoForm();
-					form.setLink(user.getUsername() + "/" + String.valueOf(seq) + "/" + image.getName());
-					form.setPrice(200);
-					photos.add(form);
-				}
+			List<PhotoEntity> lstPhoto = photoService.selectPhotoByUser(user.getUsername(), seq);
+			for (PhotoEntity photo : lstPhoto) {
+				PhotoForm form = new PhotoForm();
+				form.setThumbnail(photo.getThumbnail());
+				form.setLink(user.getUsername() + "/" + String.valueOf(seq) + "/thumbnail_" + photo.getThumbnail());
+				form.setPrice(200);
+				photos.add(form);
 			}
 		}
 
 		model.addAttribute("photos", photos);
+		model.addAttribute("folder", seq);
 		return "/user/folder";
+	}
+
+	@PostMapping("/delete")
+	public ResponseEntity<String> delete(@RequestParam("folder") int folder,
+			@RequestParam("thumbnail") String thumbnail) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		String original = photoService.deletePhoto(user.getUsername(), folder, thumbnail);
+		String folderPath = UPLOAD_PATH + "/" +
+				user.getUsername() + "/" + String.valueOf(folder);
+		fileHelper.delete(new File(folderPath + "/" + "preview_" + thumbnail));
+		fileHelper.delete(new File(folderPath + "/" + "thumbnail_" + thumbnail));
+
+		// TODO: 該当写真が購入されている場合は削除しない
+		String originPath = ORIGINAL_PATH + "/" +
+				user.getUsername() + "/" + String.valueOf(folder);
+		fileHelper.delete(new File(originPath + "/" + original));
+
+		return ResponseEntity.ok().body("ok");
 	}
 
 }

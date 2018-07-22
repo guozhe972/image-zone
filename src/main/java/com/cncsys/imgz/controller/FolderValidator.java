@@ -35,7 +35,7 @@ public class FolderValidator implements SmartValidator {
 
 			for (MultipartFile file : form.getFiles()) {
 				if (file.isEmpty()) {
-					errors.rejectValue("files", "message.upload.error");
+					errors.rejectValue("files", "message.upload.none");
 					return;
 				}
 

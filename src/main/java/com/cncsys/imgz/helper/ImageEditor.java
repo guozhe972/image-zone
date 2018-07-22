@@ -58,13 +58,8 @@ public class ImageEditor {
 
 	public BufferedImage getThumbnail(BufferedImage source) throws IOException {
 		int sWidth, sHeight;
-//		if (source.getWidth() > source.getHeight()) {
-			sWidth = THUMBNAIL_SCALE;
-			sHeight = (int) ((double) sWidth * source.getHeight() / source.getWidth());
-//		} else {
-//			sHeight = THUMBNAIL_SCALE;
-//			sWidth = (int) ((double) sHeight * source.getWidth() / source.getHeight());
-//		}
+		sHeight = THUMBNAIL_SCALE;
+		sWidth = (int) ((double) sHeight * source.getWidth() / source.getHeight());
 
 		BufferedImage thumb = new BufferedImage(sWidth, sHeight, BufferedImage.TYPE_INT_RGB);
 		double xScale = (double) sWidth / source.getWidth();

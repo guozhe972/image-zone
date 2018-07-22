@@ -4,12 +4,39 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>user folder</title>
+<script>
+	var delTarget = 0;
+	$(function() {
+		$('#fomDelete').submit(function(event) {
+			event.preventDefault();
+			$('#mdlDelete').modal('hide');
+			var target = $('#photo' + delTarget);
+			$.ajax({
+				url : '[(@{/user/delete})]',
+				method : 'POST',
+				cache : false,
+				timeout : 10000,
+				data : $('#fomDelete').serialize(),
+				beforeSend : function() {
+					$('#mdlWaiting').modal('show');
+				}
+			}).done(function(data, textStatus, jqXHR) {
+				target.remove();
+			}).fail(function(jqXHR, textStatus, errorThrown) {
+				// do nothing
+			}).always(function() {
+				$('#mdlWaiting').modal('hide');
+			});
+		});
+	});
+</script>
 </head>
 <body layout:fragment="body" class="pt-header">
 	<header layout:insert="~{layout/parts/navbar::user(-1)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main pt-3">
 
 		<div class="row justify-content-between">
@@ -24,42 +51,54 @@
 
 		<hr class="mb-0">
 
-		<div class="row pr-3">
+		<div class="row pr-3 pb-3">
 
 			<div th:each="form,stat : ${photos}" th:object="${form}"
-				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pt-3 pr-0">
+				th:id="|photo${stat.count}|"
+				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card img-thumbnail pb-0">
-					<img class="card-img-top img-fluid" th:src="@{|/upload/*{link}|}"
-						alt="thumbnail">
-					<div class="card-footer p-1 bg-white">
-						<div th:id="|altInfo${stat.count}|"
-							class="alert alert-success alert-dismissible mb-1 py-2 fade show"
-							style="display: none;" role="alert">
-							<button type="button" class="close py-2"
-								th:onclick="|$('#altInfo${stat.count}').fadeOut(300);|">&times;</button>
-							<div>
-								<div>
-									<small>設定完了</small>
-								</div>
-							</div>
-						</div>
-						<div class="input-group input-group-sm">
-							<div class="input-group-prepend">
-								<span class="input-group-text font-weight-bold"
-									id="inputGroup-sizing-sm">￥</span>
-							</div>
-							<input type="number" th:id="${#ids.seq('price')}" name="price"
-								class="form-control text-right num-only" th:value="*{price}">
-							<div class="input-group-append">
-								<button type="button" class="btn btn-primary btn-sm"
-									th:onclick="|$('#altInfo${stat.count}').fadeIn(150);|">確定</button>
-							</div>
-						</div>
+					<div
+						class="card-body p-0 d-flex justify-content-center align-items-center"
+						style="height: 200px">
+						<img class="img-fluid" th:src="@{|/upload/*{link}|}"
+							alt="thumbnail">
+					</div>
+					<div class="card-footer py-1 px-0 bg-white">
+						<button type="button" class="btn btn-primary btn-sm float-left">金額</button>
+						<button type="button" class="btn btn-danger btn-sm float-right"
+							data-toggle="modal" data-target="#mdlDelete"
+							th:onclick="|delTarget=${stat.count};$('#thumbnail').val('*{thumbnail}');|">削除</button>
 					</div>
 				</div>
 			</div>
 
 		</div>
+
+		<form id="fomDelete" th:action="@{/user/delete}" method="post">
+			<input type="hidden" id="folder" name="folder" th:value="${folder}" />
+			<input type="hidden" id="thumbnail" name="thumbnail" />
+			<div id="mdlDelete" class="modal fade" tabindex="-1" role="dialog"
+				data-backdrop="static" data-keyboard="false">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title">確認</h5>
+							<button type="button" class="close" data-dismiss="modal">
+								<span>&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<p>削除しますか。</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary"
+								data-dismiss="modal">いいえ</button>
+							<button type="submit" class="btn btn-primary">はい</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
 	</div>
 </body>
 </html>

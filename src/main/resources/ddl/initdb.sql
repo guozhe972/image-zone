@@ -42,11 +42,13 @@ CREATE TRIGGER folder_insert
 CREATE TABLE photo
 (
     username varchar(100) NOT NULL,
-    seq int NOT NULL,
-    file varchar(100) NOT NULL,
+    folder int NOT NULL,
+    thumbnail varchar(100) NOT NULL,
+    original varchar(100) NOT NULL,
     price int NOT NULL,
+    shared boolean NOT NULL,
     createdt date NOT NULL,
-    CONSTRAINT photo_pkey PRIMARY KEY (username, seq, file)
+    CONSTRAINT photo_pkey PRIMARY KEY (username, folder, thumbnail)
 );
 
 

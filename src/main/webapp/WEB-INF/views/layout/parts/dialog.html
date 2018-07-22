@@ -22,6 +22,18 @@
 		</div>
 	</div>
 
+	<div layout:fragment="waiting" id="mdlWaiting" class="modal"
+		tabindex="-1" role="dialog" data-backdrop="static"
+		data-keyboard="false">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-body text-center">
+					<img th:src="@{/images/waiting.gif}" alt="waiting">
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div layout:fragment="logout" id="mdlLogout" class="modal fade"
 		tabindex="-1" role="dialog" data-backdrop="static"
 		data-keyboard="false">

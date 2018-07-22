@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cncsys.imgz.mapper.PhotoMapper">
+
+	<select id="selectPhotoByUser" resultType="PhotoEntity">
+		select username, folder, thumbnail, original, price, shared, createdt
+		from photo
+		where
+		username = #{username} and folder = #{folder}
+	</select>
+
+	<insert id="insertPhotos" parameterType="java.util.List">
+		insert into photo (username, folder, thumbnail, original, price,
+		shared, createdt) values
+		<foreach item="item" collection="list" separator=",">
+			(#{item.username}, #{item.folder}, #{item.thumbnail},
+			#{item.original}, #{item.price}, #{item.shared}, #{item.createdt})
+		</foreach>
+	</insert>
+
+	<select id="deletePhoto" resultType="String">
+		delete from photo where username = #{username} and
+		folder = #{folder} and thumbnail = #{thumbnail}
+		returning original
+	</select>
+
+	<delete id="clearFolder">
+		delete from photo where username = #{username} and
+		folder = #{folder}
+	</delete>
+
+</mapper>

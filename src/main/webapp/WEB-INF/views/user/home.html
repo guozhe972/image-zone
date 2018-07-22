@@ -18,9 +18,6 @@ label.custom-file-label::after {
 		}
 
 		function checkFile(obj) {
-			if (obj.files.length == 0)
-				return false;
-
 			var size = 0;
 			for (var i = 0; i < obj.files.length; i++) {
 				size += obj.files[i].size;
@@ -52,17 +49,25 @@ label.custom-file-label::after {
 
 		$('form[data-type="upload"]').submit(function(event) {
 			event.preventDefault();
+			var form = $(this).get(0);
+			var selFiles = $(form).find(':file').get(0);
+
 			if (!window.FormData) {
-				resetFile(files);
+				resetFile(selFiles);
 				var errors = [ 'アップロードできない環境です' ];
 				showAlertError(errors);
 				return;
 			}
 
-			var form = $(this).get(0);
-			var files = $(form).find(':file').get(0);
-			if (!checkFile(files)) {
-				resetFile(files);
+			if (selFiles.files.length == 0) {
+				resetFile(selFiles);
+				var errors = [ '[(#{message.upload.none})]' ];
+				showAlertError(errors);
+				return;
+			}
+
+			if (!checkFile(selFiles)) {
+				resetFile(selFiles);
 				var errors = [ '[(#{message.upload.error})]' ];
 				showAlertError(errors);
 				return;
@@ -106,7 +111,7 @@ label.custom-file-label::after {
 				showAlertError(errors);
 			});
 			ajaxReq.always(function() {
-				resetFile(files);
+				resetFile(selFiles);
 				$('#mdlUpload').modal('hide');
 			});
 		});
@@ -142,19 +147,20 @@ label.custom-file-label::after {
 							th:text="#{input.file.content}"></label>
 					</div>
 				</div>
-				<div class="form-group d-xs-flex justify-content-around">
+				<div
+					class="form-group d-flex justify-content-between justify-content-sm-start">
 					<button type="submit" class="btn btn-primary text-none-sm">
 						<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
 					</button>
-					<button type="button" class="btn btn-danger text-none-sm ml-3"
+					<button type="button" class="btn btn-danger text-none-sm ml-sm-3"
 						data-toggle="modal" data-target="#mdlClear"
 						th:onclick="|$('#folder').val(*{seq});|">
 						<i class="fas fa-trash-alt"></i><span>&nbsp;初期化</span>
 					</button>
-					<button type="button" class="btn btn-success text-none-sm ml-3">
+					<button type="button" class="btn btn-success text-none-sm ml-sm-3">
 						<i class="fas fa-share-alt"></i><span>&nbsp;公開</span>
 					</button>
-					<a class="btn btn-primary text-none-sm ml-3"
+					<a class="btn btn-primary text-none-sm ml-sm-3"
 						th:href="@{|/user/folder/*{seq}|}" role="button"> <i
 						class="far fa-eye"></i><span>&nbsp;確認</span>
 					</a>
@@ -163,8 +169,7 @@ label.custom-file-label::after {
 			<hr th:unless="${stat.last}">
 		</th:block>
 
-		<form id="fomClear" class="mw-form mx-auto" th:action="@{/user/clear}"
-			method="post">
+		<form class="mw-form mx-auto" th:action="@{/user/clear}" method="post">
 			<input type="hidden" id="folder" name="folder" />
 			<div id="mdlClear" class="modal fade" tabindex="-1" role="dialog"
 				data-backdrop="static" data-keyboard="false">
@@ -182,8 +187,7 @@ label.custom-file-label::after {
 						<div class="modal-footer">
 							<button type="button" class="btn btn-secondary"
 								data-dismiss="modal">いいえ</button>
-							<button type="submit" class="btn btn-primary"
-								onclick="$('#fomClear').submit();">はい</button>
+							<button type="submit" class="btn btn-primary">はい</button>
 						</div>
 					</div>
 				</div>
