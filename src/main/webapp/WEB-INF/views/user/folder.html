@@ -4,24 +4,60 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>user folder</title>
+<style>
+button:disabled {
+	color: #fff !important;
+	background-color: #6c757d !important;
+	border-color: #6c757d !important;
+}
+</style>
 <script>
-	var delTarget = 0;
+	var target = 0;
+	var process = '';
 	$(function() {
-		$('#fomDelete').submit(function(event) {
+		$('#fomSubmit').submit(function(event) {
 			event.preventDefault();
-			$('#mdlDelete').modal('hide');
-			var target = $('#photo' + delTarget);
+			var action = '';
+			switch (process) {
+			case 'price':
+				$('#mdlPrice').modal('hide');
+				action = '[(@{/user/price})]';
+				break;
+			case 'share':
+				$('#mdlShare').modal('hide');
+				action = '[(@{/user/share})]';
+				break;
+			case 'delete':
+				$('#mdlDelete').modal('hide');
+				action = '[(@{/user/delete})]';
+				break;
+			}
+			if (action == '')
+				return;
+
 			$.ajax({
-				url : '[(@{/user/delete})]',
+				url : action,
 				method : 'POST',
 				cache : false,
-				timeout : 10000,
-				data : $('#fomDelete').serialize(),
+				data : $('#fomSubmit').serialize(),
 				beforeSend : function() {
 					$('#mdlWaiting').modal('show');
 				}
 			}).done(function(data, textStatus, jqXHR) {
-				target.remove();
+				switch (process) {
+				case 'price':
+					$('#btnPrice' + target).text('￥' + data);
+					break;
+				case 'share':
+					if (data == 'true') {
+						$('#badge' + target).show();
+						$('#btnShare' + target).prop('disabled', true);
+					}
+					break;
+				case 'delete':
+					$('#photo' + target).remove();
+					break;
+				}
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 				// do nothing
 			}).always(function() {
@@ -48,7 +84,6 @@
 				<button type="button" class="btn btn-success">一括金額設定</button>
 			</div>
 		</div>
-
 		<hr class="mb-0">
 
 		<div class="row pr-3 pb-3">
@@ -60,45 +95,125 @@
 					<div
 						class="card-body p-0 d-flex justify-content-center align-items-center"
 						style="height: 200px">
-						<img class="img-fluid" th:src="@{|/upload/*{link}|}"
+						<div th:id="|badge${stat.count}|"
+							class="badge badge-success position-absolute"
+							style="top: 0; right: 0;"
+							th:styleappend="not *{shared} ? 'display: none;'">公開済</div>
+						<img class="img-fluid"
+							th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 					</div>
-					<div class="card-footer py-1 px-0 bg-white">
-						<button type="button" class="btn btn-primary btn-sm float-left">金額</button>
-						<button type="button" class="btn btn-danger btn-sm float-right"
+					<div
+						class="card-footer py-1 px-0 bg-white d-flex justify-content-between">
+						<button type="button" th:id="|btnShare${stat.count}|"
+							class="btn btn-success btn-sm" data-toggle="modal"
+							data-target="#mdlShare" th:disabled="*{shared}"
+							th:onclick="|process='share';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#txtPrice').text($('#btnPrice${stat.count}').text());|">公開</button>
+						<button type="button" th:id="|btnPrice${stat.count}|"
+							class="btn btn-warning btn-sm font-weight-bold"
+							data-toggle="modal" data-target="#mdlPrice"
+							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('￥','').replace(/,/g,''));|"
+							th:text="|￥${#numbers.formatInteger(__*{price}__,1,'COMMA')}|">金額</button>
+						<button type="button" class="btn btn-danger btn-sm"
 							data-toggle="modal" data-target="#mdlDelete"
-							th:onclick="|delTarget=${stat.count};$('#thumbnail').val('*{thumbnail}');|">削除</button>
+							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|">削除</button>
 					</div>
 				</div>
 			</div>
 
 		</div>
 
-		<form id="fomDelete" th:action="@{/user/delete}" method="post">
+		<form id="fomSubmit">
 			<input type="hidden" id="folder" name="folder" th:value="${folder}" />
-			<input type="hidden" id="thumbnail" name="thumbnail" />
-			<div id="mdlDelete" class="modal fade" tabindex="-1" role="dialog"
-				data-backdrop="static" data-keyboard="false">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title">確認</h5>
-							<button type="button" class="close" data-dismiss="modal">
-								<span>&times;</span>
-							</button>
+			<input type="hidden" id="thumbnail" name="thumbnail" /> <input
+				type="hidden" id="price" name="price" value="0" /> <input
+				type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+		</form>
+
+		<div id="mdlPrice" class="modal fade" tabindex="-1" role="dialog"
+			data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-sm" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">設定</h5>
+						<button type="button" class="close" data-dismiss="modal">
+							<span>&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text">金額</span>
+							</div>
+							<input type="number" id="money" min="0" max="99999999" value="0"
+								maxlength="8" class="form-control text-right num-only">
+							<div class="input-group-append">
+								<span class="input-group-text">円</span>
+							</div>
 						</div>
-						<div class="modal-body">
-							<p>削除しますか。</p>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-secondary"
-								data-dismiss="modal">いいえ</button>
-							<button type="submit" class="btn btn-primary">はい</button>
-						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">キャンセル</button>
+						<button type="button" class="btn btn-primary"
+							onclick="$('#price').val($('#money').val());$('#fomSubmit').submit();">確定</button>
 					</div>
 				</div>
 			</div>
-		</form>
+		</div>
+
+		<div id="mdlShare" class="modal fade" tabindex="-1" role="dialog"
+			data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">確認</h5>
+						<button type="button" class="close" data-dismiss="modal">
+							<span>&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p>
+							<mark>
+								<span id="txtPrice"></span>円
+							</mark>
+							で公開しますか。
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">いいえ</button>
+						<button type="button" class="btn btn-primary"
+							onclick="$('#fomSubmit').submit();">はい</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="mdlDelete" class="modal fade" tabindex="-1" role="dialog"
+			data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">確認</h5>
+						<button type="button" class="close" data-dismiss="modal">
+							<span>&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p>削除しますか。</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">いいえ</button>
+						<button type="button" class="btn btn-primary"
+							onclick="$('#fomSubmit').submit();">はい</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 	</div>
 </body>
 </html>

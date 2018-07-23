@@ -98,7 +98,7 @@ public class AsyncService {
 							photo.setFolder(folder);
 							photo.setThumbnail(thumbId);
 							photo.setOriginal(originId);
-							photo.setPrice(-1);
+							photo.setPrice(0);
 							photo.setShared(false);
 							photo.setCreatedt(LocalDate.now());
 							lstPhoto.add(photo);
@@ -134,7 +134,7 @@ public class AsyncService {
 					photo.setFolder(folder);
 					photo.setThumbnail(thumbId);
 					photo.setOriginal(originId);
-					photo.setPrice(-1);
+					photo.setPrice(0);
 					photo.setShared(false);
 					photo.setCreatedt(LocalDate.now());
 					lstPhoto.add(photo);

@@ -188,9 +188,11 @@ public class UserController {
 			List<PhotoEntity> lstPhoto = photoService.selectPhotoByUser(user.getUsername(), seq);
 			for (PhotoEntity photo : lstPhoto) {
 				PhotoForm form = new PhotoForm();
+				form.setUsername(photo.getUsername());
+				form.setFolder(photo.getFolder());
 				form.setThumbnail(photo.getThumbnail());
-				form.setLink(user.getUsername() + "/" + String.valueOf(seq) + "/thumbnail_" + photo.getThumbnail());
-				form.setPrice(200);
+				form.setPrice(photo.getPrice());
+				form.setShared(photo.isShared());
 				photos.add(form);
 			}
 		}
@@ -218,6 +220,40 @@ public class UserController {
 		fileHelper.delete(new File(originPath + "/" + original));
 
 		return ResponseEntity.ok().body("ok");
+	}
+
+	@PostMapping("/price")
+	public ResponseEntity<String> price(@ModelAttribute @Validated PhotoForm form, BindingResult result, Locale locale) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		PhotoEntity photo = new PhotoEntity();
+		photo.setUsername(user.getUsername());
+		photo.setFolder(form.getFolder());
+		photo.setThumbnail(form.getThumbnail());
+		photo.setPrice(form.getPrice());
+
+		int price = photoService.updatePrice(photo);
+
+		return ResponseEntity.ok().body(String.format("%,d", price));
+	}
+
+	@PostMapping("/share")
+	public ResponseEntity<String> share(@ModelAttribute @Validated PhotoForm form, BindingResult result, Locale locale) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		PhotoEntity photo = new PhotoEntity();
+		photo.setUsername(user.getUsername());
+		photo.setFolder(form.getFolder());
+		photo.setThumbnail(form.getThumbnail());
+		photo.setShared(true);
+
+		if (photoService.updateShared(photo) > 0) {
+			return ResponseEntity.ok().body("true");
+		}
+
+		return ResponseEntity.ok().body("false");
 	}
 
 }

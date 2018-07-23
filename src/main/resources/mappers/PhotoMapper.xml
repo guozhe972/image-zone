@@ -5,7 +5,8 @@
 <mapper namespace="com.cncsys.imgz.mapper.PhotoMapper">
 
 	<select id="selectPhotoByUser" resultType="PhotoEntity">
-		select username, folder, thumbnail, original, price, shared, createdt
+		select username,
+		folder, thumbnail, original, price, shared, createdt
 		from photo
 		where
 		username = #{username} and folder = #{folder}
@@ -21,8 +22,10 @@
 	</insert>
 
 	<select id="deletePhoto" resultType="String">
-		delete from photo where username = #{username} and
-		folder = #{folder} and thumbnail = #{thumbnail}
+		delete from photo where
+		username = #{username} and
+		folder = #{folder} and thumbnail =
+		#{thumbnail}
 		returning original
 	</select>
 
@@ -30,5 +33,26 @@
 		delete from photo where username = #{username} and
 		folder = #{folder}
 	</delete>
+
+	<select id="updatePrice" resultType="int"
+		parameterType="PhotoEntity">
+		update photo set
+		price = #{price}
+		where username =
+		#{username} and
+		folder = #{folder} and thumbnail =
+		#{thumbnail}
+		returning price
+	</select>
+
+	<update id="updateShared" parameterType="PhotoEntity">
+		update photo set
+		shared =
+		#{shared}
+		where username = #{username} and
+		folder = #{folder} and
+		thumbnail =
+		#{thumbnail}
+	</update>
 
 </mapper>

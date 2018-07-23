@@ -16,4 +16,8 @@ public interface PhotoMapper {
 			@Param("thumbnail") String thumbnail);
 
 	void clearFolder(@Param("username") String username, @Param("folder") int folder);
+
+	int updatePrice(PhotoEntity photo);
+
+	int updateShared(PhotoEntity photo);
 }

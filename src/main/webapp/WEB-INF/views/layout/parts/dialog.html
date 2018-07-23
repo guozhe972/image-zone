@@ -25,10 +25,18 @@
 	<div layout:fragment="waiting" id="mdlWaiting" class="modal"
 		tabindex="-1" role="dialog" data-backdrop="static"
 		data-keyboard="false">
-		<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-dialog modal-dialog-centered modal-sm"
+			role="document">
 			<div class="modal-content">
-				<div class="modal-body text-center">
-					<img th:src="@{/images/waiting.gif}" alt="waiting">
+				<div class="modal-header">
+					<h5 class="modal-title">処理中...</h5>
+				</div>
+				<div class="modal-body">
+					<div class="progress">
+						<div
+							class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+							role="progressbar" style="width: 100%"></div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -149,18 +149,18 @@ label.custom-file-label::after {
 				</div>
 				<div
 					class="form-group d-flex justify-content-between justify-content-sm-start">
-					<button type="submit" class="btn btn-primary text-none-sm">
+					<button type="submit" class="btn btn-primary text-none-xs">
 						<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
 					</button>
-					<button type="button" class="btn btn-danger text-none-sm ml-sm-3"
+					<button type="button" class="btn btn-danger text-none-xs ml-sm-3"
 						data-toggle="modal" data-target="#mdlClear"
 						th:onclick="|$('#folder').val(*{seq});|">
 						<i class="fas fa-trash-alt"></i><span>&nbsp;初期化</span>
 					</button>
-					<button type="button" class="btn btn-success text-none-sm ml-sm-3">
+					<button type="button" class="btn btn-success text-none-xs ml-sm-3">
 						<i class="fas fa-share-alt"></i><span>&nbsp;公開</span>
 					</button>
-					<a class="btn btn-primary text-none-sm ml-sm-3"
+					<a class="btn btn-primary text-none-xs ml-sm-3"
 						th:href="@{|/user/folder/*{seq}|}" role="button"> <i
 						class="far fa-eye"></i><span>&nbsp;確認</span>
 					</a>

@@ -2,7 +2,7 @@ $(function() {
 
 	$('input.num-only').on("input", function() {
 		this.value = this.value.replace(/\D/g, '');
-		//this.value = this.value.slice(0, this.maxLength);
+		this.value = this.value.slice(0, this.maxLength);
 	});
 
 	function showAlertError(arrMsg) {

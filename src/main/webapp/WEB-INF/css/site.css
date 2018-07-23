@@ -34,25 +34,19 @@ footer {
 }
 
 @media ( max-width : 575px) {
-	.text-none-sm {
+	.text-none-xs {
 		width: auto !important;
 	}
-	.text-none-sm>span {
+	.text-none-xs>span {
 		display: none;
 	}
-	.btn-block-sm {
+	.btn-block-xs {
 		display: block !important;
 		width: 100% !important;
 	}
 }
 
 @media ( max-width : 767px) {
-	.text-none-md {
-		width: auto !important;
-	}
-	.text-none-md>span {
-		display: none;
-	}
 	.offcanvas-collapse {
 		position: fixed;
 		top: 56px;
