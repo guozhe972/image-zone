@@ -46,7 +46,7 @@ button:disabled {
 			}).done(function(data, textStatus, jqXHR) {
 				switch (process) {
 				case 'price':
-					$('#btnPrice' + target).text('￥' + data);
+					$('#btnPrice' + target).text('[(#{mark.money})]' + data);
 					break;
 				case 'share':
 					if (data == 'true') {
@@ -112,8 +112,8 @@ button:disabled {
 						<button type="button" th:id="|btnPrice${stat.count}|"
 							class="btn btn-warning btn-sm font-weight-bold"
 							data-toggle="modal" data-target="#mdlPrice"
-							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('￥','').replace(/,/g,''));|"
-							th:text="|￥${#numbers.formatInteger(__*{price}__,1,'COMMA')}|">金額</button>
+							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{mark.money}','').replace(/,/g,''));|"
+							th:text="|#{mark.money}${#numbers.formatInteger(__*{price}__,1,'COMMA')}|">金額</button>
 						<button type="button" class="btn btn-danger btn-sm"
 							data-toggle="modal" data-target="#mdlDelete"
 							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|">削除</button>
