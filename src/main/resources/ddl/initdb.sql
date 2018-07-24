@@ -15,6 +15,8 @@ CREATE TABLE account
     authority varchar(10) NOT NULL,
     createdt date NOT NULL,
     enabled boolean NOT NULL,
+    expiredt date,
+    logindt date,
     CONSTRAINT account_pkey PRIMARY KEY (username)
 );
 
@@ -23,9 +25,9 @@ CREATE TABLE folder
     username varchar(100) NOT NULL,
     seq int NOT NULL,
     name varchar(100),
-    status varchar(10) NOT NULL,
+    locked boolean NOT NULL,
+    shared boolean NOT NULL,
     guest varchar(100),
-    expiredt date,
     CONSTRAINT folder_pkey PRIMARY KEY (username, seq)
 );
 CREATE INDEX folder_idx1 ON folder (guest);
@@ -46,7 +48,6 @@ CREATE TABLE photo
     thumbnail varchar(100) NOT NULL,
     original varchar(100) NOT NULL,
     price int NOT NULL,
-    shared boolean NOT NULL,
     createdt date NOT NULL,
     CONSTRAINT photo_pkey PRIMARY KEY (username, folder, thumbnail)
 );
@@ -56,13 +57,3 @@ CREATE TABLE photo
 INSERT INTO account(
     username, password, email, authority, createdt, enabled)
     VALUES ('admin', '$2a$10$u150rp5eJSHI7t/T9Y1Jne4rdZPxzkelqtyplkb25LSmjZIVplDi.', NULL, 'ADMIN', '2018-07-01', true);
-INSERT INTO account(
-    username, password, email, authority, createdt, enabled)
-    VALUES ('user', '$2a$10$u150rp5eJSHI7t/T9Y1Jne4rdZPxzkelqtyplkb25LSmjZIVplDi.', 'user@mail.com', 'USER', '2018-07-01', true);
-INSERT INTO folder(username, status)
-	VALUES ('user', 'Free'), ('user', 'Free'), ('user', 'Free');
-INSERT INTO account(
-    username, password, email, authority, createdt, enabled)
-    VALUES ('guest', '$2a$10$u150rp5eJSHI7t/T9Y1Jne4rdZPxzkelqtyplkb25LSmjZIVplDi.', NULL, 'GUEST', '2018-07-01', true);
-
-

@@ -23,7 +23,7 @@
 				return false;
 
 			if (name.length >= 4 && name.length <= 16
-					&& /^[a-zA-Z0-9]+[a-zA-Z0-9_\-\.]*$/.test(name)) {
+					&& /^[a-zA-Z0-9]+[a-zA-Z0-9_\-]*$/.test(name)) {
 				label.append(check);
 				return true;
 			}

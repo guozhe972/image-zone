@@ -16,6 +16,7 @@ public class AccountEntity {
 	private String email;
 	private Authority authority;
 	private LocalDate createdt;
-	private LocalDate expiredt;
 	private boolean enabled;
+	private LocalDate expiredt;
+	private LocalDate logindt;
 }

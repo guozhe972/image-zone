@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,9 +18,6 @@ import com.cncsys.imgz.model.LoginUser;
 
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	@Value("${guest.expired.days}")
-	private int EXPIRED_DAYS;
-
 	@Autowired
 	private AccountMapper accountMapper;
 
@@ -30,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
 
-		AccountEntity account = accountMapper.selectUser(username);
+		AccountEntity account = accountMapper.selectAccount(username);
 		if (account == null) {
 			throw new UsernameNotFoundException("Username not found");
 		}
@@ -39,15 +35,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		List<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
 		authorities.add(new SimpleGrantedAuthority(authority.toString()));
 
-		if (authority == Authority.GUEST) {
-			account.setExpiredt(account.getCreatedt().plusDays(EXPIRED_DAYS));
-		} else {
-			account.setExpiredt(new LocalDate("9999-12-31"));
-		}
-
 		boolean nonExpired = true;
-		if (LocalDate.now().isAfter(account.getExpiredt())) {
-			nonExpired = false;
+		if (authority == Authority.GUEST) {
+			LocalDate expiredt = account.getExpiredt();
+			if (expiredt != null && LocalDate.now().isAfter(expiredt)) {
+				nonExpired = false;
+			}
 		}
 
 		return new LoginUser(account, nonExpired, authorities);

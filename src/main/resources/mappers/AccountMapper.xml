@@ -26,15 +26,26 @@
 	</select>
 -->
 
-	<select id="selectUser" resultType="AccountEntity">
-		select username, password, email, authority, createdt, enabled
+	<select id="selectAccount" resultType="AccountEntity">
+		select username, password, email, authority, createdt, enabled, expiredt
 		from account
 		where username = #{username}
 	</select>
 
-	<insert id="registerUser" parameterType="AccountEntity">
+	<insert id="insertAccount" parameterType="AccountEntity">
 		insert into account (username, password, email, authority, createdt, enabled)
 		values (#{username}, #{password}, #{email}, #{authority}, #{createdt}, #{enabled})
 	</insert>
+
+	<update id="updateLogindt">
+		update account set logindt = #{logindt}
+		where username = #{username}
+	</update>
+
+	<update id="updateAccount" parameterType="AccountEntity">
+		update account set password = #{password}, email = #{email},
+		enabled = #{enabled}, expiredt = #{expiredt}
+		where username = #{username}
+	</update>
 
 </mapper>

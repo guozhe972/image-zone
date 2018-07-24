@@ -11,6 +11,5 @@ public class PhotoEntity {
 	private String thumbnail;
 	private String original;
 	private int price;
-	private boolean shared;
 	private LocalDate createdt;
 }

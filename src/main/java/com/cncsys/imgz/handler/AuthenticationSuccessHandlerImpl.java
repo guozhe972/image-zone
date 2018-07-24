@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -14,8 +15,12 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import com.cncsys.imgz.entity.AccountEntity.Authority;
+import com.cncsys.imgz.service.AccountService;
 
 public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHandler {
+
+	@Autowired
+	private AccountService accountService;
 
 	@Override
 	public void onAuthenticationSuccess(
@@ -41,6 +46,7 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
 			break;
 		}
 
+		accountService.updateLogindt(authentication.getName());
 		RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 		redirectStrategy.sendRedirect(request, response, url);
 	}

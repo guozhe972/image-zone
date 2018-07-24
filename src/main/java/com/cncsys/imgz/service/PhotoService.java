@@ -16,9 +16,14 @@ public class PhotoService {
 	private PhotoMapper photoMapper;
 
 	@Transactional(readOnly = true)
-	public List<PhotoEntity> selectPhotoByUser(String username, int folder) {
-		List<PhotoEntity> result = photoMapper.selectPhotoByUser(username, folder);
+	public List<PhotoEntity> getPhotosByFolder(String username, int folder) {
+		List<PhotoEntity> result = photoMapper.selectByFolder(username, folder);
 		return result;
+	}
+
+	@Transactional
+	public void insertPhoto(PhotoEntity photo) {
+		photoMapper.insertPhoto(photo);
 	}
 
 	@Transactional
@@ -28,19 +33,8 @@ public class PhotoService {
 	}
 
 	@Transactional
-	public void clearFolder(String username, int folder) {
-		photoMapper.clearFolder(username, folder);
-	}
-
-	@Transactional
 	public int updatePrice(PhotoEntity photo) {
 		int price = photoMapper.updatePrice(photo);
 		return price;
-	}
-
-	@Transactional
-	public int updateShared(PhotoEntity photo) {
-		int result = photoMapper.updateShared(photo);
-		return result;
 	}
 }

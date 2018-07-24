@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -20,13 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.helper.ImageEditor;
-import com.cncsys.imgz.mapper.PhotoMapper;
-import com.cncsys.imgz.model.LoginUser;
 
 @Async
 @Service
@@ -47,21 +43,20 @@ public class AsyncService {
 	private FileHelper fileHelper;
 
 	@Autowired
-	private PhotoMapper photoMapper;
+	private PhotoService photoService;
 
-	@Transactional
-	public void upload(LoginUser user, int folder, List<String> files) {
+	@Autowired
+	private FolderService folderService;
+
+	public void upload(String username, int folder, List<String> files) {
 		logger.info("async start.");
 
-		String thumbPath = UPLOAD_PATH + "/" +
-				user.getUsername() + "/" + String.valueOf(folder);
+		String thumbPath = UPLOAD_PATH + "/" + username + "/" + String.valueOf(folder);
 		fileHelper.createDirectory(thumbPath);
 
-		String originPath = ORIGINAL_PATH + "/" +
-				user.getUsername() + "/" + String.valueOf(folder);
+		String originPath = ORIGINAL_PATH + "/" + username + "/" + String.valueOf(folder);
 		fileHelper.createDirectory(originPath);
 
-		List<PhotoEntity> lstPhoto = new ArrayList<PhotoEntity>();
 		byte[] buffer = new byte[1024];
 		for (String item : files) {
 			File file = new File(item);
@@ -92,16 +87,15 @@ public class AsyncService {
 							BufferedImage scaled = imageEditor.getThumbnail(marked);
 							ImageIO.write(scaled, "jpeg", thumbnail);
 
-							// add to entity
+							// insert to db
 							PhotoEntity photo = new PhotoEntity();
-							photo.setUsername(user.getUsername());
+							photo.setUsername(username);
 							photo.setFolder(folder);
 							photo.setThumbnail(thumbId);
 							photo.setOriginal(originId);
 							photo.setPrice(0);
-							photo.setShared(false);
 							photo.setCreatedt(LocalDate.now());
-							lstPhoto.add(photo);
+							photoService.insertPhoto(photo);
 						}
 						entry = zis.getNextEntry();
 					}
@@ -128,24 +122,23 @@ public class AsyncService {
 					BufferedImage scaled = imageEditor.getThumbnail(marked);
 					ImageIO.write(scaled, "jpeg", thumbnail);
 
-					// add to entity
+					// insert to db
 					PhotoEntity photo = new PhotoEntity();
-					photo.setUsername(user.getUsername());
+					photo.setUsername(username);
 					photo.setFolder(folder);
 					photo.setThumbnail(thumbId);
 					photo.setOriginal(originId);
 					photo.setPrice(0);
-					photo.setShared(false);
 					photo.setCreatedt(LocalDate.now());
-					lstPhoto.add(photo);
+					photoService.insertPhoto(photo);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
 
-		// insert to db
-		photoMapper.insertPhotos(lstPhoto);
+		// unlock folder
+		folderService.unlock(username, folder);
 
 		logger.info("async end.");
 	}

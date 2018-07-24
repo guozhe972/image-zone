@@ -39,7 +39,7 @@ public class SignupController {
 	public static final String FORM_MODEL_KEY = "signupForm";
 
 	@Autowired
-	private AccountService userService;
+	private AccountService accountService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -75,7 +75,7 @@ public class SignupController {
 
 	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody String check(@RequestBody Map<String, Object> json) {
-		return String.valueOf(userService.isExistUser((String) json.get("username")));
+		return String.valueOf(accountService.isExistUser((String) json.get("username")));
 	}
 
 	@PostMapping("/mail")
@@ -117,7 +117,7 @@ public class SignupController {
 		}
 
 		sessionStatus.setComplete();
-		userService.registerUser(form.getUsername(), form.getPassword(), form.getEmail());
+		accountService.registerUser(form.getUsername(), form.getPassword(), form.getEmail());
 		request.login(form.getUsername(), form.getPassword());
 
 		return "redirect:/auth/signin";

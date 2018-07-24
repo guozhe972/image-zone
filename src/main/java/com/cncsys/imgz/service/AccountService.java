@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cncsys.imgz.entity.AccountEntity;
 import com.cncsys.imgz.entity.AccountEntity.Authority;
-import com.cncsys.imgz.entity.FolderEntity.Status;
 import com.cncsys.imgz.mapper.AccountMapper;
 import com.cncsys.imgz.mapper.FolderMapper;
 
@@ -31,7 +30,7 @@ public class AccountService {
 	@Transactional(readOnly = true)
 	public boolean isExistUser(String username) {
 		boolean result = false;
-		AccountEntity account = accountMapper.selectUser(username);
+		AccountEntity account = accountMapper.selectAccount(username);
 		if (account != null) {
 			result = true;
 		}
@@ -47,11 +46,26 @@ public class AccountService {
 		account.setAuthority(Authority.USER);
 		account.setCreatedt(LocalDate.now());
 		account.setEnabled(true);
-		int result = accountMapper.registerUser(account);
-		if (result > 0) {
+		if (accountMapper.insertAccount(account) > 0) {
 			for (int i = 0; i < FOLDER_COUNT; i++) {
-				folderMapper.createFolder(username, Status.Free);
+				int seq = folderMapper.insertFolder(username);
+				String guest = username + "." + String.format("%02d", seq);
+				account = new AccountEntity();
+				account.setUsername(guest);
+				account.setPassword(passwordEncoder.encode(guest));
+				account.setEmail(null);
+				account.setAuthority(Authority.GUEST);
+				account.setCreatedt(LocalDate.now());
+				account.setEnabled(false);
+				if (accountMapper.insertAccount(account) > 0) {
+					folderMapper.updateGuest(username, seq, guest);
+				}
 			}
 		}
+	}
+
+	@Transactional
+	public void updateLogindt(String username) {
+		accountMapper.updateLogindt(username, LocalDate.now());
 	}
 }

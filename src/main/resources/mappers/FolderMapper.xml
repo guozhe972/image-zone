@@ -4,23 +4,47 @@
 
 <mapper namespace="com.cncsys.imgz.mapper.FolderMapper">
 
-	<select id="selectFolderListByUser" resultType="FolderEntity">
-		select username, seq, name, status, guest, expiredt
+	<select id="selectByUser" resultType="FolderEntity">
+		select username, seq, name,
+		locked, shared, guest
 		from folder
-		where
-		username = #{username}
+		where username = #{username}
 	</select>
 
-	<select id="selectOneFolderByUser" resultType="FolderEntity">
-		select username, seq, name, status, guest, expiredt
+	<select id="selectFolder" resultType="FolderEntity">
+		select username, seq, name,
+		locked, shared, guest
 		from folder
-		where
-		username = #{username} and seq = #{seq}
+		where username = #{username} and seq =
+		#{seq}
 	</select>
 
-	<insert id="createFolder">
-		insert into folder (username, status)
-		values (#{username}, #{status})
-	</insert>
+	<select id="insertFolder" resultType="int">
+		insert into folder
+		(username, locked, shared)
+		values
+		(#{username}, false, false)
+		returning
+		seq
+	</select>
+
+	<update id="updateGuest">
+		update folder set guest = #{guest}
+		where username =
+		#{username} and seq = #{seq}
+	</update>
+
+	<update id="updateLocked">
+		update folder set locked = #{locked}
+		where username =
+		#{username} and seq = #{seq}
+	</update>
+
+	<select id="updateShared" resultType="String">
+		update folder set shared =
+		#{shared}
+		where username = #{username} and seq = #{seq}
+		returning guest
+	</select>
 
 </mapper>

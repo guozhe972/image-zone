@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -82,11 +83,15 @@ public class UserController {
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
 		List<FolderForm> folders = new ArrayList<FolderForm>();
-		List<FolderEntity> entity = folderService.getUserFolderList(user.getUsername());
+		List<FolderEntity> entity = folderService.getUserFolders(user.getUsername());
 		for (FolderEntity folder : entity) {
 			FolderForm form = new FolderForm();
 			form.setSeq(folder.getSeq());
 			form.setName(folder.getName());
+			form.setShared(folder.isShared());
+			if (folder.isShared()) {
+				// TODO: form.setExpiredt(expiredt of guest);
+			}
 			folders.add(form);
 		}
 
@@ -120,9 +125,11 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		String tempPath = UPLOAD_PATH + "/" +
-				user.getUsername() + "/" + form.getSeq() + "/" + "temp";
+		String tempPath = UPLOAD_PATH + "/" + user.getUsername() + "/" + form.getSeq() + "/" + "temp";
 		fileHelper.createDirectory(tempPath);
+
+		// lock folder
+		folderService.lock(user.getUsername(), form.getSeq());
 
 		int cnt = 1;
 		String uuid = UUID.randomUUID().toString();
@@ -138,41 +145,9 @@ public class UserController {
 			}
 			fileList.add(uploadFile);
 		}
-		asyncService.upload(user, form.getSeq(), fileList);
+		asyncService.upload(user.getUsername(), form.getSeq(), fileList);
 
 		return ResponseEntity.ok().body(json);
-	}
-
-	@PostMapping("/clear")
-	public String clear(@RequestParam("folder") int folder, RedirectAttributes redirectAttributes) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		LoginUser user = (LoginUser) auth.getPrincipal();
-
-		if (folder == 3) {
-			List<String> errors = new ArrayList<String>();
-			errors.add("あいうえお error 1");
-			errors.add("あいうえお error 2");
-			errors.add("あいうえお error 3");
-			redirectAttributes.addFlashAttribute("errors", errors);
-		} else {
-			photoService.clearFolder(user.getUsername(), folder);
-			File folderPath = new File(UPLOAD_PATH + "/" +
-					user.getUsername() + "/" + String.valueOf(folder));
-			fileHelper.delete(folderPath);
-
-			File originPath = new File(ORIGINAL_PATH + "/" +
-					user.getUsername() + "/" + String.valueOf(folder));
-			if (originPath.exists()) {
-				List<String> lstSold = new ArrayList<String>();
-				// TODO: 購入済みの写真リストを取得する
-				for (File child : originPath.listFiles()) {
-					if (!lstSold.contains(child.getName()))
-						child.delete();
-				}
-			}
-		}
-
-		return "redirect:/user/home";
 	}
 
 	@GetMapping("/folder/{seq}")
@@ -181,18 +156,15 @@ public class UserController {
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
 		List<PhotoForm> photos = new ArrayList<PhotoForm>();
-
-		File folderPath = new File(UPLOAD_PATH + "/" +
-				user.getUsername() + "/" + String.valueOf(seq));
+		File folderPath = new File(UPLOAD_PATH + "/" + user.getUsername() + "/" + String.valueOf(seq));
 		if (folderPath.exists()) {
-			List<PhotoEntity> lstPhoto = photoService.selectPhotoByUser(user.getUsername(), seq);
-			for (PhotoEntity photo : lstPhoto) {
+			List<PhotoEntity> entity = photoService.getPhotosByFolder(user.getUsername(), seq);
+			for (PhotoEntity photo : entity) {
 				PhotoForm form = new PhotoForm();
 				form.setUsername(photo.getUsername());
 				form.setFolder(photo.getFolder());
 				form.setThumbnail(photo.getThumbnail());
 				form.setPrice(photo.getPrice());
-				form.setShared(photo.isShared());
 				photos.add(form);
 			}
 		}
@@ -202,28 +174,9 @@ public class UserController {
 		return "/user/folder";
 	}
 
-	@PostMapping("/delete")
-	public ResponseEntity<String> delete(@RequestParam("folder") int folder,
-			@RequestParam("thumbnail") String thumbnail) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		LoginUser user = (LoginUser) auth.getPrincipal();
-
-		String original = photoService.deletePhoto(user.getUsername(), folder, thumbnail);
-		String folderPath = UPLOAD_PATH + "/" +
-				user.getUsername() + "/" + String.valueOf(folder);
-		fileHelper.delete(new File(folderPath + "/" + "preview_" + thumbnail));
-		fileHelper.delete(new File(folderPath + "/" + "thumbnail_" + thumbnail));
-
-		// TODO: 該当写真が購入されている場合は削除しない
-		String originPath = ORIGINAL_PATH + "/" +
-				user.getUsername() + "/" + String.valueOf(folder);
-		fileHelper.delete(new File(originPath + "/" + original));
-
-		return ResponseEntity.ok().body("ok");
-	}
-
 	@PostMapping("/price")
-	public ResponseEntity<String> price(@ModelAttribute @Validated PhotoForm form, BindingResult result, Locale locale) {
+	public ResponseEntity<String> price(@ModelAttribute @Validated PhotoForm form, BindingResult result,
+			Locale locale) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
@@ -232,28 +185,77 @@ public class UserController {
 		photo.setFolder(form.getFolder());
 		photo.setThumbnail(form.getThumbnail());
 		photo.setPrice(form.getPrice());
-
 		int price = photoService.updatePrice(photo);
 
 		return ResponseEntity.ok().body(String.format("%,d", price));
 	}
 
-	@PostMapping("/share")
-	public ResponseEntity<String> share(@ModelAttribute @Validated PhotoForm form, BindingResult result, Locale locale) {
+	@PostMapping("/delete")
+	public ResponseEntity<String> delete(@RequestParam("folder") int folder,
+			@RequestParam("thumbnail") String thumbnail) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		PhotoEntity photo = new PhotoEntity();
-		photo.setUsername(user.getUsername());
-		photo.setFolder(form.getFolder());
-		photo.setThumbnail(form.getThumbnail());
-		photo.setShared(true);
+		String original = photoService.deletePhoto(user.getUsername(), folder, thumbnail);
+		String folderPath = UPLOAD_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
+		fileHelper.delete(new File(folderPath + "/" + "preview_" + thumbnail));
+		fileHelper.delete(new File(folderPath + "/" + "thumbnail_" + thumbnail));
+		String originPath = ORIGINAL_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
+		fileHelper.delete(new File(originPath + "/" + original));
 
-		if (photoService.updateShared(photo) > 0) {
-			return ResponseEntity.ok().body("true");
-		}
-
-		return ResponseEntity.ok().body("false");
+		return ResponseEntity.ok().body("ok");
 	}
 
+	@GetMapping("/share/{seq}")
+	public String shareGet(@PathVariable("seq") int seq, Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
+		FolderForm form = new FolderForm();
+		form.setSeq(folder.getSeq());
+		form.setName(folder.getName());
+		form.setGuest(folder.getGuest());
+
+		model.addAttribute("folder", folder);
+		return "redirect:/user/share";
+	}
+
+	@PostMapping("/share")
+	public String sharePost(@RequestParam("folder") int folder, RedirectAttributes redirectAttributes) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		folderService.shareFolder(user.getUsername(), folder, "1234", LocalDate.now().plusDays(30));
+
+		return "redirect:/user/home";
+	}
+
+	@PostMapping("/clear")
+	public String clear(@RequestParam("folder") int folder, RedirectAttributes redirectAttributes) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		// error test ===============
+		if (folder == 3) {
+			List<String> errors = new ArrayList<String>();
+			errors.add("あいうえお error 1");
+			errors.add("あいうえお error 2");
+			errors.add("あいうえお error 3");
+			redirectAttributes.addFlashAttribute("errors", errors);
+			return "redirect:/user/home";
+		}
+		// error test ===============
+
+		// clear db
+		folderService.initFolder(user.getUsername(), folder);
+
+		// clear file
+		String folderPath = UPLOAD_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
+		fileHelper.delete(new File(folderPath));
+		String originPath = ORIGINAL_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
+		fileHelper.delete(new File(originPath));
+
+		return "redirect:/user/home";
+	}
 }

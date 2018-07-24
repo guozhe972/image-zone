@@ -16,7 +16,7 @@ import com.cncsys.imgz.service.AccountService;
 public class SignupValidator implements SmartValidator {
 
 	@Autowired
-	private AccountService userService;
+	private AccountService accountService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -42,9 +42,9 @@ public class SignupValidator implements SmartValidator {
 			String confirm = form.getConfirm();
 
 			if (username == null || username.isEmpty() || username.length() < 4 || username.length() > 16
-					|| !username.matches("^[a-zA-Z0-9]+[a-zA-Z0-9_\\-\\.]*$")) {
+					|| !username.matches("^[a-zA-Z0-9]+[a-zA-Z0-9_\\-]*$")) {
 				errors.rejectValue("username", "validation.signup.username");
-			} else if (userService.isExistUser(username)) {
+			} else if (accountService.isExistUser(username)) {
 				errors.rejectValue("username", "validation.signup.existuser");
 			}
 

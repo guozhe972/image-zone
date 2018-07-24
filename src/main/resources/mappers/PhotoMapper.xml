@@ -4,21 +4,22 @@
 
 <mapper namespace="com.cncsys.imgz.mapper.PhotoMapper">
 
-	<select id="selectPhotoByUser" resultType="PhotoEntity">
+	<select id="selectByFolder" resultType="PhotoEntity">
 		select username,
-		folder, thumbnail, original, price, shared, createdt
+		folder,
+		thumbnail, original, price, createdt
 		from photo
 		where
-		username = #{username} and folder = #{folder}
+		username =
+		#{username} and folder = #{folder}
 	</select>
 
-	<insert id="insertPhotos" parameterType="java.util.List">
-		insert into photo (username, folder, thumbnail, original, price,
-		shared, createdt) values
-		<foreach item="item" collection="list" separator=",">
-			(#{item.username}, #{item.folder}, #{item.thumbnail},
-			#{item.original}, #{item.price}, #{item.shared}, #{item.createdt})
-		</foreach>
+	<insert id="insertPhoto" parameterType="PhotoEntity">
+		insert into photo
+		(username, folder, thumbnail, original, price, createdt)
+		values
+		(#{username}, #{folder}, #{thumbnail}, #{original}, #{price},
+		#{createdt})
 	</insert>
 
 	<select id="deletePhoto" resultType="String">
@@ -29,7 +30,7 @@
 		returning original
 	</select>
 
-	<delete id="clearFolder">
+	<delete id="deleteByFolder">
 		delete from photo where username = #{username} and
 		folder = #{folder}
 	</delete>
@@ -44,15 +45,5 @@
 		#{thumbnail}
 		returning price
 	</select>
-
-	<update id="updateShared" parameterType="PhotoEntity">
-		update photo set
-		shared =
-		#{shared}
-		where username = #{username} and
-		folder = #{folder} and
-		thumbnail =
-		#{thumbnail}
-	</update>
 
 </mapper>
