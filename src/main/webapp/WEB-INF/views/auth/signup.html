@@ -127,7 +127,7 @@
 						data-toggle="tooltip" data-trigger="focus" data-html="true"
 						data-placement="bottom" th:title="#{tooltip.signup.username}"
 						th:errorclass="is-invalid" maxlength="16" placeholder="" required
-						autofocus>
+						autofocus />
 					<div class="invalid-feedback"
 						th:if="${#fields.hasErrors('username')}" th:errors="*{username}">username
 						error</div>
@@ -137,7 +137,7 @@
 				<label for="email" class="col-sm-4 col-form-label text-sm-right">メールアドレス</label>
 				<div class="col-sm-8">
 					<input type="email" th:field="*{email}" class="form-control"
-						th:errorclass="is-invalid" placeholder="" required>
+						th:errorclass="is-invalid" placeholder="" required />
 					<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
 						th:errors="*{email}">email error</div>
 				</div>
@@ -149,7 +149,7 @@
 					<input type="password" th:field="*{password}" class="form-control"
 						data-toggle="tooltip" data-trigger="focus" data-html="true"
 						data-placement="bottom" th:title="#{tooltip.signup.password}"
-						th:errorclass="is-invalid" maxlength="16" placeholder="" required>
+						th:errorclass="is-invalid" maxlength="16" placeholder="" required />
 					<div class="invalid-feedback"
 						th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password
 						error</div>
@@ -159,7 +159,7 @@
 				<label for="confirm" class="col-sm-4 col-form-label text-sm-right">パスワード確認</label>
 				<div class="col-sm-8">
 					<input type="password" th:field="*{confirm}" class="form-control"
-						th:errorclass="is-invalid" maxlength="16" placeholder="" required>
+						th:errorclass="is-invalid" maxlength="16" placeholder="" required />
 					<div class="invalid-feedback"
 						th:if="${#fields.hasErrors('confirm')}" th:errors="*{confirm}">confirm
 						error</div>
@@ -170,7 +170,7 @@
 					<div class="form-check">
 						<input class="form-check-input" type="checkbox" id="chkAccept"
 							th:checked="false"
-							onchange="$('#btnRegister').prop('disabled', !$(this).prop('checked'));">
+							onchange="$('#btnRegister').prop('disabled', !$(this).prop('checked'));" />
 						<label class="form-check-label" for="chkAccept">I accept
 							the terms and conditions. </label>
 					</div>

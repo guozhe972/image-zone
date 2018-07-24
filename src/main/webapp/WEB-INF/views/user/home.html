@@ -145,7 +145,7 @@ label.custom-file-label::after {
 						<input type="file" class="custom-file-input"
 							th:id="${#ids.seq('files')}" name="files"
 							accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
-							multiple required> <label th:for="${#ids.prev('files')}"
+							multiple required /> <label th:for="${#ids.prev('files')}"
 							class="custom-file-label text-truncate"
 							th:text="#{input.file.content}"></label>
 					</div>
