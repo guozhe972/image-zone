@@ -18,6 +18,9 @@ public class FolderForm {
 	public static interface Upload {
 	};
 
+	public static interface Share {
+	};
+
 	private int seq;
 	private String name;
 	private boolean shared;

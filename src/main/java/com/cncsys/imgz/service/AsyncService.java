@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -62,46 +62,49 @@ public class AsyncService {
 			File file = new File(item);
 			if (file.getName().toLowerCase().endsWith(".zip")) {
 				try {
-					ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
+					ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName("MS932"));
 					ZipEntry entry = zis.getNextEntry();
 					while (entry != null) {
 						if (!entry.isDirectory() && entry.getName().toLowerCase().matches(".+(\\.jpg|\\.jpeg)$")) {
 							String ext = fileHelper.getExtension(entry.getName());
+							try {
+								// unzip original image
+								String originId = UUID.randomUUID().toString() + ext;
+								File original = new File(originPath + "/" + originId);
+								FileOutputStream fos = new FileOutputStream(original);
+								int len;
+								while ((len = zis.read(buffer)) > 0) {
+									fos.write(buffer, 0, len);
+								}
+								fos.close();
 
-							// unzip original image
-							String originId = UUID.randomUUID().toString() + ext;
-							File original = new File(originPath + "/" + originId);
-							FileOutputStream fos = new FileOutputStream(original);
-							int len;
-							while ((len = zis.read(buffer)) > 0) {
-								fos.write(buffer, 0, len);
+								// make thumbnail image
+								String thumbId = UUID.randomUUID().toString() + ext;
+								File preview = new File(thumbPath + "/" + "preview_" + thumbId);
+								File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
+								BufferedImage marked = imageEditor.getPreview(ImageIO.read(original));
+								ImageIO.write(marked, "jpeg", preview);
+								BufferedImage scaled = imageEditor.getThumbnail(marked);
+								ImageIO.write(scaled, "jpeg", thumbnail);
+
+								// insert to db
+								PhotoEntity photo = new PhotoEntity();
+								photo.setUsername(username);
+								photo.setFolder(folder);
+								photo.setThumbnail(thumbId);
+								photo.setOriginal(originId);
+								photo.setPrice(0);
+								photo.setCreatedt(LocalDate.now());
+								photoService.insertPhoto(photo);
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
-							fos.close();
-
-							// make thumbnail image
-							String thumbId = UUID.randomUUID().toString() + ext;
-							File preview = new File(thumbPath + "/" + "preview_" + thumbId);
-							File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
-							BufferedImage marked = imageEditor.getPreview(ImageIO.read(original));
-							ImageIO.write(marked, "jpeg", preview);
-							BufferedImage scaled = imageEditor.getThumbnail(marked);
-							ImageIO.write(scaled, "jpeg", thumbnail);
-
-							// insert to db
-							PhotoEntity photo = new PhotoEntity();
-							photo.setUsername(username);
-							photo.setFolder(folder);
-							photo.setThumbnail(thumbId);
-							photo.setOriginal(originId);
-							photo.setPrice(0);
-							photo.setCreatedt(LocalDate.now());
-							photoService.insertPhoto(photo);
 						}
 						entry = zis.getNextEntry();
 					}
 					zis.closeEntry();
 					zis.close();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				file.delete();
@@ -131,7 +134,7 @@ public class AsyncService {
 					photo.setPrice(0);
 					photo.setCreatedt(LocalDate.now());
 					photoService.insertPhoto(photo);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}

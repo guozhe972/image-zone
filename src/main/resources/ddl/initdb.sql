@@ -7,6 +7,7 @@ CREATE DATABASE imgzone
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
 
+DROP TABLE IF EXISTS account;
 CREATE TABLE account
 (
     username varchar(100) NOT NULL,
@@ -20,6 +21,8 @@ CREATE TABLE account
     CONSTRAINT account_pkey PRIMARY KEY (username)
 );
 
+DROP FUNCTION IF EXISTS get_folder_seq() CASCADE;
+DROP TABLE IF EXISTS folder;
 CREATE TABLE folder
 (
     username varchar(100) NOT NULL,
@@ -41,6 +44,7 @@ CREATE TRIGGER folder_insert
     BEFORE INSERT ON folder FOR EACH ROW
     EXECUTE PROCEDURE get_folder_seq();
 
+DROP TABLE IF EXISTS photo;
 CREATE TABLE photo
 (
     username varchar(100) NOT NULL,

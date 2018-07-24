@@ -59,8 +59,9 @@
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">いいえ</button>
-					<button type="button" class="btn btn-primary"
-						onclick="$('#fomLogout').submit();">はい</button>
+					<form class="form-inline" th:action="@{/logout}" method="post">
+						<button type="submit" class="btn btn-primary">はい</button>
+					</form>
 				</div>
 			</div>
 		</div>

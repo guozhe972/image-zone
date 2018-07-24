@@ -1,7 +1,6 @@
 package com.cncsys.imgz.controller;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,8 +28,10 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -37,6 +39,7 @@ import com.cncsys.imgz.entity.FolderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.model.FolderForm;
+import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
@@ -99,6 +102,15 @@ public class UserController {
 		return "/user/home";
 	}
 
+	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+	public @ResponseBody String check(@RequestBody Map<String, Object> json) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		return String.valueOf(folderService.isLocked(user.getUsername(),
+				Integer.parseInt(json.get("folder").toString())));
+	}
+
 	//	@PostMapping("/upload")
 	//	public SseEmitter upload1(MultipartRequest multipartRequest) throws IOException {
 	//		SseEmitter emitter = new SseEmitter();
@@ -140,7 +152,7 @@ public class UserController {
 			String uploadFile = tempPath + "/" + fileName;
 			try {
 				file.transferTo(new File(uploadFile));
-			} catch (IllegalStateException | IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			fileList.add(uploadFile);
@@ -207,26 +219,33 @@ public class UserController {
 	}
 
 	@GetMapping("/share/{seq}")
-	public String shareGet(@PathVariable("seq") int seq, Model model) {
+	public String shareGet(@PathVariable("seq") int seq, @ModelAttribute FolderForm form) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
 		FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
-		FolderForm form = new FolderForm();
 		form.setSeq(folder.getSeq());
 		form.setName(folder.getName());
 		form.setGuest(folder.getGuest());
+		form.setExpiredt(LocalDate.now().plusDays(30));
 
-		model.addAttribute("folder", folder);
-		return "redirect:/user/share";
+		return "/user/share";
 	}
 
 	@PostMapping("/share")
-	public String sharePost(@RequestParam("folder") int folder, RedirectAttributes redirectAttributes) {
+	public String sharePost(@ModelAttribute @Validated(Share.class) FolderForm form,
+			BindingResult result, RedirectAttributes redirectAttributes) {
+
+		if (result.hasErrors()) {
+			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "folderForm", result);
+			return "redirect:/user/share/" + String.valueOf(form.getSeq());
+		}
+
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		folderService.shareFolder(user.getUsername(), folder, "1234", LocalDate.now().plusDays(30));
+		folderService.shareFolder(user.getUsername(), form.getSeq(),
+				form.getPassword(), form.getExpiredt());
 
 		return "redirect:/user/home";
 	}

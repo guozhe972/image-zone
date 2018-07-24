@@ -75,7 +75,7 @@ public class SignupController {
 
 	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody String check(@RequestBody Map<String, Object> json) {
-		return String.valueOf(accountService.isExistUser((String) json.get("username")));
+		return String.valueOf(accountService.isExistUser(json.get("username").toString()));
 	}
 
 	@PostMapping("/mail")
@@ -116,9 +116,10 @@ public class SignupController {
 			return "redirect:/signup/input";
 		}
 
-		sessionStatus.setComplete();
 		accountService.registerUser(form.getUsername(), form.getPassword(), form.getEmail());
 		request.login(form.getUsername(), form.getPassword());
+		accountService.updateLogindt(form.getUsername());
+		sessionStatus.setComplete();
 
 		return "redirect:/auth/signin";
 	}
