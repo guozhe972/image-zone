@@ -1,7 +1,7 @@
 package com.cncsys.imgz.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 
 import com.cncsys.imgz.entity.AccountEntity;
 
@@ -11,7 +11,7 @@ public interface AccountMapper {
 
 	int insertAccount(AccountEntity account);
 
-	void updateLogindt(@Param("username") String username, @Param("logindt") LocalDate logindt);
+	void updateLogindt(@Param("username") String username, @Param("logindt") DateTime logindt);
 
 	int updateAccount(AccountEntity account);
 }

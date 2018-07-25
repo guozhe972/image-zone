@@ -1,5 +1,6 @@
 package com.cncsys.imgz.service;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +67,7 @@ public class AccountService {
 
 	@Transactional
 	public void updateLogindt(String username) {
-		accountMapper.updateLogindt(username, LocalDate.now());
+		accountMapper.updateLogindt(username, DateTime.now());
 	}
 
 	@Transactional(readOnly = true)

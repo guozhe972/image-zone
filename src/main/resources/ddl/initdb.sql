@@ -17,7 +17,7 @@ CREATE TABLE account
     createdt date NOT NULL,
     enabled boolean NOT NULL,
     expiredt date,
-    logindt date,
+    logindt timestamp,
     CONSTRAINT account_pkey PRIMARY KEY (username)
 );
 
