@@ -37,4 +37,9 @@ public class PhotoService {
 		int price = photoMapper.updatePrice(photo);
 		return price;
 	}
+
+	@Transactional
+	public void updateAllPrice(PhotoEntity photo) {
+		photoMapper.updateByFolder(photo);
+	}
 }

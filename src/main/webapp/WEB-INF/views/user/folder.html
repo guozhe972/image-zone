@@ -12,45 +12,52 @@
 			$(this).select();
 		});
 
-		$('#fomSubmit').submit(function(event) {
-			event.preventDefault();
-			var action = '';
-			switch (process) {
-			case 'price':
-				$('#mdlPrice').modal('hide');
-				action = '[(@{/user/price})]';
-				break;
-			case 'delete':
-				$('#mdlDelete').modal('hide');
-				action = '[(@{/user/delete})]';
-				break;
-			}
-			if (action == '')
-				return;
+		$('#fomSubmit').submit(
+				function(event) {
+					event.preventDefault();
+					var action = '';
+					switch (process) {
+					case 'price':
+						$('#mdlPrice').modal('hide');
+						action = '[(@{/user/price})]';
+						break;
+					case 'delete':
+						$('#mdlDelete').modal('hide');
+						action = '[(@{/user/delete})]';
+						break;
+					}
+					if (action == '')
+						return;
 
-			$.ajax({
-				url : action,
-				method : 'POST',
-				cache : false,
-				data : $('#fomSubmit').serialize(),
-				beforeSend : function() {
-					$('#mdlWaiting').modal('show');
-				}
-			}).done(function(data, textStatus, jqXHR) {
-				switch (process) {
-				case 'price':
-					$('#btnPrice' + target).text('[(#{mark.money})]' + data);
-					break;
-				case 'delete':
-					$('#photo' + target).remove();
-					break;
-				}
-			}).fail(function(jqXHR, textStatus, errorThrown) {
-				// do nothing
-			}).always(function() {
-				$('#mdlWaiting').modal('hide');
-			});
-		});
+					$.ajax({
+						url : action,
+						method : 'POST',
+						cache : false,
+						data : $('#fomSubmit').serialize(),
+						beforeSend : function() {
+							$('#mdlWaiting').modal('show');
+						}
+					}).done(
+							function(data, textStatus, jqXHR) {
+								switch (process) {
+								case 'price':
+									if (target > 0) {
+										$('#btnPrice' + target).text(
+												'[(#{mark.money})]' + data);
+									} else {
+										window.location.reload();
+									}
+									break;
+								case 'delete':
+									$('#photo' + target).remove();
+									break;
+								}
+							}).fail(function(jqXHR, textStatus, errorThrown) {
+						// do nothing
+					}).always(function() {
+						$('#mdlWaiting').modal('hide');
+					});
+				});
 	});
 </script>
 </head>
@@ -61,7 +68,9 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main pt-3">
-		<button type="button" class="btn btn-success">一括金額設定</button>
+		<button type="button" class="btn btn-success" data-toggle="modal"
+			data-target="#mdlPrice" th:disabled="${#lists.isEmpty(photos)}"
+			th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(0);|">一括金額設定</button>
 		<hr class="mb-0">
 
 		<div class="row pr-3 pb-3">

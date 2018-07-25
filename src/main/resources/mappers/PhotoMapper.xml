@@ -37,13 +37,19 @@
 
 	<select id="updatePrice" resultType="int"
 		parameterType="PhotoEntity">
-		update photo set
-		price = #{price}
+		update photo set price = #{price}
 		where username =
 		#{username} and
-		folder = #{folder} and thumbnail =
-		#{thumbnail}
+		folder = #{folder}
+		and thumbnail = #{thumbnail}
 		returning price
 	</select>
+
+	<update id="updateByFolder" parameterType="PhotoEntity">
+		update photo set price
+		= #{price}
+		where username = #{username} and
+		folder = #{folder}
+	</update>
 
 </mapper>

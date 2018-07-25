@@ -17,14 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.helper.ImageEditor;
 
-@Async
+//@Async
 @Service
 public class AsyncService {
 
@@ -36,6 +35,9 @@ public class AsyncService {
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
 
+	@Value("${default.photo.price}")
+	private int DEFAULT_PRICE;
+
 	@Autowired
 	private ImageEditor imageEditor;
 
@@ -45,8 +47,8 @@ public class AsyncService {
 	@Autowired
 	private PhotoService photoService;
 
-	@Autowired
-	private FolderService folderService;
+//	@Autowired
+//	private FolderService folderService;
 
 	public void upload(String username, int folder, List<String> files) {
 		logger.info("async start.");
@@ -93,7 +95,7 @@ public class AsyncService {
 								photo.setFolder(folder);
 								photo.setThumbnail(thumbId);
 								photo.setOriginal(originId);
-								photo.setPrice(0);
+								photo.setPrice(DEFAULT_PRICE);
 								photo.setCreatedt(LocalDate.now());
 								photoService.insertPhoto(photo);
 							} catch (Exception e) {
@@ -131,7 +133,7 @@ public class AsyncService {
 					photo.setFolder(folder);
 					photo.setThumbnail(thumbId);
 					photo.setOriginal(originId);
-					photo.setPrice(0);
+					photo.setPrice(DEFAULT_PRICE);
 					photo.setCreatedt(LocalDate.now());
 					photoService.insertPhoto(photo);
 				} catch (Exception e) {
@@ -141,7 +143,7 @@ public class AsyncService {
 		}
 
 		// unlock folder
-		folderService.unlock(username, folder);
+		//folderService.unlock(username, folder);
 
 		logger.info("async end.");
 	}

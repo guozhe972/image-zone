@@ -18,4 +18,6 @@ public interface PhotoMapper {
 	void deleteByFolder(@Param("username") String username, @Param("folder") int folder);
 
 	int updatePrice(PhotoEntity photo);
+
+	void updateByFolder(PhotoEntity photo);
 }

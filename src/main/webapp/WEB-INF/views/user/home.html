@@ -10,6 +10,32 @@ label.custom-file-label::after {
 }
 </style>
 <script>
+	function checkFolder(seq) {
+		var unLocked = true;
+		/*
+		$.ajax({
+			async : false,
+			url : '[(@{/user/check})]',
+			method : 'POST',
+			headers : {
+				'[(${_csrf.headerName})]' : '[(${_csrf.token})]'
+			},
+			cache : false,
+			timeout : 10000,
+			contentType : "application/json",
+			data : JSON.stringify({
+				folder : seq
+			}),
+			success : function(data) {
+				if (data == 'true') {
+					unLocked = false;
+				}
+			}
+		});
+		 */
+		return unLocked;
+	}
+
 	$(function() {
 		function resetFile(obj) {
 			$(obj).val('');
@@ -32,12 +58,6 @@ label.custom-file-label::after {
 			return true;
 		}
 
-		function checkFolder(seq) {
-			// ajax check folder lock
-			// if locked return false;
-			return true;
-		}
-
 		$(':file.custom-file-input').change(
 				function() {
 					var files = [];
@@ -53,74 +73,85 @@ label.custom-file-label::after {
 					}
 				});
 
-		$('form[data-type="upload"]').submit(function(event) {
-			event.preventDefault();
-			var form = $(this).get(0);
-			var selFiles = $(form).find(':file').get(0);
+		$('form[data-type="upload"]').submit(
+				function(event) {
+					event.preventDefault();
+					var form = $(this).get(0);
+					var selFiles = $(form).find(':file').get(0);
 
-			if (!window.FormData) {
-				resetFile(selFiles);
-				var errors = [ 'アップロードできない環境です' ];
-				showAlertError(errors);
-				return;
-			}
+					if (!window.FormData) {
+						resetFile(selFiles);
+						var errors = [ 'アップロードできない環境です' ];
+						showAlertError(errors);
+						return;
+					}
 
-			if (selFiles.files.length == 0) {
-				resetFile(selFiles);
-				var errors = [ '[(#{message.upload.none})]' ];
-				showAlertError(errors);
-				return;
-			}
+					if (selFiles.files.length == 0) {
+						resetFile(selFiles);
+						var errors = [ '[(#{message.upload.none})]' ];
+						showAlertError(errors);
+						return;
+					}
 
-			if (!checkFile(selFiles)) {
-				resetFile(selFiles);
-				var errors = [ '[(#{message.upload.error})]' ];
-				showAlertError(errors);
-				return;
-			}
+					if (!checkFile(selFiles)) {
+						resetFile(selFiles);
+						var errors = [ '[(#{message.upload.error})]' ];
+						showAlertError(errors);
+						return;
+					}
 
-			var ajaxReq = $.ajax({
-				url : '[(@{/user/upload})]',
-				method : 'POST',
-				cache : false,
-				data : new FormData(form),
-				contentType : false,
-				processData : false,
-				dataType : 'json',
-				beforeSend : function(xhr) {
-					$('.progress-bar').text('');
-					$('.progress-bar').css('width', '0%');
-					$('#mdlUpload').modal('show');
-				},
-				xhr : function() {
-					var xhr = $.ajaxSettings.xhr();
-					xhr.upload.onprogress = function(e) {
-						var perc = Math.round((e.loaded / e.total) * 100);
-						$('.progress-bar').text(perc + '%');
-						$('.progress-bar').css('width', perc + '%');
-					};
-					return xhr;
-				}
-			});
-			ajaxReq.done(function(data) {
-				// do nothing
-			});
-			ajaxReq.fail(function(jqXHR) {
-				var errors = [];
-				if (jqXHR.status == 400) {
-					$.each(jqXHR.responseJSON.errors, function(idx, val) {
-						errors.push(val);
+					var ajaxReq = $.ajax({
+						url : '[(@{/user/upload})]',
+						method : 'POST',
+						cache : false,
+						data : new FormData(form),
+						contentType : false,
+						processData : false,
+						dataType : 'json',
+						beforeSend : function(xhr) {
+							$('.progress-bar').text('');
+							$('.progress-bar').css('width', '0%');
+							$('.progress-bar').addClass('bg-success')
+									.removeClass('bg-warning');
+							$('#mdlUpload').modal('show');
+						},
+						xhr : function() {
+							var xhr = $.ajaxSettings.xhr();
+							xhr.upload.onprogress = function(e) {
+								var perc = Math
+										.round((e.loaded / e.total) * 100);
+								$('.progress-bar').text(perc + '%');
+								$('.progress-bar').css('width', perc + '%');
+								if (perc == 100) {
+									$('.progress-bar-title').text('処理中...');
+									$('.progress-bar').text('');
+									$('.progress-bar').addClass('bg-warning')
+											.removeClass('bg-success');
+								}
+							};
+							return xhr;
+						}
 					});
-				} else {
-					errors.push('[(#{message.upload.error})]');
-				}
-				showAlertError(errors);
-			});
-			ajaxReq.always(function() {
-				resetFile(selFiles);
-				$('#mdlUpload').modal('hide');
-			});
-		});
+					ajaxReq.done(function(data) {
+						// do nothing
+					});
+					ajaxReq.fail(function(jqXHR) {
+						var errors = [];
+						if (jqXHR.status == 400) {
+							$.each(jqXHR.responseJSON.errors,
+									function(idx, val) {
+										errors.push(val);
+									});
+						} else {
+							errors.push('[(#{message.upload.error})]');
+						}
+						showAlertError(errors);
+					});
+					ajaxReq.always(function() {
+						resetFile(selFiles);
+						$('#mdlUpload').modal('hide');
+					});
+				});
 	});
 </script>
 </head>

@@ -57,6 +57,9 @@ public class UserController {
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
 
+	@Value("${default.expired.days}")
+	private int DEFAULT_EXPIRED;
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -141,7 +144,7 @@ public class UserController {
 		fileHelper.createDirectory(tempPath);
 
 		// lock folder
-		folderService.lock(user.getUsername(), form.getSeq());
+		//folderService.lock(user.getUsername(), form.getSeq());
 
 		int cnt = 1;
 		String uuid = UUID.randomUUID().toString();
@@ -158,6 +161,9 @@ public class UserController {
 			fileList.add(uploadFile);
 		}
 		asyncService.upload(user.getUsername(), form.getSeq(), fileList);
+
+		// unlock folder
+		//folderService.unlock(user.getUsername(), form.getSeq());
 
 		return ResponseEntity.ok().body(json);
 	}
@@ -192,12 +198,17 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
+		int price = form.getPrice();
 		PhotoEntity photo = new PhotoEntity();
+		photo.setPrice(price);
 		photo.setUsername(user.getUsername());
 		photo.setFolder(form.getFolder());
-		photo.setThumbnail(form.getThumbnail());
-		photo.setPrice(form.getPrice());
-		int price = photoService.updatePrice(photo);
+		if (!"*".equals(form.getThumbnail())) {
+			photo.setThumbnail(form.getThumbnail());
+			price = photoService.updatePrice(photo);
+		} else {
+			photoService.updateAllPrice(photo);
+		}
 
 		return ResponseEntity.ok().body(String.format("%,d", price));
 	}
@@ -227,7 +238,7 @@ public class UserController {
 		form.setSeq(folder.getSeq());
 		form.setName(folder.getName());
 		form.setGuest(folder.getGuest());
-		form.setExpiredt(LocalDate.now().plusDays(30));
+		form.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED));
 
 		return "/user/share";
 	}
