@@ -1,6 +1,6 @@
 package com.cncsys.imgz.entity;
 
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 
 import lombok.Data;
 
@@ -11,5 +11,5 @@ public class PhotoEntity {
 	private String thumbnail;
 	private String original;
 	private int price;
-	private LocalDate createdt;
+	private DateTime createdt;
 }

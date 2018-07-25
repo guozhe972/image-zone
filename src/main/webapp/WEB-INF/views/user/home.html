@@ -10,6 +10,7 @@ label.custom-file-label::after {
 }
 </style>
 <script>
+	var mdlClear = 0;
 	function checkFolder(seq) {
 		var unLocked = true;
 		/*
@@ -152,6 +153,15 @@ label.custom-file-label::after {
 						$('#mdlUpload').modal('hide');
 					});
 				});
+
+		$('#mdlClear').on('hide.bs.modal', function(e) {
+			if (mdlClear == 1) {
+				if (checkFolder($('#folder').val())) {
+					$('#mdlWaiting').modal('show');
+					$('#fomClear').submit();
+				}
+			}
+		});
 	});
 </script>
 </head>
@@ -161,6 +171,7 @@ label.custom-file-label::after {
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 	<th:block layout:replace="~{layout/parts/dialog::progress}" />
 
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main pt-3">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<th:block th:each="form,stat : ${folders}">
@@ -174,7 +185,7 @@ label.custom-file-label::after {
 						th:value="*{seq}" />
 					<div class="custom-file">
 						<input type="file" class="custom-file-input"
-							th:id="${#ids.seq('files')}" name="files"
+							th:disabled="*{shared}" th:id="${#ids.seq('files')}" name="files"
 							accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
 							multiple required /> <label th:for="${#ids.prev('files')}"
 							class="custom-file-label text-truncate"
@@ -184,17 +195,20 @@ label.custom-file-label::after {
 				<div
 					class="form-group d-flex justify-content-around justify-content-sm-start">
 					<button type="submit" class="btn btn-primary text-none-xs"
-						th:onclick="|return checkFolder(*{seq});|">
+						th:disabled="*{shared}" th:onclick="|return checkFolder(*{seq});|">
 						<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
 					</button>
 					<a class="btn btn-primary text-none-xs ml-sm-3"
 						th:onclick="|return checkFolder(*{seq});|"
 						th:href="@{|/user/folder/*{seq}|}" role="button"> <i
-						class="fas fa-yen-sign"></i><span>&nbsp;金額設定</span>
+						class="fas fa-yen-sign"></i><span>&nbsp;<th:block
+								th:text="*{shared} ? '金額確認':'金額設定'">金額設定</th:block></span>
 					</a> <a class="btn btn-success text-none-xs ml-sm-3"
+						th:classappend="*{shared}?'disabled'"
 						th:onclick="|return checkFolder(*{seq});|"
 						th:href="@{|/user/share/*{seq}|}" role="button"> <i
-						class="fas fa-share-alt"></i><span>&nbsp;公開する</span>
+						class="fas fa-share-alt"></i><span>&nbsp;<th:block
+								th:text="*{shared} ? '公開済み':'公開する'">公開する</th:block></span>
 					</a>
 					<button type="button" class="btn btn-danger text-none-xs ml-sm-3"
 						data-toggle="modal" data-target="#mdlClear"
@@ -207,6 +221,10 @@ label.custom-file-label::after {
 		</th:block>
 	</div>
 
+	<form id="fomClear" class="form-inline" th:action="@{/user/clear}"
+		method="post">
+		<input type="hidden" id="folder" name="folder" />
+	</form>
 	<div id="mdlClear" class="modal fade" tabindex="-1" role="dialog"
 		data-backdrop="static" data-keyboard="false">
 		<div class="modal-dialog" role="document">
@@ -223,11 +241,8 @@ label.custom-file-label::after {
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">いいえ</button>
-					<form class="form-inline" th:action="@{/user/clear}" method="post">
-						<input type="hidden" id="folder" name="folder" />
-						<button type="submit" class="btn btn-primary"
-							onclick="return checkFolder($('#folder').val());">はい</button>
-					</form>
+					<button type="button" class="btn btn-primary" data-dismiss="modal"
+						onclick="mdlClear=1;">はい</button>
 				</div>
 			</div>
 		</div>

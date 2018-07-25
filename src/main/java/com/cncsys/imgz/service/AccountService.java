@@ -68,4 +68,10 @@ public class AccountService {
 	public void updateLogindt(String username) {
 		accountMapper.updateLogindt(username, LocalDate.now());
 	}
+
+	@Transactional(readOnly = true)
+	public LocalDate getExpiredt(String username) {
+		AccountEntity account = accountMapper.selectAccount(username);
+		return account.getExpiredt();
+	}
 }

@@ -43,6 +43,7 @@ import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
+import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.FolderService;
 import com.cncsys.imgz.service.PhotoService;
@@ -76,6 +77,9 @@ public class UserController {
 	private PhotoService photoService;
 
 	@Autowired
+	private AccountService accountService;
+
+	@Autowired
 	private FolderValidator uploadValidator;
 
 	@InitBinder("folderForm")
@@ -96,7 +100,7 @@ public class UserController {
 			form.setName(folder.getName());
 			form.setShared(folder.isShared());
 			if (folder.isShared()) {
-				// TODO: form.setExpiredt(expiredt of guest);
+				form.setExpiredt(accountService.getExpiredt(folder.getGuest()));
 			}
 			folders.add(form);
 		}
@@ -186,9 +190,11 @@ public class UserController {
 				photos.add(form);
 			}
 		}
-
 		model.addAttribute("photos", photos);
 		model.addAttribute("folder", seq);
+
+		FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
+		model.addAttribute("shared", folder.isShared());
 		return "/user/folder";
 	}
 

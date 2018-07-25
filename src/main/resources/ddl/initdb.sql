@@ -52,7 +52,7 @@ CREATE TABLE photo
     thumbnail varchar(100) NOT NULL,
     original varchar(100) NOT NULL,
     price int NOT NULL,
-    createdt date NOT NULL,
+    createdt timestamp NOT NULL,
     CONSTRAINT photo_pkey PRIMARY KEY (username, folder, thumbnail)
 );
 

@@ -9,6 +9,7 @@
 		locked, shared, guest
 		from folder
 		where username = #{username}
+		order by seq asc
 	</select>
 
 	<select id="selectFolder" resultType="FolderEntity">

@@ -12,6 +12,7 @@
 		where
 		username =
 		#{username} and folder = #{folder}
+		order by createdt asc
 	</select>
 
 	<insert id="insertPhoto" parameterType="PhotoEntity">

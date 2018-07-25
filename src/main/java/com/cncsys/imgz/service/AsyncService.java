@@ -12,7 +12,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.imageio.ImageIO;
 
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +96,7 @@ public class AsyncService {
 								photo.setThumbnail(thumbId);
 								photo.setOriginal(originId);
 								photo.setPrice(DEFAULT_PRICE);
-								photo.setCreatedt(LocalDate.now());
+								photo.setCreatedt(DateTime.now());
 								photoService.insertPhoto(photo);
 							} catch (Exception e) {
 								e.printStackTrace();
@@ -134,7 +134,7 @@ public class AsyncService {
 					photo.setThumbnail(thumbId);
 					photo.setOriginal(originId);
 					photo.setPrice(DEFAULT_PRICE);
-					photo.setCreatedt(LocalDate.now());
+					photo.setCreatedt(DateTime.now());
 					photoService.insertPhoto(photo);
 				} catch (Exception e) {
 					e.printStackTrace();
