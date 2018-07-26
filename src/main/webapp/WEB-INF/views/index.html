@@ -14,7 +14,7 @@
 }
 </style>
 </head>
-<body layout:fragment="body" class="pt-header pb-footer">
+<body layout:fragment="body" class="pt-header">
 	<header layout:replace="~{layout/parts/header::header(true, true)}"></header>
 	<div class="jumbotron rounded-0">
 		<div class="container">
@@ -102,6 +102,7 @@
 			</div>
 		</div>
 	</div>
+	<div class="pb-footer"></div>
 	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>
 </html>

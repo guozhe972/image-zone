@@ -6,6 +6,7 @@
 <title>guest home</title>
 <script>
 	var target = 0;
+	var mdlClear = 0;
 	$(function() {
 		$('#fomPhoto').submit(function(event) {
 			event.preventDefault();
@@ -22,13 +23,21 @@
 				$('#bagCart').text(data);
 				$('#photo' + target).remove();
 				if (data == '0') {
-					$('#btnOrder').prop('disabled', true);
+					$('#btnOrder').addClass('disabled');
 				}
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 				// do nothing
 			}).always(function() {
 				$('#mdlWaiting').modal('hide');
 			});
+		});
+
+		$('#mdlClear').on('hide.bs.modal', function(e) {
+			if (mdlClear == 1) {
+				mdlClear = 0;
+				$('#mdlWaiting').modal('show');
+				$('#fomClear').submit();
+			}
 		});
 	});
 </script>
@@ -40,14 +49,12 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
-		<div class="row px-3">
-			<button type="button" class="btn btn-success mt-3" id="btnOrder"
-				th:disabled="${#lists.isEmpty(cart)}">注文手続きへ</button>
-			<form id="fomClear" class="form-inline ml-3"
-				th:action="@{/guest/cart/clear}" method="post">
-				<button type="submit" class="btn btn-danger mt-3" id="btnClear"
-					th:nuless="${#lists.isEmpty(cart)}">クリア</button>
-			</form>
+		<div class="pt-3">
+			<a class="btn btn-success" id="btnOrder"
+				th:classappend="${#lists.isEmpty(cart)}?'disabled'" href="#"
+				role="button">注文手続きへ</a>
+			<button type="button" class="btn btn-danger float-right"
+				data-toggle="modal" data-target="#mdlClear">クリア</button>
 		</div>
 		<hr class="mb-0">
 
@@ -84,6 +91,32 @@
 			type="hidden" id="thumbnail" name="thumbnail" /> <input
 			type="hidden" id="price" name="price" />
 	</form>
+
+	<div id="mdlClear" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">確認</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>クリアしますか。</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">いいえ</button>
+					<form id="fomClear" class="form-inline"
+						th:action="@{/guest/cart/clear}" method="post">
+						<button type="button" class="btn btn-primary" data-dismiss="modal"
+							onclick="mdlClear=1;">はい</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 
 </body>
 </html>

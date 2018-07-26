@@ -94,6 +94,6 @@ public class GuestController {
 		@SuppressWarnings("unchecked")
 		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
 		cart.clear();
-		return "redirect:/guest/cart";
+		return "redirect:/guest/home";
 	}
 }

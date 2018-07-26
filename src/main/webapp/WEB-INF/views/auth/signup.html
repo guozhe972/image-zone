@@ -106,10 +106,9 @@
 	});
 </script>
 </head>
-<body layout:fragment="body"
-	class="pt-header pb-footer d-flex align-items-center">
+<body layout:fragment="body" class="pt-header d-flex align-items-center">
 	<header layout:replace="~{layout/parts/header::header(true, true)}"></header>
-	<div class="container bg-main">
+	<div class="container bg-main pb-footer my-auto">
 		<form class="mw-form mx-auto pt-3" th:action="@{/signup/mail}"
 			th:object="${signupForm}" method="post" autocomplete="off">
 			<h4>[[#{label.signup}]]</h4>

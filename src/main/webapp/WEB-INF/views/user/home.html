@@ -196,8 +196,8 @@ label.custom-file-label::after {
 				<div
 					class="form-group d-flex justify-content-around justify-content-sm-start">
 					<button type="submit" class="btn btn-primary text-none-xs"
-						th:classappend="*{shared}?'btn-secondary'"
-						th:disabled="*{shared}" th:onclick="|return checkFolder(*{seq});|">
+						th:classappend="*{shared}?'btn-secondary'" th:disabled="*{shared}"
+						th:onclick="|return checkFolder(*{seq});|">
 						<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
 					</button>
 					<a class="btn btn-primary text-none-xs ml-sm-3"
@@ -223,8 +223,7 @@ label.custom-file-label::after {
 		</th:block>
 	</div>
 
-	<form id="fomClear" class="form-inline" th:action="@{/user/clear}"
-		method="post">
+	<form id="fomClear" th:action="@{/user/clear}" method="post">
 		<input type="hidden" id="folder" name="folder" />
 	</form>
 	<div id="mdlClear" class="modal fade" tabindex="-1" role="dialog"

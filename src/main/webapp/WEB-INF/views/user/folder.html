@@ -74,10 +74,11 @@
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
 		<th:block th:unless="${shared}">
-			<button type="button" class="btn btn-success mt-3"
-				data-toggle="modal" data-target="#mdlPrice"
-				th:disabled="${#lists.isEmpty(photos)}"
-				th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(0);|">一括金額設定</button>
+			<div class="pt-3">
+				<button type="button" class="btn btn-success" data-toggle="modal"
+					data-target="#mdlPrice" th:disabled="${#lists.isEmpty(photos)}"
+					th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(0);|">一括金額設定</button>
+			</div>
 			<hr class="mb-0">
 		</th:block>
 
