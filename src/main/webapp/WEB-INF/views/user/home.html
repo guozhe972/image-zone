@@ -156,6 +156,7 @@ label.custom-file-label::after {
 
 		$('#mdlClear').on('hide.bs.modal', function(e) {
 			if (mdlClear == 1) {
+				mdlClear = 0;
 				if (checkFolder($('#folder').val())) {
 					$('#mdlWaiting').modal('show');
 					$('#fomClear').submit();
@@ -195,6 +196,7 @@ label.custom-file-label::after {
 				<div
 					class="form-group d-flex justify-content-around justify-content-sm-start">
 					<button type="submit" class="btn btn-primary text-none-xs"
+						th:classappend="*{shared}?'btn-secondary'"
 						th:disabled="*{shared}" th:onclick="|return checkFolder(*{seq});|">
 						<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
 					</button>

@@ -27,9 +27,30 @@
 			}
 		});
 
+		$('#fomShare').submit(function(event) {
+			if (!$(this).get(0).checkValidity()) {
+				event.preventDefault();
+				event.stopPropagation();
+			} else {
+				$('#mdlWaiting').modal('show');
+			}
+			$(this).addClass('was-validated');
+		});
+
+		/*
+		$('#btnShare').click(function(event) {
+			if (!$('#password').get(0).checkValidity()) {
+				$('#password').addClass('is-invalid');
+				$('#password').focus();
+			}
+			event.preventDefault();
+			event.stopPropagation();
+		});
+		 */
+
 		$('#mdlShare').on('hide.bs.modal', function(e) {
 			if (mdlShare == 1) {
-				$('#mdlWaiting').modal('show');
+				mdlShare = 0;
 				$('#fomShare').submit();
 			}
 		});
@@ -43,7 +64,7 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main pb-5">
-		<form id="fomShare" class="mw-form mx-auto pt-3"
+		<form id="fomShare" class="mw-form mx-auto pt-3" novalidate
 			th:action="@{/user/share}" th:object="${folderForm}" method="post">
 			<input type="hidden" th:field="*{seq}" />
 			<h4 th:text="*{name}?:|#{label.folder} *{seq}|">フォルダ公開</h4>
@@ -61,8 +82,10 @@
 					<input type="text" th:field="*{password}" class="form-control"
 						maxlength="16" required autofocus />
 					<div class="input-group-append">
-						<button type="button" id="btnAuto" class="btn btn-success">自動生成</button>
+						<button type="button" id="btnAuto"
+							class="btn btn-success rounded-right">自動生成</button>
 					</div>
+					<div class="invalid-feedback">パスワードを入力してください</div>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -70,13 +93,14 @@
 				<div class="col-sm-8">
 					<input type="date" th:field="*{expiredt}" class="form-control"
 						th:min="${#dates.format(#dates.createToday(),'yyyy-MM-dd')}"
-						pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required />
+						max="9999-12-31" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required />
 				</div>
 			</div>
 			<div class="form-group row">
 				<div class="offset-sm-4 col-sm-8">
-					<button type="button" class="btn btn-primary btn-block-xs"
-						style="width: 150px;" data-toggle="modal" data-target="#mdlShare">公開する</button>
+					<button type="button" id="btnShare"
+						class="btn btn-primary btn-block-xs" style="width: 150px;"
+						data-toggle="modal" data-target="#mdlShare">公開する</button>
 				</div>
 			</div>
 		</form>
@@ -93,7 +117,11 @@
 					</button>
 				</div>
 				<div class="modal-body">
-					<p>公開しますか。</p>
+					<p>
+						公開後の写真の追加・削除および金額変更はできなくなります。 <br> なお、金額未設定の写真は
+						<mark>￥0円</mark>
+						で販売されます。 <br> 公開してよろしいでしょうか。
+					</p>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary"

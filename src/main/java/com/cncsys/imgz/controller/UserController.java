@@ -178,18 +178,16 @@ public class UserController {
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
 		List<PhotoForm> photos = new ArrayList<PhotoForm>();
-		File folderPath = new File(UPLOAD_PATH + "/" + user.getUsername() + "/" + String.valueOf(seq));
-		if (folderPath.exists()) {
-			List<PhotoEntity> entity = photoService.getPhotosByFolder(user.getUsername(), seq);
-			for (PhotoEntity photo : entity) {
-				PhotoForm form = new PhotoForm();
-				form.setUsername(photo.getUsername());
-				form.setFolder(photo.getFolder());
-				form.setThumbnail(photo.getThumbnail());
-				form.setPrice(photo.getPrice());
-				photos.add(form);
-			}
+		List<PhotoEntity> entity = photoService.getPhotosByFolder(user.getUsername(), seq);
+		for (PhotoEntity photo : entity) {
+			PhotoForm form = new PhotoForm();
+			form.setUsername(photo.getUsername());
+			form.setFolder(photo.getFolder());
+			form.setThumbnail(photo.getThumbnail());
+			form.setPrice(photo.getPrice());
+			photos.add(form);
 		}
+
 		model.addAttribute("photos", photos);
 		model.addAttribute("folder", seq);
 

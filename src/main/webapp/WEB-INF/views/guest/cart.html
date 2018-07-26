@@ -11,7 +11,7 @@
 			event.preventDefault();
 
 			$.ajax({
-				url : '[(@{/guest/cart/add})]',
+				url : '[(@{/guest/cart/del})]',
 				method : 'POST',
 				cache : false,
 				data : $('#fomPhoto').serialize(),
@@ -20,7 +20,10 @@
 				}
 			}).done(function(data, textStatus, jqXHR) {
 				$('#bagCart').text(data);
-				$('#btnAdd' + target).prop('disabled', true);
+				$('#photo' + target).remove();
+				if (data == '0') {
+					$('#btnOrder').prop('disabled', true);
+				}
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 				// do nothing
 			}).always(function() {
@@ -31,15 +34,25 @@
 </script>
 </head>
 <body layout:fragment="body" class="pt-header">
-	<header layout:insert="~{layout/parts/navbar::guest(0)}"
+	<header layout:insert="~{layout/parts/navbar::guest(1)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
+		<div class="row px-3">
+			<button type="button" class="btn btn-success mt-3" id="btnOrder"
+				th:disabled="${#lists.isEmpty(cart)}">注文手続きへ</button>
+			<form id="fomClear" class="form-inline ml-3"
+				th:action="@{/guest/cart/clear}" method="post">
+				<button type="submit" class="btn btn-danger mt-3" id="btnClear"
+					th:nuless="${#lists.isEmpty(cart)}">クリア</button>
+			</form>
+		</div>
+		<hr class="mb-0">
 
 		<div class="row pr-3 pb-3">
-			<div th:each="form,stat : ${photos}" th:object="${form}"
+			<div th:each="form,stat : ${cart}" th:object="${form}"
 				th:id="|photo${stat.count}|"
 				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card img-thumbnail pb-0">
@@ -54,20 +67,20 @@
 							th:text="|#{mark.money}${#numbers.formatInteger(__*{price}__,1,'COMMA')}|">金額</div>
 					</div>
 					<div class="card-footer py-1 px-0 bg-white">
-						<button type="button" th:id="|btnAdd${stat.count}|"
-							class="btn btn-success btn-sm w-100" th:disabled="*{incart}"
-							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">カートに追加</button>
+						<button type="button" th:id="|btnDel${stat.count}|"
+							class="btn btn-danger btn-sm w-100" th:disabled="*{incart}"
+							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">削除</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<form id="fomPhoto" th:action="@{/guest/cart/add}" method="post">
+	<form id="fomPhoto" th:action="@{/guest/cart/del}" method="post">
 		<input type="hidden" id="username" name="username"
-			th:value="${#lists.isEmpty(photos)} ? '' : ${photos[0].username}" />
-		<input type="hidden" id="folder" name="folder"
-			th:value="${#lists.isEmpty(photos)} ? '' : ${photos[0].folder}" /> <input
+			th:value="${#lists.isEmpty(cart)} ? '' : ${cart[0].username}" /> <input
+			type="hidden" id="folder" name="folder"
+			th:value="${#lists.isEmpty(cart)} ? '' : ${cart[0].folder}" /> <input
 			type="hidden" id="thumbnail" name="thumbnail" /> <input
 			type="hidden" id="price" name="price" />
 	</form>

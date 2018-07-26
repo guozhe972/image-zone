@@ -15,6 +15,21 @@
 		order by createdt asc
 	</select>
 
+	<select id="selectByGuest" resultType="PhotoEntity">
+		select folder.username,
+		photo.folder,
+		photo.thumbnail, photo.original, photo.price,
+		photo.createdt
+		from folder, photo
+		where
+		folder.username = photo.username
+		and folder.seq = photo.folder
+		and folder.guest =
+		#{guest}
+		order by
+		photo.createdt asc
+	</select>
+
 	<insert id="insertPhoto" parameterType="PhotoEntity">
 		insert into photo
 		(username, folder, thumbnail, original, price, createdt)

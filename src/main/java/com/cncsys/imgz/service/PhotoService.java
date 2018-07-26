@@ -21,6 +21,12 @@ public class PhotoService {
 		return result;
 	}
 
+	@Transactional(readOnly = true)
+	public List<PhotoEntity> getPhotosByGuest(String guest) {
+		List<PhotoEntity> result = photoMapper.selectByGuest(guest);
+		return result;
+	}
+
 	@Transactional
 	public void insertPhoto(PhotoEntity photo) {
 		photoMapper.insertPhoto(photo);

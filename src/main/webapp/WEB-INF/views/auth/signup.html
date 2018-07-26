@@ -13,7 +13,7 @@
 		//$('#username').tooltip();
 		//$('#password').tooltip();
 
-		$('#username').on('input', function(){
+		$('#username').on('input', function() {
 			checkUsername($(this).val());
 		});
 		function checkUsername(name) {
@@ -62,7 +62,7 @@
 		});
 		 */
 
-		$('#password').on('input', function(){
+		$('#password').on('input', function() {
 			checkPassword($(this).val());
 			confirmPassword($(this).val(), $('#confirm').val());
 		});
@@ -88,7 +88,7 @@
 			}
 		}
 
-		$('#confirm').on('input', function(){
+		$('#confirm').on('input', function() {
 			confirmPassword($('#password').val(), $(this).val());
 		});
 		function confirmPassword(password, confirm) {

@@ -9,4 +9,5 @@ public class PhotoForm {
 	private int folder;
 	private String thumbnail;
 	private int price;
+	private boolean incart;
 }
