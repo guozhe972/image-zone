@@ -11,7 +11,7 @@ html {
 </style>
 </head>
 <body layout:fragment="body"
-	class="pt-header pb-footer d-flex align-items-center">
+	class="pt-header pb-footer d-flex align-items-start">
 	<header layout:replace="~{layout/parts/header::header(false, false)}"></header>
 	<div class="container bg-main my-auto pb-5">
 		<form class="mw-form mx-auto pt-3" th:action="@{/signup/register}"

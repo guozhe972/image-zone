@@ -181,7 +181,7 @@ label.custom-file-label::after {
 				enctype="multipart/form-data">
 				<div class="form-group">
 					<label th:for="${#ids.next('seq')}"
-						th:text="*{name}?:|#{label.folder} *{seq}|"></label> <input
+						th:text="*{name}?:|#{label.folder} *{seq}|"></label><span th:text="*{expiredt}?| (*{expiredt})|:''"></span><input
 						type="hidden" th:id="${#ids.seq('seq')}" name="seq"
 						th:value="*{seq}" />
 					<div class="custom-file">
