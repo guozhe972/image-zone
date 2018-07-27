@@ -75,9 +75,11 @@
 	<div class="container-fluid bg-main">
 		<th:block th:unless="${shared}">
 			<div class="pt-3">
-				<button type="button" class="btn btn-success" data-toggle="modal"
+				<button type="button" class="btn btn-warning" data-toggle="modal"
 					data-target="#mdlPrice" th:disabled="${#lists.isEmpty(photos)}"
 					th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(0);|">一括金額設定</button>
+				<a class="btn btn-success float-right"
+					th:href="@{|/user/share/${folder}|}" role="button">公開する</a>
 			</div>
 			<hr class="mb-0">
 		</th:block>

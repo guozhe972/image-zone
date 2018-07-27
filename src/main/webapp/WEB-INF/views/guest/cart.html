@@ -23,6 +23,7 @@
 				$('#bagCart').text(data);
 				$('#photo' + target).remove();
 				if (data == '0') {
+					$('#btnClear').addClass('d-none');
 					$('#btnOrder').addClass('disabled');
 				}
 			}).fail(function(jqXHR, textStatus, errorThrown) {
@@ -50,11 +51,12 @@
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
 		<div class="pt-3">
-			<a class="btn btn-success" id="btnOrder"
+			<button type="button" class="btn btn-danger" id="btnClear"
+				th:classappend="${#lists.isEmpty(cart)}?'d-none'"
+				data-toggle="modal" data-target="#mdlClear">クリア</button>
+			<a class="btn btn-success float-right" id="btnOrder"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'" href="#"
 				role="button">注文手続きへ</a>
-			<button type="button" class="btn btn-danger float-right"
-				data-toggle="modal" data-target="#mdlClear">クリア</button>
 		</div>
 		<hr class="mb-0">
 

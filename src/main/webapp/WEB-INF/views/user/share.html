@@ -4,6 +4,11 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>share folder</title>
+<style>
+html {
+	height: 100%;
+}
+</style>
 <script>
 	var mdlShare = 0;
 	$(function() {
@@ -57,13 +62,13 @@
 	});
 </script>
 </head>
-<body layout:fragment="body" class="pt-header d-flex align-items-center">
+<body layout:fragment="body" class="pt-header pb-footer d-flex align-items-center">
 	<header layout:insert="~{layout/parts/navbar::user(-1)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main pb-5">
+	<div class="container bg-main my-auto pb-5">
 		<form id="fomShare" class="mw-form mx-auto pt-3" novalidate
 			th:action="@{/user/share}" th:object="${folderForm}" method="post">
 			<input type="hidden" th:field="*{seq}" />
