@@ -79,11 +79,11 @@ button[id^="btnPrice"]:disabled {
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
 		<th:block th:unless="${shared}">
-			<div class="pt-3">
+			<div class="pt-3 d-flex justify-content-between">
 				<button type="button" class="btn btn-warning" data-toggle="modal"
 					data-target="#mdlPrice" th:disabled="${#lists.isEmpty(photos)}"
 					th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(0);|">一括金額設定</button>
-				<a class="btn btn-success float-right"
+				<a class="btn btn-success ml-auto"
 					th:href="@{|/user/share/${folder}|}" role="button">公開する</a>
 			</div>
 			<hr class="mb-0">
@@ -93,7 +93,7 @@ button[id^="btnPrice"]:disabled {
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				th:id="|photo${stat.count}|"
 				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
-				<div class="card img-thumbnail pb-0">
+				<div class="card">
 					<div
 						class="card-body p-0 d-flex justify-content-center align-items-center"
 						style="height: 200px">
@@ -101,7 +101,7 @@ button[id^="btnPrice"]:disabled {
 							th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 					</div>
-					<div class="card-footer py-1 px-0 bg-white">
+					<div class="card-footer p-1 bg-white">
 						<button type="button" th:id="|btnPrice${stat.count}|"
 							class="btn btn-warning btn-sm font-weight-bold float-left"
 							th:classappend="${shared}?'w-100'" th:disabled="${shared}"

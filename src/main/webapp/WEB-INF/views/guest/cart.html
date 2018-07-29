@@ -50,11 +50,11 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
-		<div class="pt-3">
+		<div class="pt-3 d-flex justify-content-between">
 			<button type="button" class="btn btn-danger" id="btnClear"
 				th:classappend="${#lists.isEmpty(cart)}?'d-none'"
 				data-toggle="modal" data-target="#mdlClear">クリア</button>
-			<a class="btn btn-success float-right" id="btnOrder"
+			<a class="btn btn-success ml-auto" id="btnOrder"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'" href="#"
 				role="button">注文手続きへ</a>
 		</div>
@@ -64,7 +64,7 @@
 			<div th:each="form,stat : ${cart}" th:object="${form}"
 				th:id="|photo${stat.count}|"
 				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
-				<div class="card img-thumbnail pb-0">
+				<div class="card">
 					<div
 						class="card-body p-0 d-flex justify-content-center align-items-center"
 						style="height: 200px">
@@ -75,7 +75,7 @@
 							style="top: 0; right: 0;"
 							th:text="|#{mark.money}${#numbers.formatInteger(__*{price}__,1,'COMMA')}|">金額</div>
 					</div>
-					<div class="card-footer py-1 px-0 bg-white">
+					<div class="card-footer p-1 bg-white">
 						<button type="button" th:id="|btnDel${stat.count}|"
 							class="btn btn-danger btn-sm w-100" th:disabled="*{incart}"
 							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">削除</button>
