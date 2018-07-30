@@ -1,8 +1,11 @@
 package com.cncsys.imgz.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,7 @@ import com.cncsys.imgz.service.PhotoService;
 
 import co.omise.Client;
 import co.omise.models.Charge;
+import co.omise.models.ChargeStatus;
 
 @Controller
 @RequestMapping("/guest")
@@ -106,27 +110,50 @@ public class GuestController {
 
 	@GetMapping("/charge")
 	public String charge(@ModelAttribute ChargeForm charge, Model model) {
-		charge.setNumber("4111111111111111");
+		charge.setEmail("guest@mail.com");
+		charge.setNumber("4111111111180017");
+		charge.setCode("111");
+
+		int[] years = new int[10];
+		int year = LocalDate.now().getYear();
+		for (int i = 0; i < years.length; i++) {
+			years[i] = year + i;
+		}
+		model.addAttribute("years", years);
 		return "/guest/charge";
 	}
 
 	@PostMapping("/charge")
 	public String order(@ModelAttribute ChargeForm form, Model model) {
+		// TODO: insert order. charged = false
+		String order = DateTimeFormat.forPattern("yyyyMMddHHmmssSSS").print(DateTime.now());
+		int price = 1000;
+
 		try {
 			Client client = new Client("pkey_test_5crja3prxerg79lsrbg", "skey_test_5crja3ps6nt8ihsag20");
-
 			Charge charge = client.charges().create(new Charge.Create()
-					.amount(100000)
-					.currency("JPY")
+					.amount(price)
+					.currency("jpy")
+					.capture(true)
+					.description("Order Number: " + order)
 					.card(form.getToken()));
-			logger.info("charge id: " + charge.getId());
+			logger.info("created charge: " + charge.getId());
+			if (charge.getStatus() == ChargeStatus.Successful) {
+				// TODO: update order. charged = true
+			} else {
+				logger.info(charge.getFailureCode() + ": " + charge.getFailureMessage());
+				// TODO: set error to RedirectAttributes
+				return "redirect:/guest/charge";
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			// TODO: set error to RedirectAttributes
+			return "redirect:/guest/charge";
 		}
-		return "redirect:/guest/down";
+		return "redirect:/guest/download";
 	}
 
-	@GetMapping("/down")
+	@GetMapping("/download")
 	public String down(Model model) {
 		return "/guest/download";
 	}
