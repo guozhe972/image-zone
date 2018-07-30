@@ -1,5 +1,7 @@
 package com.cncsys.imgz.entity;
 
+import org.joda.time.DateTime;
+
 import lombok.Data;
 
 @Data
@@ -11,4 +13,5 @@ public class FolderEntity {
 	private boolean locked;
 	private boolean shared;
 	private String guest;
+	private DateTime createdt;
 }

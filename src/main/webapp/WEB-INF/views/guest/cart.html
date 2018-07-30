@@ -55,7 +55,7 @@
 				th:classappend="${#lists.isEmpty(cart)}?'d-none'"
 				data-toggle="modal" data-target="#mdlClear">クリア</button>
 			<a class="btn btn-success ml-auto" id="btnOrder"
-				th:classappend="${#lists.isEmpty(cart)}?'disabled'" href="#"
+				th:classappend="${#lists.isEmpty(cart)}?'disabled'" th:href="@{/guest/charge}"
 				role="button">注文手続きへ</a>
 		</div>
 		<hr class="mb-0">

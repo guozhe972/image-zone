@@ -22,9 +22,9 @@
 
 	<select id="insertFolder" resultType="int">
 		insert into folder
-		(username, locked, shared)
+		(username, locked, shared, createdt)
 		values
-		(#{username}, false, false)
+		(#{username}, false, false, #{createdt})
 		returning
 		seq
 	</select>

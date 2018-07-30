@@ -3,6 +3,8 @@ package com.cncsys.imgz.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,14 +18,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.cncsys.imgz.entity.PhotoEntity;
+import com.cncsys.imgz.model.ChargeForm;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
 import com.cncsys.imgz.service.PhotoService;
+
+import co.omise.Client;
+import co.omise.models.Charge;
 
 @Controller
 @RequestMapping("/guest")
 @SessionAttributes("cart")
 public class GuestController {
+	private static final Logger logger = LoggerFactory.getLogger(GuestController.class);
 
 	public static final String FORM_MODEL_KEY = "cart";
 
@@ -95,5 +102,32 @@ public class GuestController {
 		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
 		cart.clear();
 		return "redirect:/guest/home";
+	}
+
+	@GetMapping("/charge")
+	public String charge(@ModelAttribute ChargeForm charge, Model model) {
+		charge.setNumber("4111111111111111");
+		return "/guest/charge";
+	}
+
+	@PostMapping("/charge")
+	public String order(@ModelAttribute ChargeForm form, Model model) {
+		try {
+			Client client = new Client("pkey_test_5crja3prxerg79lsrbg", "skey_test_5crja3ps6nt8ihsag20");
+
+			Charge charge = client.charges().create(new Charge.Create()
+					.amount(100000)
+					.currency("JPY")
+					.card(form.getToken()));
+			logger.info("charge id: " + charge.getId());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "redirect:/guest/down";
+	}
+
+	@GetMapping("/down")
+	public String down(Model model) {
+		return "/guest/download";
 	}
 }

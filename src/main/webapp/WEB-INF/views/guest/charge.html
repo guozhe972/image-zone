@@ -1,0 +1,151 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>guest home</title>
+<script>
+	$(function() {
+		$('#fomCharge')
+				.submit(
+						function(event) {
+							event.preventDefault();
+
+							var form = $(this).get(0);
+							$('#btnCharge').prop('disabled', true);
+
+							var card = {
+								name : $('#name').val(),
+								number : $('#number').val(),
+								expiration_month : $('#month').val(),
+								expiration_year : $('#year').val(),
+								security_code : $('#code').val()
+							};
+
+							Omise
+									.createToken(
+											'card',
+											card,
+											function(statusCode, response) {
+												if (response.object == 'error'
+														|| !response.card.security_code_check) {
+													var message_text = 'SET YOUR SECURITY CODE CHECK FAILED MESSAGE';
+													if (response.object == "error") {
+														message_text = response.message;
+													}
+													alert(message_text);
+
+													$('#btnCharge').prop(
+															'disabled', false);
+												} else {
+													$('#token')
+															.val(response.id);
+													form.submit();
+												}
+											});
+
+							return false;
+						});
+	});
+</script>
+</head>
+<body layout:fragment="body" class="pt-header d-flex align-items-start">
+	<header layout:insert="~{layout/parts/navbar::guest(-1)}"
+		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
+	<div class="container bg-main my-auto">
+		<form class="mw-form mx-auto pt-3" id="fomCharge"
+			th:action="@{/guest/charge}" th:object="${chargeForm}" method="post"
+			autocomplete="off">
+			<h4>注文手続き</h4>
+			<hr>
+			<input type="hidden" id="token" name="token" />
+			<div class="form-group row">
+				<label for="email" class="col-sm-4 col-form-label text-sm-right">メールアドレス</label>
+				<div class="col-sm-8">
+					<input type="email" th:field="*{email}" class="form-control"
+						th:errorclass="is-invalid" placeholder="" required autofocus />
+					<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+						th:errors="*{email}">email error</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="number" class="col-sm-4 col-form-label text-sm-right">カード番号</label>
+				<div class="col-sm-8">
+					<input type="text" th:field="*{number}" class="form-control"
+						th:errorclass="is-invalid" maxlength="16" placeholder="" required />
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('number')}" th:errors="*{number}">number
+						error</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="name" class="col-sm-4 col-form-label text-sm-right">カード名義</label>
+				<div class="col-sm-8">
+					<input type="text" id="name" name="name" class="form-control"
+						value="TARO TEST" th:errorclass="is-invalid" maxlength="50"
+						placeholder="" required /> <small class="form-text text-muted">カード上に表示されているフルネーム</small>
+					<div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
+						th:errors="*{name}">name error</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="expiry" class="col-sm-4 col-form-label text-sm-right">有効期限</label>
+				<div class="col-sm-8">
+					<input type="hidden" id="expiry" name="expiry" /> <select
+						id="month" name="month" class="form-control" required>
+						<option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+						<option>6</option>
+						<option>7</option>
+						<option>8</option>
+						<option>9</option>
+						<option selected>10</option>
+						<option>11</option>
+						<option>12</option>
+					</select> / <select id="year" name="year" class="form-control" required>
+						<option>2018</option>
+						<option>2019</option>
+						<option selected>2020</option>
+						<option>2021</option>
+						<option>2022</option>
+					</select>
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('expiry')}" th:errors="*{expiry}">expiry
+						error</div>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label for="code" class="col-sm-4 col-form-label text-sm-right">セキュリティコード</label>
+				<div class="col-sm-8">
+					<input type="text" th:field="*{code}" class="form-control"
+						th:errorclass="is-invalid" maxlength="4" placeholder="" required />
+					<div class="invalid-feedback" th:if="${#fields.hasErrors('code')}"
+						th:errors="*{code}">code error</div>
+				</div>
+			</div>
+
+
+			<div class="form-group row">
+				<div class="offset-sm-4 col-sm-8">
+					<button id="btnCharge" type="submit"
+						class="btn btn-primary btn-block-xs" style="width: 150px;">確定</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<script src="https://cdn2.omise.co/omise.js"></script>
+	<script>
+		Omise.setPublicKey("pkey_test_5crja3prxerg79lsrbg");
+	</script>
+</body>
+</html>

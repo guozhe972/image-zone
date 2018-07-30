@@ -40,23 +40,24 @@ public class AccountService {
 
 	@Transactional
 	public void registerUser(String username, String password, String email) {
+		DateTime sysnow = DateTime.now();
 		AccountEntity account = new AccountEntity();
 		account.setUsername(username);
 		account.setPassword(passwordEncoder.encode(password));
 		account.setEmail(email);
 		account.setAuthority(Authority.USER);
-		account.setCreatedt(LocalDate.now());
+		account.setCreatedt(sysnow);
 		account.setEnabled(true);
 		if (accountMapper.insertAccount(account) > 0) {
 			for (int i = 0; i < FOLDER_COUNT; i++) {
-				int seq = folderMapper.insertFolder(username);
+				int seq = folderMapper.insertFolder(username, sysnow);
 				String guest = username + "." + String.format("%02d", seq);
 				account = new AccountEntity();
 				account.setUsername(guest);
 				account.setPassword(passwordEncoder.encode(guest));
 				account.setEmail(null);
 				account.setAuthority(Authority.GUEST);
-				account.setCreatedt(LocalDate.now());
+				account.setCreatedt(sysnow);
 				account.setEnabled(false);
 				if (accountMapper.insertAccount(account) > 0) {
 					folderMapper.updateGuest(username, seq, guest);

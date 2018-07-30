@@ -14,7 +14,7 @@ CREATE TABLE account
     password varchar (100) NOT NULL,
     email varchar (100),
     authority varchar(10) NOT NULL,
-    createdt date NOT NULL,
+    createdt timestamp NOT NULL,
     enabled boolean NOT NULL,
     expiredt date,
     logindt timestamp,
@@ -31,6 +31,7 @@ CREATE TABLE folder
     locked boolean NOT NULL,
     shared boolean NOT NULL,
     guest varchar(100),
+    createdt timestamp NOT NULL,
     CONSTRAINT folder_pkey PRIMARY KEY (username, seq)
 );
 CREATE INDEX folder_idx1 ON folder (guest);
@@ -56,8 +57,21 @@ CREATE TABLE photo
     CONSTRAINT photo_pkey PRIMARY KEY (username, folder, thumbnail)
 );
 
+DROP TABLE IF EXISTS order;
+CREATE TABLE photo
+(
+    num varchar(100) NOT NULL,
+    email varchar (100) NOT NULL,
+    username varchar(100) NOT NULL,
+    folder int NOT NULL,
+    thumbnail varchar(100) NOT NULL,
+    price int NOT NULL,
+    createdt timestamp NOT NULL,
+    CONSTRAINT photo_pkey PRIMARY KEY (username, folder, thumbnail)
+);
+
 
 --passwd:1234
 INSERT INTO account(
     username, password, email, authority, createdt, enabled)
-    VALUES ('admin', '$2a$10$u150rp5eJSHI7t/T9Y1Jne4rdZPxzkelqtyplkb25LSmjZIVplDi.', NULL, 'ADMIN', '2018-07-01', true);
+    VALUES ('admin', '$2a$10$u150rp5eJSHI7t/T9Y1Jne4rdZPxzkelqtyplkb25LSmjZIVplDi.', NULL, 'ADMIN', CURRENT_TIMESTAMP, true);

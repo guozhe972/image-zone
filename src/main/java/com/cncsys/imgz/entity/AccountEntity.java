@@ -1,5 +1,6 @@
 package com.cncsys.imgz.entity;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
 import lombok.Data;
@@ -15,8 +16,8 @@ public class AccountEntity {
 	private String password;
 	private String email;
 	private Authority authority;
-	private LocalDate createdt;
+	private DateTime createdt;
 	private boolean enabled;
 	private LocalDate expiredt;
-	private LocalDate logindt;
+	private DateTime logindt;
 }
