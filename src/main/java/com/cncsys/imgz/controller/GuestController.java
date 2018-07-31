@@ -14,11 +14,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.model.ChargeForm;
@@ -109,11 +111,7 @@ public class GuestController {
 	}
 
 	@GetMapping("/charge")
-	public String charge(@ModelAttribute ChargeForm charge, Model model) {
-		charge.setEmail("guest@mail.com");
-		charge.setNumber("4111111111180017");
-		charge.setCode("111");
-
+	public String charge(@ModelAttribute ChargeForm form, Model model) {
 		int[] years = new int[10];
 		int year = LocalDate.now().getYear();
 		for (int i = 0; i < years.length; i++) {
@@ -124,13 +122,15 @@ public class GuestController {
 	}
 
 	@PostMapping("/charge")
-	public String order(@ModelAttribute ChargeForm form, Model model) {
+	public String order(@ModelAttribute ChargeForm form, BindingResult result,
+			RedirectAttributes redirectAttributes) {
+		logger.info("email: " + form.getEmail());
 		// TODO: insert order. charged = false
 		String order = DateTimeFormat.forPattern("yyyyMMddHHmmssSSS").print(DateTime.now());
 		int price = 1000;
 
 		try {
-			Client client = new Client("pkey_test_5crja3prxerg79lsrbg", "skey_test_5crja3ps6nt8ihsag20");
+			Client client = new Client("skey_test_5crja3ps6nt8ihsag20");
 			Charge charge = client.charges().create(new Charge.Create()
 					.amount(price)
 					.currency("jpy")

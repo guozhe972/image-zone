@@ -36,10 +36,10 @@ html {
 			if (!$(this).get(0).checkValidity()) {
 				event.preventDefault();
 				event.stopPropagation();
+				$(this).addClass('was-validated');
 			} else {
 				$('#mdlWaiting').modal('show');
 			}
-			$(this).addClass('was-validated');
 		});
 
 		/*

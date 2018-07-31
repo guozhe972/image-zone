@@ -6,47 +6,53 @@
 <title>charge</title>
 <script>
 	$(function() {
-		$('#fomCharge')
-				.submit(
-						function(event) {
-							event.preventDefault();
+		// for test =====
+		$('#email').val('guest@mail.com');
+		$('#number').val('4111111111111111');
+		$('#name').val('TARO TEST');
+		$('#code').val('123');
+		// for test =====
 
-							var form = $(this).get(0);
-							$('#mdlWaiting').modal('show');
-							$('#btnCharge').prop('disabled', true);
+		$('#fomCharge').submit(
+				function(event) {
+					event.preventDefault();
+					var form = $(this).get(0);
+					if (!form.checkValidity()) {
+						event.stopPropagation();
+						$(this).addClass('was-validated');
+						return;
+					}
+					$('#mdlWaiting').modal('show');
 
-							var card = {
-								name : $('#name').val(),
-								number : $('#number').val(),
-								expiration_month : $('#month').val(),
-								expiration_year : $('#year').val(),
-								security_code : $('#code').val()
-							};
+					var card = {
+						name : $('#name').val(),
+						number : $('#number').val(),
+						expiration_month : $('#month').val(),
+						expiration_year : $('#year').val(),
+						security_code : $('#code').val()
+					};
 
-							Omise
-									.createToken(
-											'card',
-											card,
-											function(statusCode, response) {
-												if (response.object == 'error'
-														|| !response.card.security_code_check) {
-													var message = 'SET YOUR SECURITY CODE CHECK FAILED MESSAGE';
-													if (response.object == "error") {
-														message = response.message;
-													}
-													alert(message);
+					Omise.createToken('card', card, function(statusCode,
+							response) {
+						if (response.object == 'error'
+								|| !response.card.security_code_check) {
+							var message = 'SECURITY CODE ERROR!';
+							if (response.object == "error") {
+								message = response.message;
+							}
+							var errors = [ message ];
+							showAlertError(errors);
 
-													$('#btnCharge').prop(
-															'disabled', false);
-													$('#mdlWaiting').modal(
-															'hide');
-												} else {
-													$('#token')
-															.val(response.id);
-													form.submit();
-												}
-											});
-						});
+							$('#mdlWaiting').modal('hide');
+						} else {
+							$('#token').val(response.id);
+							$('#number').val('');
+							$('#name').val('');
+							$('#code').val('');
+							form.submit();
+						}
+					});
+				});
 	});
 </script>
 </head>
@@ -57,11 +63,13 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto">
-		<form class="mw-form mx-auto pt-3" id="fomCharge"
+	<th:block layout:replace="~{layout/parts/alert::error}" />
+		<form class="mw-form mx-auto pt-3" id="fomCharge" novalidate
 			th:action="@{/guest/charge}" th:object="${chargeForm}" method="post"
 			autocomplete="off">
 			<h4>注文手続き</h4>
 			<hr>
+			<th:block layout:replace="~{layout/parts/alert::error}" />
 			<input type="hidden" id="token" name="token" />
 			<div class="form-group row">
 				<label for="email" class="col-sm-4 col-form-label text-sm-right">メールアドレス</label>
@@ -75,31 +83,26 @@
 			<div class="form-group row">
 				<label for="number" class="col-sm-4 col-form-label text-sm-right">カード番号</label>
 				<div class="col-sm-8">
-					<input type="text" th:field="*{number}" class="form-control"
-						th:errorclass="is-invalid" maxlength="16" placeholder="" required />
-					<div class="invalid-feedback"
-						th:if="${#fields.hasErrors('number')}" th:errors="*{number}">number
-						error</div>
+					<input type="text" id="number" name="number" class="form-control"
+						maxlength="16" placeholder="" required />
+					<div class="invalid-feedback">number error</div>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="name" class="col-sm-4 col-form-label text-sm-right">カード名義</label>
 				<div class="col-sm-8">
 					<input type="text" id="name" name="name" class="form-control"
-						th:value="*{name}" th:errorclass="is-invalid" maxlength="50"
-						placeholder="" required /> <small class="form-text text-muted">カード上に表示されているフルネーム</small>
-					<div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
-						th:errors="*{name}">name error</div>
+						maxlength="50" placeholder="" required /> <small
+						class="form-text text-muted">カード上に表示されているフルネーム</small>
+					<div class="invalid-feedback">name error</div>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="expiry" class="col-sm-4 col-form-label text-sm-right">有効期限</label>
 				<div class="col-sm-8">
-					<input type="hidden" id="expiry" name="expiry" />
-					<div class="input-group">
+					<div class="input-group" id="expiry">
 						<select id="month" name="month" class="custom-select">
-							<option value="-1" selected>選択...</option>
-							<option value="1">01</option>
+							<option value="1" selected>01</option>
 							<option value="2">02</option>
 							<option value="3">03</option>
 							<option value="4">04</option>
@@ -116,23 +119,18 @@
 							<span class="input-group-text">/</span>
 						</div>
 						<select id="year" name="year" class="custom-select">
-							<option value="-1" selected>選択...</option>
-							<option th:each="year : ${years}" th:value="${year}"
-								th:text="${year}">2018</option>
+							<option th:each="year,stat : ${years}" th:value="${year}"
+								th:text="${year}" th:selected="${stat.count}==3">2018</option>
 						</select>
 					</div>
-					<div class="invalid-feedback"
-						th:if="${#fields.hasErrors('expiry')}" th:errors="*{expiry}">expiry
-						error</div>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="code" class="col-sm-4 col-form-label text-sm-right">セキュリティコード</label>
 				<div class="col-sm-8">
-					<input type="text" th:field="*{code}" class="form-control"
-						th:errorclass="is-invalid" maxlength="4" placeholder="" required />
-					<div class="invalid-feedback" th:if="${#fields.hasErrors('code')}"
-						th:errors="*{code}">code error</div>
+					<input type="text" id="code" name="code" class="form-control"
+						maxlength="4" placeholder="" required />
+					<div class="invalid-feedback">code error</div>
 				</div>
 			</div>
 			<div class="form-group row">
