@@ -5,18 +5,18 @@
 <mapper namespace="com.cncsys.imgz.mapper.FolderMapper">
 
 	<select id="selectByUser" resultType="FolderEntity">
-		select username, seq, name,
-		locked, shared, guest
-		from folder
-		where username = #{username}
-		order by seq asc
+		select folder.username, folder.seq, folder.name,
+		folder.locked, folder.shared, folder.guest, account.expiredt
+		from folder left join account on folder.guest = account.username
+		where folder.username = #{username}
+		order by folder.seq asc
 	</select>
 
 	<select id="selectFolder" resultType="FolderEntity">
-		select username, seq, name,
-		locked, shared, guest
-		from folder
-		where username = #{username} and seq =
+		select folder.username, folder.seq, folder.name,
+		folder.locked, folder.shared, folder.guest, account.expiredt
+		from folder left join account on folder.guest = account.username
+		where folder.username = #{username} and folder.seq =
 		#{seq}
 	</select>
 

@@ -98,7 +98,7 @@ html {
 				<div class="col-sm-8">
 					<input type="date" th:field="*{expiredt}" class="form-control"
 						th:min="${#dates.format(#dates.createToday(),'yyyy-MM-dd')}"
-						max="9999-12-31" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required />
+						th:max="*{expiredt}" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required />
 				</div>
 			</div>
 			<div class="form-group row">

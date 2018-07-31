@@ -19,6 +19,9 @@ public class AccountService {
 	@Value("${init.folder.count}")
 	private int FOLDER_COUNT;
 
+	@Value("${default.expired.days}")
+	private int DEFAULT_EXPIRED;
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
@@ -49,6 +52,7 @@ public class AccountService {
 		account.setCreatedt(sysnow);
 		account.setEnabled(true);
 		if (accountMapper.insertAccount(account) > 0) {
+			LocalDate expiredt = LocalDate.now().plusDays(DEFAULT_EXPIRED);
 			for (int i = 0; i < FOLDER_COUNT; i++) {
 				int seq = folderMapper.insertFolder(username, sysnow);
 				String guest = username + "." + String.format("%02d", seq);
@@ -59,6 +63,7 @@ public class AccountService {
 				account.setAuthority(Authority.GUEST);
 				account.setCreatedt(sysnow);
 				account.setEnabled(false);
+				account.setExpiredt(expiredt);
 				if (accountMapper.insertAccount(account) > 0) {
 					folderMapper.updateGuest(username, seq, guest);
 				}

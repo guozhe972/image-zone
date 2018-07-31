@@ -58,16 +58,17 @@ CREATE TABLE photo
 );
 
 DROP TABLE IF EXISTS order;
-CREATE TABLE photo
+CREATE TABLE order
 (
-    num varchar(100) NOT NULL,
-    email varchar (100) NOT NULL,
+    number varchar(100) NOT NULL,
     username varchar(100) NOT NULL,
     folder int NOT NULL,
     thumbnail varchar(100) NOT NULL,
+    original varchar(100) NOT NULL,
     price int NOT NULL,
+    email varchar (100) NOT NULL,
     createdt timestamp NOT NULL,
-    CONSTRAINT photo_pkey PRIMARY KEY (username, folder, thumbnail)
+    CONSTRAINT order_pkey PRIMARY KEY (number, username, folder, thumbnail)
 );
 
 

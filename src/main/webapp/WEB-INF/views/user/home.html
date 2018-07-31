@@ -181,9 +181,9 @@ label.custom-file-label::after {
 				enctype="multipart/form-data">
 				<div class="form-group">
 					<label th:for="${#ids.next('seq')}"
-						th:text="*{name}?:|#{label.folder} *{seq}|"></label><span th:text="*{expiredt}?| (*{expiredt})|:''"></span><input
-						type="hidden" th:id="${#ids.seq('seq')}" name="seq"
-						th:value="*{seq}" />
+						th:text="*{name}?:|#{label.folder} *{seq}|"></label><span
+						th:text="| (有効期限：*{expiredt})|"></span><input type="hidden"
+						th:id="${#ids.seq('seq')}" name="seq" th:value="*{seq}" />
 					<div class="custom-file">
 						<input type="file" class="custom-file-input"
 							th:disabled="*{shared}" th:id="${#ids.seq('files')}" name="files"
@@ -200,17 +200,11 @@ label.custom-file-label::after {
 						th:onclick="|return checkFolder(*{seq});|">
 						<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
 					</button>
-					<a class="btn btn-primary text-none-xs ml-sm-3"
+					<a class="btn btn-success text-none-xs ml-sm-3"
 						th:onclick="|return checkFolder(*{seq});|"
 						th:href="@{|/user/folder/*{seq}|}" role="button"> <i
 						class="fas fa-yen-sign"></i><span>&nbsp;<th:block
 								th:text="*{shared} ? '金額確認':'金額設定'">金額設定</th:block></span>
-					</a> <a class="btn btn-success text-none-xs ml-sm-3"
-						th:classappend="*{shared}?'disabled'"
-						th:onclick="|return checkFolder(*{seq});|"
-						th:href="@{|/user/share/*{seq}|}" role="button"> <i
-						class="fas fa-share-alt"></i><span>&nbsp;<th:block
-								th:text="*{shared} ? '公開済み':'公開する'">公開する</th:block></span>
 					</a>
 					<button type="button" class="btn btn-danger text-none-xs ml-sm-3"
 						data-toggle="modal" data-target="#mdlClear"

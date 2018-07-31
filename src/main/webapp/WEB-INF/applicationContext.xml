@@ -52,9 +52,11 @@
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 
-	<task:annotation-driven executor="taskExecutor" />
+	<task:annotation-driven executor="taskExecutor"
+		scheduler="taskScheduler" />
 	<task:executor id="taskExecutor" pool-size="10"
 		queue-capacity="30" keep-alive="60" />
+	<task:scheduler id="taskScheduler" pool-size="10" />
 
 	<context:annotation-config />
 	<context:component-scan

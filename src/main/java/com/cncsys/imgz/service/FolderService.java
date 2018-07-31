@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,9 @@ import com.cncsys.imgz.mapper.PhotoMapper;
 
 @Service
 public class FolderService {
+
+	@Value("${default.expired.days}")
+	private int DEFAULT_EXPIRED;
 
 	@Autowired
 	private FolderMapper folderMapper;
@@ -61,7 +65,7 @@ public class FolderService {
 		account.setUsername(guest);
 		account.setPassword(passwordEncoder.encode(guest));
 		account.setEnabled(false);
-		account.setExpiredt(null);
+		account.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED));
 		accountMapper.updateAccount(account);
 
 		photoMapper.deleteByFolder(username, seq);
