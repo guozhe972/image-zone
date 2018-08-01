@@ -4,9 +4,6 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>done</title>
-<script>
-
-</script>
 </head>
 <body layout:fragment="body" class="pt-header d-flex align-items-start">
 	<header layout:insert="~{layout/parts/navbar::guest(-1)}"
@@ -18,7 +15,7 @@
 		<h4>ご購入いただきありがとうございます</h4>
 		<br>
 		<p th:if="${order}" th:text="${order}"></p>
-		<br> <a th:if="${link}" class="btn btn-success" target="_blank"
+		<br> <a th:if="${link}" class="btn btn-success"
 			th:href="@{${link}}" role="button">ダウンロードへ</a>
 	</div>
 

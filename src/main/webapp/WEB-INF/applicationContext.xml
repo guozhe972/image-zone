@@ -32,6 +32,8 @@
 		location="/WEB-INF/images/" />
 	<mvc:resources mapping="/upload/**"
 		location="file:/apl/imgz/upload/" />
+	<mvc:resources mapping="/order/**"
+		location="file:/apl/imgz/order/" />
 
 	<bean id="messageSource"
 		class="org.springframework.context.support.ResourceBundleMessageSource">
@@ -75,6 +77,7 @@
 			</list>
 		</property>
 	</bean>
+
 
 	<bean id="templateResolver"
 		class="org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver">
@@ -158,6 +161,8 @@
 		<sec:intercept-url pattern="/auth/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/download/**"
+			access="permitAll" />
+		<sec:intercept-url pattern="/order/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/admin/**"
 			access="hasAuthority('ADMIN')" />

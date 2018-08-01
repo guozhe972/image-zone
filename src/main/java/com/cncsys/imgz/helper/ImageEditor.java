@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -61,13 +60,15 @@ public class ImageEditor {
 		sHeight = THUMBNAIL_SCALE;
 		sWidth = (int) ((double) sHeight * source.getWidth() / source.getHeight());
 
-		BufferedImage thumb = new BufferedImage(sWidth, sHeight, BufferedImage.TYPE_INT_RGB);
+		BufferedImage scaled = new BufferedImage(sWidth, sHeight, BufferedImage.TYPE_INT_RGB);
 		double xScale = (double) sWidth / source.getWidth();
 		double yScale = (double) sHeight / source.getHeight();
 		AffineTransform at = AffineTransform.getScaleInstance(xScale, yScale);
-		AffineTransformOp atOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-		atOp.filter(source, thumb);
-		return thumb;
+		//AffineTransformOp atOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+		//atOp.filter(source, scaled);
+		Graphics2D g2d = scaled.createGraphics();
+		g2d.drawRenderedImage(source, at);
+		g2d.dispose();
+		return scaled;
 	}
-
 }

@@ -4,20 +4,40 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>download</title>
-<script>
-
-</script>
 </head>
 <body layout:fragment="body" class="pt-header">
 	<header layout:replace="~{layout/parts/header::header(false, false)}"></header>
 
-	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container-fluid bg-main">
-
-		ダウンロード
+	<div id="altWarn"
+		class="alert alert-warning alert-dismissible mx-3 mt-3 mb-0 fade show"
+		th:style="${#lists.isEmpty(warns)}? 'display: none;'" role="alert">
+		<button type="button" class="close"
+			onclick="$('#altWarn').fadeOut(300);">&times;</button>
+		<div>
+			<div th:each="msg : ${warns}" th:text="${msg}"></div>
+		</div>
 	</div>
 
-
-
+	<div class="container-fluid bg-main">
+		<div class="row pr-3 pb-3">
+			<div th:each="form,stat : ${photos}" th:object="${form}"
+				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
+				<div class="card">
+					<div
+						class="card-body p-0 d-flex justify-content-center align-items-center"
+						style="height: 200px">
+						<img class="img-fluid"
+							th:src="@{|/order/*{username}/thumbnail_*{thumbnail}|}"
+							alt="thumbnail">
+					</div>
+					<div class="card-footer p-1 bg-white">
+						<a role="button" th:href="@{|/order/*{username}/*{thumbnail}|}"
+							th:download="|IMG${#numbers.formatInteger(stat.count,5)}|"
+							class="btn btn-success btn-sm w-100">ダウンロード</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 </html>

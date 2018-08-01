@@ -113,7 +113,7 @@ button[id^="btnPrice"]:disabled {
 							th:classappend="${shared}?'w-100'" th:disabled="${shared}"
 							data-toggle="modal" data-target="#mdlPrice"
 							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{mark.money}','').replace(/,/g,''));|"
-							th:text="|#{mark.money}${#numbers.formatInteger(__*{price}__,1,'COMMA')}|">金額</button>
+							th:text="|#{mark.money}*{#numbers.formatInteger(price,1,'COMMA')}|">金額</button>
 						<button type="button" class="btn btn-danger btn-sm float-right"
 							th:classappend="${shared}?'d-none'" data-toggle="modal"
 							data-target="#mdlDelete"

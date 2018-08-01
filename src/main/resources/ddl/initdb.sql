@@ -14,6 +14,7 @@ CREATE TABLE account
     password varchar (100) NOT NULL,
     email varchar (100),
     authority varchar(10) NOT NULL,
+    balance int NOT NULL,
     createdt timestamp NOT NULL,
     enabled boolean NOT NULL,
     expiredt date,
@@ -57,19 +58,22 @@ CREATE TABLE photo
     CONSTRAINT photo_pkey PRIMARY KEY (username, folder, thumbnail)
 );
 
-DROP TABLE IF EXISTS order;
-CREATE TABLE order
+DROP TABLE IF EXISTS "order";
+CREATE TABLE "order"
 (
-    number varchar(100) NOT NULL,
+    "number" varchar(100) NOT NULL,
+    email varchar (100) NOT NULL,
     username varchar(100) NOT NULL,
     folder int NOT NULL,
     thumbnail varchar(100) NOT NULL,
     original varchar(100) NOT NULL,
     price int NOT NULL,
-    email varchar (100) NOT NULL,
     createdt timestamp NOT NULL,
-    CONSTRAINT order_pkey PRIMARY KEY (number, username, folder, thumbnail)
+    charged boolean NOT NULL,
+    expiredt date NOT NULL,
+    CONSTRAINT order_pkey PRIMARY KEY ("number", email, original)
 );
+CREATE INDEX order_idx1 ON "order" (username, folder, thumbnail);
 
 
 --passwd:1234

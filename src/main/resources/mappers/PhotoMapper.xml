@@ -30,6 +30,14 @@
 		photo.createdt asc
 	</select>
 
+	<select id="selectPhoto" resultType="PhotoEntity">
+		select username, folder, thumbnail, original, price, createdt
+		from photo
+		where username = #{username}
+		and folder = #{folder}
+		and thumbnail = #{thumbnail}
+	</select>
+
 	<insert id="insertPhoto" parameterType="PhotoEntity">
 		insert into photo
 		(username, folder, thumbnail, original, price, createdt)

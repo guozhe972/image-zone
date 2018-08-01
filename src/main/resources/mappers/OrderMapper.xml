@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cncsys.imgz.mapper.OrderMapper">
+
+	<select id="selectOrder" resultType="OrderEntity">
+		select "number", email, username, folder, thumbnail, original, price,
+		createdt, charged, expiredt
+		from "order"
+		where "number" = #{number}
+		and email = #{email}
+		and expiredt >= #{expiredt}
+		order by createdt asc
+	</select>
+
+	<insert id="insertOrder" parameterType="OrderEntity">
+		insert into "order"
+		("number", email, username, folder, thumbnail, original, price,
+		createdt, charged, expiredt)
+		values
+		(#{number}, #{email}, #{username},
+		#{folder}, #{thumbnail}, #{original}, #{price}, #{createdt},
+		#{charged}, #{expiredt})
+	</insert>
+
+	<update id="updateCharged">
+		update "order" set charged = #{charged}
+		where "number" = #{number} and email = #{email}
+	</update>
+
+</mapper>

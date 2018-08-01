@@ -12,6 +12,9 @@ public interface PhotoMapper {
 
 	List<PhotoEntity> selectByGuest(@Param("guest") String guest);
 
+	PhotoEntity selectPhoto(@Param("username") String username, @Param("folder") int folder,
+			@Param("thumbnail") String thumbnail);
+
 	void insertPhoto(PhotoEntity photo);
 
 	String deletePhoto(@Param("username") String username, @Param("folder") int folder,

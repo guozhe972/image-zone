@@ -1,12 +1,15 @@
 package com.cncsys.imgz.controller;
 
-import java.time.LocalDate;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -27,12 +30,15 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.helper.CodeParser;
+import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.helper.MailHelper;
 import com.cncsys.imgz.model.ChargeForm;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
+import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
 
@@ -40,7 +46,6 @@ import com.cncsys.imgz.service.PhotoService;
 @RequestMapping("/guest")
 @SessionAttributes("cart")
 public class GuestController {
-	private static final Logger logger = LoggerFactory.getLogger(GuestController.class);
 
 	public static final String FORM_MODEL_KEY = "cart";
 
@@ -53,6 +58,12 @@ public class GuestController {
 	@Value("${order.download.limit}")
 	private int DOWNLOAD_LIMIT;
 
+	@Value("${upload.file.original}")
+	private String ORIGINAL_PATH;
+
+	@Value("${order.file.path}")
+	private String ORDER_PATH;
+
 	@Autowired
 	private PhotoService photoService;
 
@@ -60,10 +71,16 @@ public class GuestController {
 	private OrderService orderService;
 
 	@Autowired
+	private AsyncService asyncService;
+
+	@Autowired
 	private CodeParser codeParser;
 
 	@Autowired
 	private MailHelper mailHelper;
+
+	@Autowired
+	private FileHelper fileHelper;
 
 	@GetMapping("/home")
 	public String home(Model model) {
@@ -145,24 +162,67 @@ public class GuestController {
 	}
 
 	@PostMapping("/charge")
-	public String order(@ModelAttribute ChargeForm form, BindingResult result,
+	public String order(@ModelAttribute ChargeForm form, BindingResult result, Model model,
 			RedirectAttributes redirectAttributes, SessionStatus sessionStatus, UriComponentsBuilder builder) {
-		logger.info("email: " + form.getEmail());
-		logger.info("token: " + form.getToken());
+		@SuppressWarnings("unchecked")
+		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
+		if (cart.isEmpty()) {
+			return "redirect:/guest/done";
+		}
 
+		// order info
 		String number = orderService.createNumber();
-		// TODO: copy photos to order folder.
-		// TODO: async make thumb.
-		LocalDate expiry = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
 		String email = form.getEmail();
-		// TODO: insert order. charged = false
+		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
+		List<String> photos = new ArrayList<String>();
+		int total = 0;
 
+		// copy photos to order folder.
+		try {
+			fileHelper.createDirectory(ORDER_PATH + "/" + number);
+			for (PhotoForm photo : cart) {
+				PhotoEntity entity = photoService.getPhoto(photo.getUsername(), photo.getFolder(),
+						photo.getThumbnail());
+
+				Path src = Paths.get(ORIGINAL_PATH + "/" + entity.getUsername() + "/" +
+						String.valueOf(entity.getFolder()) + "/" + entity.getOriginal());
+				String destFile = ORDER_PATH + "/" + number + "/" + entity.getOriginal();
+				Path dest = Paths.get(destFile);
+				Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+				photos.add(destFile);
+				total = total + entity.getPrice();
+
+				OrderEntity order = new OrderEntity();
+				order.setNumber(number);
+				order.setEmail(email);
+				order.setUsername(entity.getUsername());
+				order.setFolder(entity.getFolder());
+				order.setThumbnail(entity.getThumbnail());
+				order.setOriginal(entity.getOriginal());
+				order.setPrice(entity.getPrice());
+				order.setCreatedt(DateTime.now());
+				order.setCharged(false);
+				order.setExpiredt(expiredt);
+				orderService.insertOrder(order);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+
+			sessionStatus.setComplete();
+			List<String> errors = new ArrayList<String>();
+			errors.add(e.getMessage());
+			redirectAttributes.addFlashAttribute("errors", errors);
+			return "redirect:/guest/charge";
+		}
+
+		// make thumbnail.
+		asyncService.makeThumbnail(photos);
 
 		//		// charge process
 		//		try {
 		//			Client client = new Client("skey_test_5crja3ps6nt8ihsag20");
 		//			Charge charge = client.charges().create(new Charge.Create()
-		//					.amount(1000)
+		//					.amount(total)
 		//					.currency("jpy")
 		//					.capture(true)
 		//					.description("Order Number: " + order)
@@ -181,12 +241,12 @@ public class GuestController {
 
 		// charge success
 		sessionStatus.setComplete();
-		// TODO: update order. charged = true
+		orderService.chargeOrder(number, email);
 
 		String link = "/download/" + number + "/" + codeParser.encrypt(email);
 		List<String> param = new ArrayList<String>();
 		param.add(number);
-		param.add(expiry.toString());
+		param.add(expiredt.toString());
 		param.add(builder.path(link).build().toUriString());
 		mailHelper.sendOrderDone(email, param);
 

@@ -27,6 +27,12 @@ public class PhotoService {
 		return result;
 	}
 
+	@Transactional(readOnly = true)
+	public PhotoEntity getPhoto(String username, int folder, String thumbnail) {
+		PhotoEntity photo = photoMapper.selectPhoto(username, folder, thumbnail);
+		return photo;
+	}
+
 	@Transactional
 	public void insertPhoto(PhotoEntity photo) {
 		photoMapper.insertPhoto(photo);
