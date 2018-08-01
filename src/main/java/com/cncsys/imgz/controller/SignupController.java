@@ -1,6 +1,5 @@
 package com.cncsys.imgz.controller;
 
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -79,7 +78,7 @@ public class SignupController {
 	}
 
 	@PostMapping("/mail")
-	public String mail(Locale locale, @Validated(Input.class) SignupForm form, BindingResult result,
+	public String mail(@Validated(Input.class) SignupForm form, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 
 		if (result.hasErrors()) {
@@ -87,7 +86,7 @@ public class SignupController {
 			return "redirect:/signup/input";
 		}
 
-		String code = mailHelper.sendRegisterMail(form.getEmail(), locale);
+		String code = mailHelper.sendRegisterConfirm(form.getEmail());
 		form.setToken(passwordEncoder.encode(code));
 		form.setCode(null);
 

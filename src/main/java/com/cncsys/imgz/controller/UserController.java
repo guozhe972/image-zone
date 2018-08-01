@@ -43,9 +43,9 @@ import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
-import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.FolderService;
 import com.cncsys.imgz.service.PhotoService;
+import com.cncsys.imgz.service.UploadService;
 
 @Controller
 @RequestMapping("/user")
@@ -67,7 +67,7 @@ public class UserController {
 	private FileHelper fileHelper;
 
 	@Autowired
-	private AsyncService asyncService;
+	private UploadService uploadService;
 
 	@Autowired
 	private FolderService folderService;
@@ -158,7 +158,7 @@ public class UserController {
 			}
 			fileList.add(uploadFile);
 		}
-		asyncService.upload(user.getUsername(), form.getSeq(), fileList);
+		uploadService.upload(user.getUsername(), form.getSeq(), fileList);
 
 		// unlock folder
 		//folderService.unlock(user.getUsername(), form.getSeq());

@@ -157,6 +157,8 @@
 			access="permitAll" />
 		<sec:intercept-url pattern="/auth/**"
 			access="permitAll" />
+		<sec:intercept-url pattern="/download/**"
+			access="permitAll" />
 		<sec:intercept-url pattern="/admin/**"
 			access="hasAuthority('ADMIN')" />
 		<sec:intercept-url pattern="/user/**"

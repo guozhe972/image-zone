@@ -3,12 +3,13 @@ package com.cncsys.imgz.controller;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,19 +19,22 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.cncsys.imgz.entity.PhotoEntity;
+import com.cncsys.imgz.helper.CodeParser;
+import com.cncsys.imgz.helper.MailHelper;
 import com.cncsys.imgz.model.ChargeForm;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
+import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
-
-import co.omise.Client;
-import co.omise.models.Charge;
-import co.omise.models.ChargeStatus;
 
 @Controller
 @RequestMapping("/guest")
@@ -46,8 +50,20 @@ public class GuestController {
 		return cart;
 	}
 
+	@Value("${order.download.limit}")
+	private int DOWNLOAD_LIMIT;
+
 	@Autowired
 	private PhotoService photoService;
+
+	@Autowired
+	private OrderService orderService;
+
+	@Autowired
+	private CodeParser codeParser;
+
+	@Autowired
+	private MailHelper mailHelper;
 
 	@GetMapping("/home")
 	public String home(Model model) {
@@ -121,40 +137,66 @@ public class GuestController {
 		return "/guest/charge";
 	}
 
-	@PostMapping("/charge")
-	public String order(@ModelAttribute ChargeForm form, BindingResult result,
-			RedirectAttributes redirectAttributes) {
-		logger.info("email: " + form.getEmail());
-		// TODO: insert order. charged = false
-		String order = DateTimeFormat.forPattern("yyyyMMddHHmmssSSS").print(DateTime.now());
-		int price = 1000;
-
-		try {
-			Client client = new Client("skey_test_5crja3ps6nt8ihsag20");
-			Charge charge = client.charges().create(new Charge.Create()
-					.amount(price)
-					.currency("jpy")
-					.capture(true)
-					.description("Order Number: " + order)
-					.card(form.getToken()));
-			logger.info("created charge: " + charge.getId());
-			if (charge.getStatus() == ChargeStatus.Successful) {
-				// TODO: update order. charged = true
-			} else {
-				logger.info(charge.getFailureCode() + ": " + charge.getFailureMessage());
-				// TODO: set error to RedirectAttributes
-				return "redirect:/guest/charge";
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			// TODO: set error to RedirectAttributes
-			return "redirect:/guest/charge";
-		}
-		return "redirect:/guest/download";
+	@PostMapping(path = "/confirm", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+	public @ResponseBody String confirm(@RequestBody Map<String, Object> json) {
+		String email = json.get("email").toString();
+		mailHelper.sendMailConfirm(email);
+		return "ok";
 	}
 
-	@GetMapping("/download")
-	public String down(Model model) {
-		return "/guest/download";
+	@PostMapping("/charge")
+	public String order(@ModelAttribute ChargeForm form, BindingResult result,
+			RedirectAttributes redirectAttributes, SessionStatus sessionStatus, UriComponentsBuilder builder) {
+		logger.info("email: " + form.getEmail());
+		logger.info("token: " + form.getToken());
+
+		String number = orderService.createNumber();
+		// TODO: copy photos to order folder.
+		// TODO: async make thumb.
+		LocalDate expiry = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
+		String email = form.getEmail();
+		// TODO: insert order. charged = false
+
+
+		//		// charge process
+		//		try {
+		//			Client client = new Client("skey_test_5crja3ps6nt8ihsag20");
+		//			Charge charge = client.charges().create(new Charge.Create()
+		//					.amount(1000)
+		//					.currency("jpy")
+		//					.capture(true)
+		//					.description("Order Number: " + order)
+		//					.card(form.getToken()));
+		//			logger.info("created charge: " + charge.getId());
+		//			if (charge.getStatus() != ChargeStatus.Successful) {
+		//				logger.info(charge.getFailureCode() + ": " + charge.getFailureMessage());
+		//				// TODO: set error to RedirectAttributes
+		//				return "redirect:/guest/charge";
+		//			}
+		//		} catch (Exception e) {
+		//			e.printStackTrace();
+		//			// TODO: set error to RedirectAttributes
+		//			return "redirect:/guest/charge";
+		//		}
+
+		// charge success
+		sessionStatus.setComplete();
+		// TODO: update order. charged = true
+
+		String link = "/download/" + number + "/" + codeParser.encrypt(email);
+		List<String> param = new ArrayList<String>();
+		param.add(number);
+		param.add(expiry.toString());
+		param.add(builder.path(link).build().toUriString());
+		mailHelper.sendOrderDone(email, param);
+
+		redirectAttributes.addFlashAttribute("order", number);
+		redirectAttributes.addFlashAttribute("link", link);
+		return "redirect:/guest/done";
+	}
+
+	@GetMapping("/done")
+	public String done(Model model) {
+		return "/guest/done";
 	}
 }

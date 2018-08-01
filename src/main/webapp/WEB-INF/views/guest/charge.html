@@ -13,6 +13,26 @@
 		$('#code').val('123');
 		// for test =====
 
+		$('#btnConfirm').click(function() {
+			if (!$('#email').get(0).checkValidity()) {
+				return;
+			}
+
+			$.ajax({
+				url : '[(@{/guest/confirm})]',
+				method : 'POST',
+				headers : {
+					'[(${_csrf.headerName})]' : '[(${_csrf.token})]'
+				},
+				cache : false,
+				timeout : 10000,
+				contentType : "application/json",
+				data : JSON.stringify({
+					email : $('#email').val()
+				})
+			});
+		});
+
 		$('#fomCharge').submit(
 				function(event) {
 					event.preventDefault();
@@ -63,7 +83,7 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto">
-	<th:block layout:replace="~{layout/parts/alert::error}" />
+		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<form class="mw-form mx-auto pt-3" id="fomCharge" novalidate
 			th:action="@{/guest/charge}" th:object="${chargeForm}" method="post"
 			autocomplete="off">
@@ -73,9 +93,14 @@
 			<input type="hidden" id="token" name="token" />
 			<div class="form-group row">
 				<label for="email" class="col-sm-4 col-form-label text-sm-right">メールアドレス</label>
-				<div class="col-sm-8">
+				<div class="col-sm-8 input-group">
 					<input type="email" th:field="*{email}" class="form-control"
 						th:errorclass="is-invalid" placeholder="" required autofocus />
+					<div class="input-group-append">
+						<button type="button" id="btnConfirm"
+							class="btn btn-success rounded-right">受信確認</button>
+					</div>
+					<small class="form-text text-muted">当サイトからのメールを受信できることを確認してください</small>
 					<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
 						th:errors="*{email}">email error</div>
 				</div>

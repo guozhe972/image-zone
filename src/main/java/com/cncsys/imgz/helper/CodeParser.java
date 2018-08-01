@@ -21,13 +21,19 @@ public class CodeParser {
 	@PostConstruct
 	private void init() {
 		txtEncryptor = Encryptors.delux(ENCRYPT_PASSWORD, ENCRYPT_SALT);
-    }
+	}
 
 	public String encrypt(String code) {
 		return txtEncryptor.encrypt(code);
 	}
 
 	public String decrypt(String encode) {
-		return txtEncryptor.decrypt(encode);
+		String rtn = null;
+		try {
+			rtn = txtEncryptor.decrypt(encode);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return rtn;
 	}
 }

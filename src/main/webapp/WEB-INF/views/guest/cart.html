@@ -25,6 +25,11 @@
 				if (data == '0') {
 					$('#btnClear').addClass('d-none');
 					$('#btnOrder').addClass('disabled');
+					$('#total').text('[(#{mark.money})]0');
+				} else {
+					var total = Number($('#total').text().replace('[(#{mark.money})]', '').replace(/,/g, ''));
+					total -= Number($('#price').val());
+					$('#total').text('[(#{mark.money})]' + total.toString().replace(/(\d)(?=(\d{3})+$)/g,'$1,'));
 				}
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 				// do nothing
@@ -51,12 +56,16 @@
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
 		<div class="pt-3 d-flex justify-content-between">
-			<button type="button" class="btn btn-danger" id="btnClear"
+			<button type="button" class="btn btn-danger d-none" id="btnClear"
 				th:classappend="${#lists.isEmpty(cart)}?'d-none'"
 				data-toggle="modal" data-target="#mdlClear">クリア</button>
+			<button type="button" class="btn btn-warning" th:disabled="true" style="opacity: 1;">
+				合計&nbsp;&nbsp;<span id="total"
+					th:text="${#lists.isEmpty(cart)}?|#{mark.money}0|:|#{mark.money}${#numbers.formatInteger(__${#aggregates.sum(cart.![price])}__,1,'COMMA')}|"></span>
+			</button>
 			<a class="btn btn-success ml-auto" id="btnOrder"
-				th:classappend="${#lists.isEmpty(cart)}?'disabled'" th:href="@{/guest/charge}"
-				role="button">注文手続きへ</a>
+				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
+				th:href="@{/guest/charge}" role="button">注文手続きへ</a>
 		</div>
 		<hr class="mb-0">
 
