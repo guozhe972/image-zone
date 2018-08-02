@@ -4,6 +4,8 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>guest home</title>
+<link rel="stylesheet" th:href="@{/css/imageview.css}">
+<script th:src="@{/js/imageview.js}"></script>
 <script>
 	var target = 0;
 	$(function() {
@@ -36,7 +38,7 @@
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container-fluid bg-main">
+	<div id="iv" class="container-fluid bg-main">
 
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
@@ -46,9 +48,12 @@
 					<div
 						class="card-body p-0 d-flex justify-content-center align-items-center"
 						style="height: 200px">
-						<img class="img-fluid"
+						<a
+							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
+							title="sample"> <img class="img-fluid"
 							th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
+						</a>
 						<div class="badge badge-warning position-absolute"
 							style="top: 0; right: 0;"
 							th:text="|#{mark.money}*{#numbers.formatInteger(price,1,'COMMA')}|">金額</div>
@@ -72,5 +77,8 @@
 			type="hidden" id="price" name="price" />
 	</form>
 
+	<script>
+		$('#iv').imageview();
+	</script>
 </body>
 </html>
