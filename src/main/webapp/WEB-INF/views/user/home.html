@@ -205,6 +205,10 @@ label.custom-file-label::after {
 						th:href="@{|/user/folder/*{seq}|}" role="button"> <i
 						class="fas fa-yen-sign"></i><span>&nbsp;<th:block
 								th:text="*{shared} ? '金額確認':'金額設定'">金額設定</th:block></span>
+					</a> <a class="btn text-none-xs ml-sm-3"
+						th:classappend="*{shared}?'btn-warning':'btn-secondary disabled'"
+						th:href="@{|/user/order/*{seq}|}" role="button"> <i
+						class="fas fa-piggy-bank"></i><span>&nbsp;売上確認</span>
 					</a>
 					<button type="button" class="btn btn-danger text-none-xs ml-sm-3"
 						data-toggle="modal" data-target="#mdlClear"
@@ -213,7 +217,7 @@ label.custom-file-label::after {
 					</button>
 				</div>
 			</form>
-			<hr th:unless="${stat.last}">
+			<hr class="mw-form" th:unless="${stat.last}">
 		</th:block>
 	</div>
 

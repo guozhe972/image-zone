@@ -33,6 +33,16 @@ footer {
 	max-width: 580px;
 }
 
+.rounded-left-0 {
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+}
+
+.rounded-right-0 {
+	border-top-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
 @media ( max-width : 575px) {
 	.text-none-xs {
 		width: auto !important;

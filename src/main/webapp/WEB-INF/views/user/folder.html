@@ -109,12 +109,12 @@ button[id^="btnPrice"]:disabled {
 					</div>
 					<div class="card-footer p-1 bg-white">
 						<button type="button" th:id="|btnPrice${stat.count}|"
-							class="btn btn-warning btn-sm font-weight-bold float-left"
-							th:classappend="${shared}?'w-100'" th:disabled="${shared}"
+							class="btn btn-warning btn-sm rounded-right-0 font-weight-bold float-left w-50"
+							th:classappend="${shared}?'rounded w-100'" th:disabled="${shared}"
 							data-toggle="modal" data-target="#mdlPrice"
 							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{mark.money}','').replace(/,/g,''));|"
 							th:text="|#{mark.money}*{#numbers.formatInteger(price,1,'COMMA')}|">金額</button>
-						<button type="button" class="btn btn-danger btn-sm float-right"
+						<button type="button" class="btn btn-danger btn-sm rounded-left-0 float-right w-50"
 							th:classappend="${shared}?'d-none'" data-toggle="modal"
 							data-target="#mdlDelete"
 							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|">削除</button>
