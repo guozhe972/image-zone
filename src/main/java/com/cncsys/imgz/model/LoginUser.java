@@ -12,6 +12,7 @@ import com.cncsys.imgz.entity.AccountEntity.Authority;
 public class LoginUser extends User {
 	private final String email;
 	private final Authority authority;
+	private int balance;
 	private final LocalDate expiredt;
 
 	public LoginUser(AccountEntity account, boolean nonExpired,
@@ -20,6 +21,7 @@ public class LoginUser extends User {
 				authorities);
 		this.email = account.getEmail();
 		this.authority = account.getAuthority();
+		this.balance = account.getBalance();
 		this.expiredt = account.getExpiredt();
 	}
 
@@ -29,6 +31,14 @@ public class LoginUser extends User {
 
 	public Authority getAuthority() {
 		return authority;
+	}
+
+	public int getBalance() {
+		return balance;
+	}
+
+	public void setBalance(int balance) {
+		this.balance = balance;
 	}
 
 	public LocalDate getExpiredt() {

@@ -27,7 +27,7 @@
 -->
 
 	<select id="selectAccount" resultType="AccountEntity">
-		select username, password, email, authority, createdt, enabled, expiredt
+		select username, password, email, authority, balance, createdt, enabled, expiredt
 		from account
 		where username = #{username}
 	</select>
@@ -47,5 +47,11 @@
 		enabled = #{enabled}, expiredt = #{expiredt}
 		where username = #{username}
 	</update>
+
+	<select id="updateBalance" resultType="int">
+		update account set balance = (balance + #{balance})
+		where username = #{username}
+		returning balance
+	</select>
 
 </mapper>

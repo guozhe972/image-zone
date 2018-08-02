@@ -14,4 +14,6 @@ public interface AccountMapper {
 	void updateLogindt(@Param("username") String username, @Param("logindt") DateTime logindt);
 
 	int updateAccount(AccountEntity account);
+
+	int updateBalance(@Param("username") String username, @Param("balance") int balance);
 }

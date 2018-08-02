@@ -38,6 +38,7 @@ import com.cncsys.imgz.helper.MailHelper;
 import com.cncsys.imgz.model.ChargeForm;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
+import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
@@ -69,6 +70,9 @@ public class GuestController {
 
 	@Autowired
 	private OrderService orderService;
+
+	@Autowired
+	private AccountService accountService;
 
 	@Autowired
 	private AsyncService asyncService;
@@ -174,6 +178,7 @@ public class GuestController {
 		String number = orderService.createNumber();
 		String email = form.getEmail();
 		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
+		String username = cart.get(0).getUsername();
 		List<String> photos = new ArrayList<String>();
 		int total = 0;
 
@@ -242,6 +247,7 @@ public class GuestController {
 		// charge success
 		sessionStatus.setComplete();
 		orderService.chargeOrder(number, email);
+		accountService.plusBalance(username, total);
 
 		String link = "/download/" + number + "/" + codeParser.encrypt(email);
 		List<String> param = new ArrayList<String>();

@@ -16,6 +16,7 @@ public class AccountEntity {
 	private String password;
 	private String email;
 	private Authority authority;
+	private int balance;
 	private DateTime createdt;
 	private boolean enabled;
 	private LocalDate expiredt;

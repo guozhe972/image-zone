@@ -72,6 +72,16 @@ public class AccountService {
 	}
 
 	@Transactional
+	public int plusBalance(String username, int amount) {
+		return accountMapper.updateBalance(username, amount);
+	}
+
+	@Transactional
+	public int minusBalance(String username, int amount) {
+		return accountMapper.updateBalance(username, -amount);
+	}
+
+	@Transactional
 	public void updateLogindt(String username) {
 		accountMapper.updateLogindt(username, DateTime.now());
 	}

@@ -14,7 +14,7 @@ CREATE TABLE account
     password varchar (100) NOT NULL,
     email varchar (100),
     authority varchar(10) NOT NULL,
-    balance int NOT NULL,
+    balance int NOT NULL DEFAULT 0,
     createdt timestamp NOT NULL,
     enabled boolean NOT NULL,
     expiredt date,
