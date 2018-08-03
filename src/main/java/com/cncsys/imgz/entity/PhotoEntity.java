@@ -10,6 +10,7 @@ public class PhotoEntity {
 	private int folder;
 	private String thumbnail;
 	private String original;
+	private String filename;
 	private int price;
 	private DateTime createdt;
 }

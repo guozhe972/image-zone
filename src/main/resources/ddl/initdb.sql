@@ -53,6 +53,7 @@ CREATE TABLE photo
     folder int NOT NULL,
     thumbnail varchar(100) NOT NULL,
     original varchar(100) NOT NULL,
+    filename varchar(255) NOT NULL,
     price int NOT NULL,
     createdt timestamp NOT NULL,
     CONSTRAINT photo_pkey PRIMARY KEY (username, folder, thumbnail)
@@ -67,6 +68,7 @@ CREATE TABLE "order"
     folder int NOT NULL,
     thumbnail varchar(100) NOT NULL,
     original varchar(100) NOT NULL,
+    filename varchar(255) NOT NULL,
     price int NOT NULL,
     createdt timestamp NOT NULL,
     charged boolean NOT NULL,

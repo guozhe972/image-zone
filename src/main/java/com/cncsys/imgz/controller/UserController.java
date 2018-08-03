@@ -138,7 +138,7 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		String tempPath = UPLOAD_PATH + "/" + user.getUsername() + "/" + form.getSeq() + "/" + "temp";
+		String tempPath = UPLOAD_PATH + "/" + user.getUsername() + "/" + String.valueOf(form.getSeq()) + "/" + "temp";
 		fileHelper.createDirectory(tempPath);
 
 		// lock folder
@@ -149,14 +149,13 @@ public class UserController {
 		List<String> fileList = new ArrayList<String>();
 		for (MultipartFile file : form.getFiles()) {
 			String fileName = file.getOriginalFilename();
-			fileName = uuid + String.format("_%08d%s", cnt++, fileHelper.getExtension(fileName));
-			String uploadFile = tempPath + "/" + fileName;
+			String newName = uuid + String.format("_%08d%s", cnt++, fileHelper.getExtension(fileName));
 			try {
-				file.transferTo(new File(uploadFile));
+				file.transferTo(new File(tempPath + "/" + newName));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			fileList.add(uploadFile);
+			fileList.add(fileName + "/" + newName);
 		}
 		uploadService.upload(user.getUsername(), form.getSeq(), fileList);
 

@@ -13,6 +13,7 @@ public class OrderEntity {
 	private int folder;
 	private String thumbnail;
 	private String original;
+	private String filename;
 	private int price;
 	private DateTime createdt;
 	private boolean charged;

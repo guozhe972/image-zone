@@ -9,10 +9,12 @@ button[id^="btnPrice"]:disabled {
 	opacity: 1 !important;
 }
 </style>
+<script th:src="@{/js/lazyload.min.js}"></script>
 <script>
 	var target = 0;
 	var process = '';
 	$(function() {
+		lazyload();
 
 		$('#mdlPrice').on('shown.bs.modal', function() {
 			$('#money').trigger('focus');
@@ -103,18 +105,20 @@ button[id^="btnPrice"]:disabled {
 					<div
 						class="card-body p-0 d-flex justify-content-center align-items-center"
 						style="height: 200px">
-						<img class="img-fluid"
-							th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
+						<img class="lazyload img-fluid" th:src="@{/images/loading.svg}"
+							th:data-src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 					</div>
 					<div class="card-footer p-1 bg-white">
 						<button type="button" th:id="|btnPrice${stat.count}|"
 							class="btn btn-warning btn-sm rounded-right-0 font-weight-bold float-left w-50"
-							th:classappend="${shared}?'rounded w-100'" th:disabled="${shared}"
-							data-toggle="modal" data-target="#mdlPrice"
+							th:classappend="${shared}?'rounded w-100'"
+							th:disabled="${shared}" data-toggle="modal"
+							data-target="#mdlPrice"
 							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{mark.money}','').replace(/,/g,''));|"
 							th:text="|#{mark.money}*{#numbers.formatInteger(price,1,'COMMA')}|">金額</button>
-						<button type="button" class="btn btn-danger btn-sm rounded-left-0 float-right w-50"
+						<button type="button"
+							class="btn btn-danger btn-sm rounded-left-0 float-right w-50"
 							th:classappend="${shared}?'d-none'" data-toggle="modal"
 							data-target="#mdlDelete"
 							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|">削除</button>
@@ -148,7 +152,8 @@ button[id^="btnPrice"]:disabled {
 							<span class="input-group-text">金額</span>
 						</div>
 						<input type="number" id="money" min="100" max="6000000" step="100"
-							value="100" maxlength="7" class="form-control text-right num-only" />
+							value="100" maxlength="7"
+							class="form-control text-right num-only" />
 						<div class="input-group-append">
 							<span class="input-group-text">円</span>
 						</div>

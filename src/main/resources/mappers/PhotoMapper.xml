@@ -7,7 +7,7 @@
 	<select id="selectByFolder" resultType="PhotoEntity">
 		select username,
 		folder,
-		thumbnail, original, price, createdt
+		thumbnail, original, filename, price, createdt
 		from photo
 		where
 		username =
@@ -18,7 +18,7 @@
 	<select id="selectByGuest" resultType="PhotoEntity">
 		select folder.username,
 		photo.folder,
-		photo.thumbnail, photo.original, photo.price,
+		photo.thumbnail, photo.original, photo.filename, photo.price,
 		photo.createdt
 		from folder, photo
 		where
@@ -31,7 +31,7 @@
 	</select>
 
 	<select id="selectPhoto" resultType="PhotoEntity">
-		select username, folder, thumbnail, original, price, createdt
+		select username, folder, thumbnail, original, filename, price, createdt
 		from photo
 		where username = #{username}
 		and folder = #{folder}
@@ -40,9 +40,9 @@
 
 	<insert id="insertPhoto" parameterType="PhotoEntity">
 		insert into photo
-		(username, folder, thumbnail, original, price, createdt)
+		(username, folder, thumbnail, original, filename, price, createdt)
 		values
-		(#{username}, #{folder}, #{thumbnail}, #{original}, #{price},
+		(#{username}, #{folder}, #{thumbnail}, #{original}, #{filename}, #{price},
 		#{createdt})
 	</insert>
 

@@ -15,6 +15,14 @@ public class FileHelper {
 		return "";
 	}
 
+	public String getName(String file) {
+		int point = file.lastIndexOf("/");
+		if (point != -1) {
+			return file.substring(point + 1);
+		}
+		return file;
+	}
+
 	public void createDirectory(String path) {
 		File dir = new File(path);
 		if (!dir.exists()) {

@@ -204,6 +204,7 @@ public class GuestController {
 				order.setFolder(entity.getFolder());
 				order.setThumbnail(entity.getThumbnail());
 				order.setOriginal(entity.getOriginal());
+				order.setFilename(entity.getFilename());
 				order.setPrice(entity.getPrice());
 				order.setCreatedt(DateTime.now());
 				order.setCharged(false);

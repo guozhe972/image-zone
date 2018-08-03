@@ -5,7 +5,7 @@
 <mapper namespace="com.cncsys.imgz.mapper.OrderMapper">
 
 	<select id="selectOrder" resultType="OrderEntity">
-		select "number", email, username, folder, thumbnail, original, price,
+		select "number", email, username, folder, thumbnail, original, filename, price,
 		createdt, charged, expiredt
 		from "order"
 		where "number" = #{number}
@@ -16,11 +16,11 @@
 
 	<insert id="insertOrder" parameterType="OrderEntity">
 		insert into "order"
-		("number", email, username, folder, thumbnail, original, price,
+		("number", email, username, folder, thumbnail, original, filename, price,
 		createdt, charged, expiredt)
 		values
 		(#{number}, #{email}, #{username},
-		#{folder}, #{thumbnail}, #{original}, #{price}, #{createdt},
+		#{folder}, #{thumbnail}, #{original}, #{filename}, #{price}, #{createdt},
 		#{charged}, #{expiredt})
 	</insert>
 

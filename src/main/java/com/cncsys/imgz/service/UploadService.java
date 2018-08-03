@@ -50,16 +50,21 @@ public class UploadService {
 		String originPath = ORIGINAL_PATH + "/" + username + "/" + String.valueOf(folder);
 		fileHelper.createDirectory(originPath);
 
+		String tempPath = UPLOAD_PATH + "/" + username + "/" + String.valueOf(folder) + "/" + "temp";
 		byte[] buffer = new byte[1024];
 		for (String item : files) {
-			File file = new File(item);
+			String[] args = item.split("/");
+			String fileName = args[0];
+			String newName = args[1];
+			File file = new File(tempPath + "/" + newName);
 			if (file.getName().toLowerCase().endsWith(".zip")) {
 				try {
 					ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName("MS932"));
 					ZipEntry entry = zis.getNextEntry();
 					while (entry != null) {
 						if (!entry.isDirectory() && entry.getName().toLowerCase().matches(".+(\\.jpg|\\.jpeg)$")) {
-							String ext = fileHelper.getExtension(entry.getName());
+							fileName = fileHelper.getName(entry.getName());
+							String ext = fileHelper.getExtension(fileName);
 							try {
 								// unzip original image
 								String originId = UUID.randomUUID().toString() + ext;
@@ -86,6 +91,7 @@ public class UploadService {
 								photo.setFolder(folder);
 								photo.setThumbnail(thumbId);
 								photo.setOriginal(originId);
+								photo.setFilename(fileName);
 								photo.setPrice(DEFAULT_PRICE);
 								photo.setCreatedt(DateTime.now());
 								photoService.insertPhoto(photo);
@@ -124,6 +130,7 @@ public class UploadService {
 					photo.setFolder(folder);
 					photo.setThumbnail(thumbId);
 					photo.setOriginal(originId);
+					photo.setFilename(fileName);
 					photo.setPrice(DEFAULT_PRICE);
 					photo.setCreatedt(DateTime.now());
 					photoService.insertPhoto(photo);

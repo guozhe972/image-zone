@@ -5,10 +5,14 @@
 <head>
 <title>guest home</title>
 <link rel="stylesheet" th:href="@{/css/imageview.css}">
+<script th:src="@{/js/lazyload.min.js}"></script>
 <script th:src="@{/js/imageview.js}"></script>
 <script>
 	var target = 0;
 	$(function() {
+		lazyload();
+		$('#imgView').imageview();
+
 		$('#fomPhoto').submit(function(event) {
 			event.preventDefault();
 
@@ -38,7 +42,7 @@
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div id="iv" class="container-fluid bg-main">
+	<div id="imgView" class="container-fluid bg-main">
 
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
@@ -50,8 +54,9 @@
 						style="height: 200px">
 						<a
 							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
-							title="sample"> <img class="img-fluid"
-							th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
+							title="sample"> <img class="lazyload img-fluid"
+							th:src="@{/images/loading.svg}"
+							th:data-src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 						</a>
 						<div class="badge badge-warning position-absolute"
@@ -77,8 +82,5 @@
 			type="hidden" id="price" name="price" />
 	</form>
 
-	<script>
-		$('#iv').imageview();
-	</script>
 </body>
 </html>
