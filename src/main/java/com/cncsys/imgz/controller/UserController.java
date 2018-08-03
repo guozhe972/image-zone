@@ -258,6 +258,26 @@ public class UserController {
 		return "redirect:/user/home";
 	}
 
+	@GetMapping("/sales/{seq}")
+	public String sales(@PathVariable("seq") int seq, Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		List<PhotoForm> photos = new ArrayList<PhotoForm>();
+		List<PhotoEntity> entity = photoService.getPhotosByFolder(user.getUsername(), seq);
+		for (PhotoEntity photo : entity) {
+			PhotoForm form = new PhotoForm();
+			form.setUsername(photo.getUsername());
+			form.setFolder(photo.getFolder());
+			form.setThumbnail(photo.getThumbnail());
+			form.setPrice(photo.getPrice());
+			photos.add(form);
+		}
+
+		model.addAttribute("photos", photos);
+		return "/user/sales";
+	}
+
 	@PostMapping("/clear")
 	public String clear(@RequestParam("folder") int folder, RedirectAttributes redirectAttributes) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

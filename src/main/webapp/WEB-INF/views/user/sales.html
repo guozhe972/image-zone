@@ -1,0 +1,22 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>user folder</title>
+</head>
+<body layout:fragment="body" class="pt-header">
+	<header layout:insert="~{layout/parts/navbar::user(0)}"
+		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<div class="container bg-main">
+		<ul class="list-group list-group-flush mw-form mx-auto">
+			<li class="list-group-item px-0 py-3">
+
+			</li>
+		</ul>
+	</div>
+
+</body>
+</html>

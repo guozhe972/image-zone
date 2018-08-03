@@ -50,9 +50,21 @@ footer {
 	.text-none-xs>span {
 		display: none;
 	}
+	.text-none {
+		width: auto;
+	}
+	.text-none>span {
+		display: none;
+	}
 	.btn-block-xs {
 		display: block !important;
 		width: 100% !important;
+	}
+}
+
+@media ( min-width : 576px) {
+	.rounded-sm {
+		border-radius: .25rem !important;
 	}
 }
 

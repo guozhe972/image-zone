@@ -8,6 +8,10 @@
 label.custom-file-label::after {
 	content: "[(#{input.file.button})]";
 }
+
+.list-group-flush .list-group-item:first-child {
+	border-top: 0;
+}
 </style>
 <script>
 	var mdlClear = 0;
@@ -173,52 +177,57 @@ label.custom-file-label::after {
 	<th:block layout:replace="~{layout/parts/dialog::progress}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main pt-3">
+	<div class="container bg-main">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
-		<th:block th:each="form,stat : ${folders}">
-			<form data-type="upload" class="mw-form mx-auto"
-				th:action="@{/user/upload}" method="post" th:object="${form}"
-				enctype="multipart/form-data">
-				<div class="form-group">
-					<label th:for="${#ids.next('seq')}"
-						th:text="*{name}?:|#{label.folder} *{seq}|"></label><span
-						th:text="| (有効期限：*{expiredt})|"></span><input type="hidden"
-						th:id="${#ids.seq('seq')}" name="seq" th:value="*{seq}" />
-					<div class="custom-file">
-						<input type="file" class="custom-file-input"
-							th:disabled="*{shared}" th:id="${#ids.seq('files')}" name="files"
-							accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
-							multiple required /> <label th:for="${#ids.prev('files')}"
-							class="custom-file-label text-truncate"
-							th:text="#{input.file.content}"></label>
+
+		<ul class="list-group list-group-flush mw-form mx-auto">
+			<li class="list-group-item px-0 py-3"
+				th:each="form,stat : ${folders}">
+				<form data-type="upload" enctype="multipart/form-data"
+					th:action="@{/user/upload}" method="post" th:object="${form}">
+					<div class="form-group">
+						<label th:for="${#ids.next('seq')}"
+							th:text="*{name}?:|#{label.folder} *{seq}|"></label><span
+							th:text="| (有効期限：*{expiredt})|"></span><input type="hidden"
+							th:id="${#ids.seq('seq')}" name="seq" th:value="*{seq}" />
+						<div class="custom-file">
+							<input type="file" class="custom-file-input"
+								th:disabled="*{shared}" th:id="${#ids.seq('files')}"
+								name="files"
+								accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
+								multiple required /> <label th:for="${#ids.prev('files')}"
+								class="custom-file-label text-truncate"
+								th:text="#{input.file.content}"></label>
+						</div>
 					</div>
-				</div>
-				<div
-					class="form-group d-flex justify-content-around justify-content-sm-start">
-					<button type="submit" class="btn btn-primary text-none-xs"
-						th:classappend="*{shared}?'btn-secondary'" th:disabled="*{shared}"
-						th:onclick="|return checkFolder(*{seq});|">
-						<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
-					</button>
-					<a class="btn btn-success text-none-xs ml-sm-3"
-						th:onclick="|return checkFolder(*{seq});|"
-						th:href="@{|/user/folder/*{seq}|}" role="button"> <i
-						class="fas fa-yen-sign"></i><span>&nbsp;<th:block
-								th:text="*{shared} ? '金額確認':'金額設定'">金額設定</th:block></span>
-					</a> <a class="btn text-none-xs ml-sm-3"
-						th:classappend="*{shared}?'btn-warning':'btn-secondary disabled'"
-						th:href="@{|/user/order/*{seq}|}" role="button"> <i
-						class="fas fa-piggy-bank"></i><span>&nbsp;売上確認</span>
-					</a>
-					<button type="button" class="btn btn-danger text-none-xs ml-sm-3"
-						data-toggle="modal" data-target="#mdlClear"
-						th:onclick="|$('#folder').val(*{seq});|">
-						<i class="fas fa-trash-alt"></i><span>&nbsp;初期化</span>
-					</button>
-				</div>
-			</form>
-			<hr class="mw-form" th:unless="${stat.last}">
-		</th:block>
+					<div
+						class="form-group btn-group d-flex mb-0"
+						role="group">
+						<button type="submit" class="btn btn-primary text-none w-100 rounded-sm"
+							th:classappend="*{shared}?'btn-secondary'"
+							th:disabled="*{shared}"
+							th:onclick="|return checkFolder(*{seq});|">
+							<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
+						</button>
+						<a class="btn btn-success text-none w-100 ml-sm-3 rounded-sm"
+							th:onclick="|return checkFolder(*{seq});|"
+							th:href="@{|/user/folder/*{seq}|}" role="button"> <i
+							class="fas fa-yen-sign"></i><span>&nbsp;<th:block
+									th:text="*{shared} ? '金額確認':'金額設定'">金額設定</th:block></span>
+						</a> <a class="btn text-none w-100 ml-sm-3 rounded-sm"
+							th:classappend="*{shared}?'btn-warning':'btn-secondary disabled'"
+							th:href="@{|/user/sales/*{seq}|}" role="button"> <i
+							class="fas fa-piggy-bank"></i><span>&nbsp;売上確認</span>
+						</a>
+						<button type="button" class="btn btn-danger text-none w-100 ml-sm-3 rounded-sm"
+							data-toggle="modal" data-target="#mdlClear"
+							th:onclick="|$('#folder').val(*{seq});|">
+							<i class="fas fa-trash-alt"></i><span>&nbsp;初期化</span>
+						</button>
+					</div>
+				</form>
+			</li>
+		</ul>
 	</div>
 
 	<form id="fomClear" th:action="@{/user/clear}" method="post">
