@@ -5,12 +5,12 @@
 <head>
 <title>guest home</title>
 <link rel="stylesheet" th:href="@{/css/imageview.css}">
-<script th:src="@{/js/lazyload.min.js}"></script>
-<script th:src="@{/js/imageview.js}"></script>
+<script th:src="@{/js/jquery.lazyload.min.js}"></script>
+<script th:src="@{/js/jquery.imageview.js}"></script>
 <script>
 	var target = 0;
 	$(function() {
-		lazyload();
+		$('img.lazyload').lazyload();
 		$('#imgView').imageview();
 
 		$('#fomPhoto').submit(function(event) {
@@ -49,14 +49,13 @@
 				th:id="|photo${stat.count}|"
 				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card">
-					<div
-						class="card-body p-0 d-flex justify-content-center align-items-center"
-						style="height: 200px">
+					<div class="card-body p-0 text-center"
+						style="height: 200px; line-height: 194px;">
 						<a
 							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
 							title="sample"> <img class="lazyload img-fluid"
-							th:src="@{/images/loading.svg}"
-							th:data-src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
+							style="max-height: 100%;" th:src="@{/images/loading.svg}"
+							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 						</a>
 						<div class="badge badge-warning position-absolute"

@@ -14,7 +14,7 @@ html {
 	class="pt-header pb-footer d-flex align-items-start">
 	<header layout:replace="~{layout/parts/header::header(true, false)}"></header>
 	<div class="container bg-main my-auto pb-5">
-		<form class="mw-form mx-auto pt-3" th:action="@{/login}" method="post">
+		<form class="mw-content mx-auto pt-3" th:action="@{/login}" method="post">
 			<h4>[[#{label.login}]]</h4>
 			<hr>
 			<div th:if="${param.error}"

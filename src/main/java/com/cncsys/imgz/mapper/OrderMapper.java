@@ -12,6 +12,8 @@ public interface OrderMapper {
 	List<OrderEntity> selectOrder(@Param("number") String number, @Param("email") String email,
 			@Param("expiredt") LocalDate expiredt);
 
+	List<OrderEntity> selectByFolder(@Param("username") String username, @Param("folder") int folder);
+
 	int insertOrder(OrderEntity order);
 
 	int updateCharged(@Param("number") String number, @Param("email") String email, @Param("charged") boolean charged);

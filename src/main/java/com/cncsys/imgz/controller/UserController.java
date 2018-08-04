@@ -36,14 +36,17 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cncsys.imgz.entity.FolderEntity;
+import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.model.FolderForm;
 import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
+import com.cncsys.imgz.model.OrderForm;
 import com.cncsys.imgz.model.PhotoForm;
 import com.cncsys.imgz.service.FolderService;
+import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
 import com.cncsys.imgz.service.UploadService;
 
@@ -71,6 +74,9 @@ public class UserController {
 
 	@Autowired
 	private FolderService folderService;
+
+	@Autowired
+	private OrderService orderService;
 
 	@Autowired
 	private PhotoService photoService;
@@ -218,10 +224,10 @@ public class UserController {
 
 		String original = photoService.deletePhoto(user.getUsername(), folder, thumbnail);
 		String folderPath = UPLOAD_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
-		fileHelper.delete(new File(folderPath + "/" + "preview_" + thumbnail));
-		fileHelper.delete(new File(folderPath + "/" + "thumbnail_" + thumbnail));
+		fileHelper.deleteFile(folderPath + "/" + "preview_" + thumbnail);
+		fileHelper.deleteFile(folderPath + "/" + "thumbnail_" + thumbnail);
 		String originPath = ORIGINAL_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
-		fileHelper.delete(new File(originPath + "/" + original));
+		fileHelper.deleteFile(originPath + "/" + original);
 
 		return ResponseEntity.ok().body("ok");
 	}
@@ -263,18 +269,23 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		List<PhotoForm> photos = new ArrayList<PhotoForm>();
-		List<PhotoEntity> entity = photoService.getPhotosByFolder(user.getUsername(), seq);
-		for (PhotoEntity photo : entity) {
-			PhotoForm form = new PhotoForm();
-			form.setUsername(photo.getUsername());
-			form.setFolder(photo.getFolder());
-			form.setThumbnail(photo.getThumbnail());
-			form.setPrice(photo.getPrice());
-			photos.add(form);
+		int total = 0;
+		List<OrderForm> orders = new ArrayList<OrderForm>();
+		List<OrderEntity> entity = orderService.getOrderByFolder(user.getUsername(), seq);
+		for (OrderEntity order : entity) {
+			OrderForm form = new OrderForm();
+			form.setUsername(order.getUsername());
+			form.setFolder(order.getFolder());
+			form.setThumbnail(order.getThumbnail());
+			form.setPrice(order.getPrice());
+			form.setQty(order.getQty());
+			form.setAmount(order.getAmount());
+			total += order.getAmount();
+			orders.add(form);
 		}
 
-		model.addAttribute("photos", photos);
+		model.addAttribute("orders", orders);
+		model.addAttribute("total", total);
 		return "/user/sales";
 	}
 
@@ -299,9 +310,9 @@ public class UserController {
 
 		// clear file
 		String folderPath = UPLOAD_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
-		fileHelper.delete(new File(folderPath));
+		fileHelper.deleteFolder(new File(folderPath));
 		String originPath = ORIGINAL_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
-		fileHelper.delete(new File(originPath));
+		fileHelper.deleteFolder(new File(originPath));
 
 		return "redirect:/user/home";
 	}

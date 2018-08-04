@@ -29,7 +29,16 @@ footer {
 	background-color: #dee2e6;
 }
 
-.mw-form {
+#toTop{
+	position: fixed;
+	bottom: 6px;
+	right: 6px;
+	cursor: pointer;
+	display: none;
+	z-index: 50000;
+}
+
+.mw-content {
 	max-width: 580px;
 }
 

@@ -5,28 +5,45 @@
 <mapper namespace="com.cncsys.imgz.mapper.OrderMapper">
 
 	<select id="selectOrder" resultType="OrderEntity">
-		select "number", email, username, folder, thumbnail, original, filename, price,
-		createdt, charged, expiredt
+		select "number", email,
+		username, folder, thumbnail, original, filename, price,
+		createdt,
+		charged, expiredt
 		from "order"
 		where "number" = #{number}
-		and email = #{email}
+		and email =
+		#{email}
 		and expiredt >= #{expiredt}
 		order by createdt asc
 	</select>
 
+	<select id="selectByFolder" resultType="OrderEntity">
+		select username, folder, thumbnail, price, count(1) as qty, sum(price) as amount
+		from "order"
+		where username = #{username}
+		and folder = #{folder}
+		and charged = true
+		group by username, folder, thumbnail, price
+		order by qty desc, amount desc
+	</select>
+
 	<insert id="insertOrder" parameterType="OrderEntity">
 		insert into "order"
-		("number", email, username, folder, thumbnail, original, filename, price,
+		("number", email, username, folder, thumbnail, original, filename,
+		price,
 		createdt, charged, expiredt)
 		values
-		(#{number}, #{email}, #{username},
-		#{folder}, #{thumbnail}, #{original}, #{filename}, #{price}, #{createdt},
+		(#{number}, #{email},
+		#{username},
+		#{folder}, #{thumbnail}, #{original}, #{filename},
+		#{price}, #{createdt},
 		#{charged}, #{expiredt})
 	</insert>
 
 	<update id="updateCharged">
 		update "order" set charged = #{charged}
-		where "number" = #{number} and email = #{email}
+		where "number"
+		= #{number} and email = #{email}
 	</update>
 
 </mapper>

@@ -18,4 +18,6 @@ public class OrderEntity {
 	private DateTime createdt;
 	private boolean charged;
 	private LocalDate expiredt;
+	private int qty;
+	private int amount;
 }

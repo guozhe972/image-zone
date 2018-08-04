@@ -39,7 +39,6 @@ import com.cncsys.imgz.model.ChargeForm;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
 import com.cncsys.imgz.service.AccountService;
-import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
 
@@ -74,8 +73,8 @@ public class GuestController {
 	@Autowired
 	private AccountService accountService;
 
-	@Autowired
-	private AsyncService asyncService;
+	//@Autowired
+	//private AsyncService asyncService;
 
 	@Autowired
 	private CodeParser codeParser;
@@ -180,7 +179,7 @@ public class GuestController {
 		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
 		String username = cart.get(0).getUsername();
 		List<String> photos = new ArrayList<String>();
-		int total = 0;
+		int amount = 0;
 
 		// copy photos to order folder.
 		try {
@@ -195,7 +194,7 @@ public class GuestController {
 				Path dest = Paths.get(destFile);
 				Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
 				photos.add(destFile);
-				total = total + entity.getPrice();
+				amount = amount + entity.getPrice();
 
 				OrderEntity order = new OrderEntity();
 				order.setNumber(number);
@@ -222,13 +221,13 @@ public class GuestController {
 		}
 
 		// make thumbnail.
-		asyncService.makeThumbnail(photos);
+		//asyncService.makeThumbnail(photos);
 
 		//		// charge process
 		//		try {
 		//			Client client = new Client("skey_test_5crja3ps6nt8ihsag20");
 		//			Charge charge = client.charges().create(new Charge.Create()
-		//					.amount(total)
+		//					.amount(amount)
 		//					.currency("jpy")
 		//					.capture(true)
 		//					.description("Order Number: " + order)
@@ -248,7 +247,7 @@ public class GuestController {
 		// charge success
 		sessionStatus.setComplete();
 		orderService.chargeOrder(number, email);
-		accountService.plusBalance(username, total);
+		accountService.plusBalance(username, amount);
 
 		String link = "/download/" + number + "/" + codeParser.encrypt(email);
 		List<String> param = new ArrayList<String>();

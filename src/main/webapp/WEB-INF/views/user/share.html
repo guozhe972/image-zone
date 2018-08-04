@@ -62,14 +62,15 @@ html {
 	});
 </script>
 </head>
-<body layout:fragment="body" class="pt-header pb-footer d-flex align-items-start">
+<body layout:fragment="body"
+	class="pt-header pb-footer d-flex align-items-start">
 	<header layout:insert="~{layout/parts/navbar::user(-1)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto pb-5">
-		<form id="fomShare" class="mw-form mx-auto pt-3" novalidate
+		<form id="fomShare" class="mw-content mx-auto pt-3" novalidate
 			th:action="@{/user/share}" th:object="${folderForm}" method="post">
 			<input type="hidden" th:field="*{seq}" />
 			<h4 th:text="*{name}?:|#{label.folder} *{seq}|">フォルダ公開</h4>
@@ -105,7 +106,7 @@ html {
 				<div class="offset-sm-4 col-sm-8">
 					<button type="button" id="btnShare"
 						class="btn btn-primary btn-block-xs" style="width: 150px;"
-						data-toggle="modal" data-target="#mdlShare">公開する</button>
+						data-toggle="modal" data-target="#mdlShare">公開</button>
 				</div>
 			</div>
 		</form>
@@ -123,9 +124,7 @@ html {
 				</div>
 				<div class="modal-body">
 					<p>
-						公開後の写真の追加・削除および金額変更はできなくなります。 <br> なお、金額未設定の写真は
-						<mark>￥0円</mark>
-						で販売されます。 <br> 公開してよろしいでしょうか。
+						公開後の写真の追加・削除および金額変更はできなくなります。 <br>公開してよろしいでしょうか。
 					</p>
 				</div>
 				<div class="modal-footer">

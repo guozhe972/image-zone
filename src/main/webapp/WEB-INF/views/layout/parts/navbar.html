@@ -15,7 +15,7 @@
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a
 					class="nav-link" th:href="@{/user/home}">フォルダ一覧</a></li>
 				<li class="nav-item" th:classappend="(${active} == 1)? 'active'"><a
-					class="nav-link" href="#">換金申込</a></li>
+					class="nav-link" href="#">アカウント</a></li>
 				<li class="nav-item" th:classappend="(${active} == 2)? 'active'"><a
 					class="nav-link" href="#">通知</a></li>
 				<li class="nav-item dropdown"><a
@@ -50,7 +50,7 @@
 		</div>
 		<a class="btn btn-primary" th:href="@{/guest/cart}" role="button"><i
 			class="fas fa-shopping-cart"></i>&nbsp;<span id="bagCart"
-			class="badge badge-danger" th:text="${#lists.size(cart)}">0</span></a>
+			class="badge badge-pill badge-danger" th:text="${#lists.size(cart)}">0</span></a>
 	</nav>
 
 </body>

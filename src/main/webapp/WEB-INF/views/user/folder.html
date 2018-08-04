@@ -4,17 +4,17 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>user folder</title>
+<script th:src="@{/js/jquery.lazyload.min.js}"></script>
 <style>
 button[id^="btnPrice"]:disabled {
 	opacity: 1 !important;
 }
 </style>
-<script th:src="@{/js/lazyload.min.js}"></script>
 <script>
 	var target = 0;
 	var process = '';
 	$(function() {
-		lazyload();
+		$('img.lazyload').lazyload();
 
 		$('#mdlPrice').on('shown.bs.modal', function() {
 			$('#money').trigger('focus');
@@ -63,7 +63,7 @@ button[id^="btnPrice"]:disabled {
 								case 'delete':
 									$('#photo' + target).remove();
 									if ($('div.card').length == 0) {
-										$('#btnPrice').prop('disabled', true);
+										$('#btnBulk').prop('disabled', true);
 										$('#btnShare').addClass('disabled');
 									}
 									break;
@@ -86,13 +86,14 @@ button[id^="btnPrice"]:disabled {
 	<div class="container-fluid bg-main">
 		<th:block th:unless="${shared}">
 			<div class="pt-3 d-flex justify-content-between">
-				<button type="button" class="btn btn-warning" id="btnPrice"
+				<button type="button" class="btn btn-warning" id="btnBulk"
 					data-toggle="modal" data-target="#mdlPrice"
 					th:disabled="${#lists.isEmpty(photos)}"
 					th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('default.photo.price')});|">一括金額設定</button>
 				<a class="btn btn-success ml-auto" id="btnShare"
 					th:classappend="${#lists.isEmpty(photos)}?'disabled'"
-					th:href="@{|/user/share/${folder}|}" role="button">公開する</a>
+					th:href="@{|/user/share/${folder}|}" role="button"><i
+					class="fas fa-share-alt"></i>&nbsp;公開する</a>
 			</div>
 			<hr class="mb-0">
 		</th:block>
@@ -102,23 +103,21 @@ button[id^="btnPrice"]:disabled {
 				th:id="|photo${stat.count}|"
 				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card">
-					<div
-						class="card-body p-0 d-flex justify-content-center align-items-center"
-						style="height: 200px">
-						<img class="lazyload img-fluid" th:src="@{/images/loading.svg}"
-							th:data-src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
+					<div class="card-body p-0 text-center"
+						style="height: 200px; line-height: 194px;">
+						<img class="lazyload img-fluid" style="max-height: 100%;"
+							th:src="@{/images/loading.svg}"
+							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 					</div>
 					<div class="card-footer p-1 bg-white btn-group d-flex" role="group">
 						<button type="button" th:id="|btnPrice${stat.count}|"
 							class="btn btn-warning btn-sm w-100 font-weight-bold"
-							th:classappend="${shared}?'rounded'"
-							th:disabled="${shared}" data-toggle="modal"
-							data-target="#mdlPrice"
+							th:classappend="${shared}?'rounded'" th:disabled="${shared}"
+							data-toggle="modal" data-target="#mdlPrice"
 							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{mark.money}','').replace(/,/g,''));|"
 							th:text="|#{mark.money}*{#numbers.formatInteger(price,1,'COMMA')}|">金額</button>
-						<button type="button"
-							class="btn btn-danger btn-sm w-100"
+						<button type="button" class="btn btn-danger btn-sm w-100"
 							th:classappend="${shared}?'d-none'" data-toggle="modal"
 							data-target="#mdlDelete"
 							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|">削除</button>

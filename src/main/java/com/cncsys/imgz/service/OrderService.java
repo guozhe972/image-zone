@@ -32,6 +32,12 @@ public class OrderService {
 		return result;
 	}
 
+	@Transactional(readOnly = true)
+	public List<OrderEntity> getOrderByFolder(String username, int folder) {
+		List<OrderEntity> result = orderMapper.selectByFolder(username, folder);
+		return result;
+	}
+
 	@Transactional
 	public int insertOrder(OrderEntity order) {
 		return orderMapper.insertOrder(order);

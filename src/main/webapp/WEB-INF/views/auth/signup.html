@@ -114,7 +114,7 @@ html {
 <body layout:fragment="body" class="pt-header d-flex align-items-start">
 	<header layout:replace="~{layout/parts/header::header(true, true)}"></header>
 	<div class="container bg-main my-auto pb-footer">
-		<form class="mw-form mx-auto pt-3" th:action="@{/signup/mail}"
+		<form class="mw-content mx-auto pt-3" th:action="@{/signup/mail}"
 			th:object="${signupForm}" method="post" autocomplete="off">
 			<h4>[[#{label.signup}]]</h4>
 			<hr>

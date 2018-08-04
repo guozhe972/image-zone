@@ -5,6 +5,11 @@
 <head>
 <title>charge</title>
 <script th:src="@{/js/omise.js}"></script>
+<style>
+html {
+	height: 100%;
+}
+</style>
 <script>
 	$(function() {
 		// for test =====
@@ -77,7 +82,7 @@
 	});
 </script>
 </head>
-<body layout:fragment="body" class="pt-header d-flex align-items-start">
+<body layout:fragment="body" class="pt-header d-flex align-items-center">
 	<header layout:insert="~{layout/parts/navbar::guest(-1)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
@@ -85,7 +90,7 @@
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
-		<form class="mw-form mx-auto pt-3" id="fomCharge" novalidate
+		<form class="mw-content mx-auto pt-3" id="fomCharge" novalidate
 			th:action="@{/guest/charge}" th:object="${chargeForm}" method="post"
 			autocomplete="off">
 			<h4>注文手続き</h4>

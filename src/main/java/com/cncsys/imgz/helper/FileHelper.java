@@ -23,6 +23,12 @@ public class FileHelper {
 		return file;
 	}
 
+	public void deleteFile(String file) {
+		File target = new File(file);
+		if (target.exists())
+			target.delete();
+	}
+
 	public void createDirectory(String path) {
 		File dir = new File(path);
 		if (!dir.exists()) {
@@ -30,15 +36,30 @@ public class FileHelper {
 		}
 	}
 
-	public void delete(File file) {
-		if (!file.exists())
+	public void deleteFolder(File path) {
+		if (!path.exists())
 			return;
 
-		if (file.isDirectory()) {
-			for (File child : file.listFiles()) {
-				this.delete(child);
+		if (path.isDirectory()) {
+			for (File file : path.listFiles()) {
+				this.deleteFolder(file);
 			}
 		}
-		file.delete();
+		path.delete();
+	}
+
+	public long getFolderSize(File path) {
+		if (path.isFile())
+			return path.length();
+
+		long size = 0;
+		for (File file : path.listFiles()) {
+			if (path.isDirectory()) {
+				size += this.getFolderSize(file);
+			} else {
+				size += file.length();
+			}
+		}
+		return size;
 	}
 }

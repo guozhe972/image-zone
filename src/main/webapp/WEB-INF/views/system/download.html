@@ -4,6 +4,12 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>download</title>
+<script th:src="@{/js/jquery.lazyload.min.js}"></script>
+<script>
+	$(function() {
+		$('img.lazyload').lazyload();
+	});
+</script>
 </head>
 <body layout:fragment="body" class="pt-header">
 	<header layout:replace="~{layout/parts/header::header(false, false)}"></header>
@@ -23,15 +29,15 @@
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card">
-					<div
-						class="card-body p-0 d-flex justify-content-center align-items-center"
-						style="height: 200px">
-						<img class="img-fluid"
-							th:src="@{|/order/*{username}/thumbnail_*{thumbnail}|}"
+					<div class="card-body p-0 text-center"
+						style="height: 200px; line-height: 194px;">
+						<img class="lazyload img-fluid" style="max-height: 100%;"
+							th:src="@{/images/loading.gif}"
+							th:data-original="@{|/order/*{username}/*{thumbnail}|}"
 							alt="thumbnail">
 					</div>
 					<div class="card-footer p-1 bg-white">
-						<a role="button" th:href="@{|/order/*{username}/*{thumbnail}|}"
+						<a role="button" th:target="_blank" th:href="@{|/order/*{username}/*{thumbnail}|}"
 							th:download="|IMG${#numbers.formatInteger(stat.count,5)}|"
 							class="btn btn-success btn-sm w-100">ダウンロード</a>
 					</div>

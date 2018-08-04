@@ -175,12 +175,10 @@ label.custom-file-label::after {
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 	<th:block layout:replace="~{layout/parts/dialog::progress}" />
-
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
-
-		<ul class="list-group list-group-flush mw-form mx-auto">
+		<ul class="list-group list-group-flush mw-content mx-auto">
 			<li class="list-group-item px-0 py-3"
 				th:each="form,stat : ${folders}">
 				<form data-type="upload" enctype="multipart/form-data"
@@ -200,10 +198,9 @@ label.custom-file-label::after {
 								th:text="#{input.file.content}"></label>
 						</div>
 					</div>
-					<div
-						class="form-group btn-group d-flex mb-0"
-						role="group">
-						<button type="submit" class="btn btn-primary text-none w-100 rounded-sm"
+					<div class="form-group btn-group d-flex mb-0" role="group">
+						<button type="submit"
+							class="btn btn-primary text-none w-100 rounded-sm"
 							th:classappend="*{shared}?'btn-secondary'"
 							th:disabled="*{shared}"
 							th:onclick="|return checkFolder(*{seq});|">
@@ -219,7 +216,8 @@ label.custom-file-label::after {
 							th:href="@{|/user/sales/*{seq}|}" role="button"> <i
 							class="fas fa-piggy-bank"></i><span>&nbsp;売上確認</span>
 						</a>
-						<button type="button" class="btn btn-danger text-none w-100 ml-sm-3 rounded-sm"
+						<button type="button"
+							class="btn btn-danger text-none w-100 ml-sm-3 rounded-sm"
 							data-toggle="modal" data-target="#mdlClear"
 							th:onclick="|$('#folder').val(*{seq});|">
 							<i class="fas fa-trash-alt"></i><span>&nbsp;初期化</span>

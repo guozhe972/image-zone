@@ -1,4 +1,20 @@
 $(function() {
+	$('body').append(
+			'<button type="button" id="toTop" class="btn btn-info rounded-circle">'
+					+ '<i class="fas fa-angle-up fa-2x"></i>' + '</button>');
+	$(window).scroll(function() {
+		if ($(this).scrollTop() > 100) {
+			$('#toTop').fadeIn();
+		} else {
+			$('#toTop').fadeOut();
+		}
+	});
+	$('#toTop').click(function() {
+		$('html, body').animate({
+			scrollTop : 0
+		}, 300);
+		return false;
+	});
 
 	$('input.num-only').on("input", function() {
 		this.value = this.value.replace(/\D/g, '');
