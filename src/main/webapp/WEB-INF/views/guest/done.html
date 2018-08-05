@@ -10,7 +10,7 @@ html {
 }
 </style>
 </head>
-<body layout:fragment="body" class="pt-header d-flex align-items-start">
+<body layout:fragment="body" class="pt-header d-flex align-items-center">
 	<header layout:insert="~{layout/parts/navbar::guest(-1)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />

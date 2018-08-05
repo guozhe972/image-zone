@@ -15,7 +15,7 @@
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a
 					class="nav-link" th:href="@{/user/home}">フォルダ一覧</a></li>
 				<li class="nav-item" th:classappend="(${active} == 1)? 'active'"><a
-					class="nav-link" href="#">アカウント</a></li>
+					class="nav-link" th:href="@{/user/account}">アカウント</a></li>
 				<li class="nav-item" th:classappend="(${active} == 2)? 'active'"><a
 					class="nav-link" href="#">通知</a></li>
 				<li class="nav-item dropdown"><a

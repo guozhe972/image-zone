@@ -114,8 +114,12 @@ label.custom-file-label::after {
 						processData : false,
 						dataType : 'json',
 						beforeSend : function(xhr) {
+							$('.progress-bar-title').text('アップロード中...');
 							$('.progress-bar').text('');
-							$('.progress-bar').css('width', '0%');
+							if (navigator.userAgent.toLowerCase().indexOf(
+									'edge') < 0) {
+								$('.progress-bar').css('width', '0%');
+							}
 							$('.progress-bar').addClass('bg-success')
 									.removeClass('bg-warning');
 							$('#mdlUpload').modal('show');

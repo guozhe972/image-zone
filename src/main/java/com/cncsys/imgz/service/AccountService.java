@@ -32,6 +32,11 @@ public class AccountService {
 	private FolderMapper folderMapper;
 
 	@Transactional(readOnly = true)
+	public AccountEntity getAccountInfo(String username) {
+		return accountMapper.selectAccount(username);
+	}
+
+	@Transactional(readOnly = true)
 	public boolean isExistUser(String username) {
 		boolean result = false;
 		AccountEntity account = accountMapper.selectAccount(username);

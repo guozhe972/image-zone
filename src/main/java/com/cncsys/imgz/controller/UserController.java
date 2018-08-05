@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.cncsys.imgz.entity.AccountEntity;
 import com.cncsys.imgz.entity.FolderEntity;
 import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
@@ -45,6 +46,7 @@ import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.OrderForm;
 import com.cncsys.imgz.model.PhotoForm;
+import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.FolderService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
@@ -68,6 +70,9 @@ public class UserController {
 
 	@Autowired
 	private FileHelper fileHelper;
+
+	@Autowired
+	private AccountService accountService;
 
 	@Autowired
 	private UploadService uploadService;
@@ -107,6 +112,17 @@ public class UserController {
 
 		model.addAttribute("folders", folders);
 		return "/user/home";
+	}
+
+	@GetMapping("/account")
+	public String account(Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+		AccountEntity account = accountService.getAccountInfo(user.getUsername());
+		user.setBalance(account.getBalance());
+
+		model.addAttribute("balance", user.getBalance());
+		return "/user/account";
 	}
 
 	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
