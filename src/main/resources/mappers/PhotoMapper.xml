@@ -10,19 +10,22 @@
 		thumbnail, original, filename, price, createdt
 		from photo
 		where
-		username =
+		username
+		=
 		#{username} and folder = #{folder}
 		order by createdt asc
 	</select>
 
 	<select id="selectByGuest" resultType="PhotoEntity">
-		select folder.username,
+		select photo.username,
 		photo.folder,
-		photo.thumbnail, photo.original, photo.filename, photo.price,
+		photo.thumbnail, photo.original, photo.filename,
+		photo.price,
 		photo.createdt
-		from folder, photo
+		from photo, folder
 		where
-		folder.username = photo.username
+		folder.username =
+		photo.username
 		and folder.seq = photo.folder
 		and folder.guest =
 		#{guest}
@@ -31,9 +34,11 @@
 	</select>
 
 	<select id="selectPhoto" resultType="PhotoEntity">
-		select username, folder, thumbnail, original, filename, price, createdt
+		select username, folder,
+		thumbnail, original, filename, price, createdt
 		from photo
-		where username = #{username}
+		where username
+		= #{username}
 		and folder = #{folder}
 		and thumbnail = #{thumbnail}
 	</select>
@@ -42,7 +47,8 @@
 		insert into photo
 		(username, folder, thumbnail, original, filename, price, createdt)
 		values
-		(#{username}, #{folder}, #{thumbnail}, #{original}, #{filename}, #{price},
+		(#{username}, #{folder}, #{thumbnail}, #{original}, #{filename},
+		#{price},
 		#{createdt})
 	</insert>
 
