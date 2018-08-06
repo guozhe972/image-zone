@@ -77,6 +77,23 @@ CREATE TABLE "order"
 );
 CREATE INDEX order_idx1 ON "order" (username, folder, thumbnail);
 
+DROP TABLE IF EXISTS transfer;
+CREATE TABLE transfer
+(
+	transno varchar(100) NOT NULL,
+    username varchar(100) NOT NULL,
+    bank varchar(100) NOT NULL,
+    branch varchar(100) NOT NULL,
+    actype int NOT NULL,
+    acnumber varchar(100) NOT NULL,
+    acname varchar(100) NOT NULL,
+    amount int NOT NULL,
+    done boolean NOT NULL,
+    createdt timestamp NOT NULL,
+    updatedt timestamp,
+    CONSTRAINT transfer_pkey PRIMARY KEY (transno)
+);
+
 
 --passwd:1234
 INSERT INTO account(

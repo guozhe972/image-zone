@@ -12,8 +12,10 @@
 
 	<div class="container bg-main">
 		<form class="mw-content mx-auto pt-3" id="fomTransfer"
-			th:action="@{/user/transfer}" th:object="${bankForm}" method="post">
+			th:action="@{/user/transfer}" th:object="${transferForm}"
+			method="post">
 			<div class="d-flex justify-content-between">
+				<input type="hidden" id="amount" name="amount" th:value="${balance}" />
 				<h2 class="mb-0 ml-3">残高</h2>
 				<h2 class="mb-0 mr-3"
 					th:text="|${#numbers.formatInteger(balance,1,'COMMA')}円|"></h2>
@@ -22,20 +24,18 @@
 			<div class="mb-3 text-right">
 				<small class="form-text text-muted">振込手数料に1,200円が掛かります</small>
 			</div>
-			<input type="hidden" id="bkcode" name="bkcode" />
 			<div class="form-group row">
-				<label for="bkname" class="col-sm-4 col-form-label text-sm-right">金融機関名</label>
+				<label for="bank" class="col-sm-4 col-form-label text-sm-right">金融機関名</label>
 				<div class="col-sm-8">
-					<input type="text" id="bkname" name="bkname" class="form-control"
+					<input type="text" id="bank" name="bank" class="form-control"
 						placeholder="" required />
 					<div class="invalid-feedback">bank error</div>
 				</div>
 			</div>
-			<input type="hidden" id="bccode" name="bccode" />
 			<div class="form-group row">
-				<label for="bcname" class="col-sm-4 col-form-label text-sm-right">支店名</label>
+				<label for="branch" class="col-sm-4 col-form-label text-sm-right">支店名</label>
 				<div class="col-sm-8">
-					<input type="text" id="bcname" name="bcname" class="form-control"
+					<input type="text" id="branch" name="branch" class="form-control"
 						placeholder="" required />
 					<div class="invalid-feedback">branch error</div>
 				</div>
@@ -44,12 +44,12 @@
 				<label for="actype" class="col-sm-4 col-form-label text-sm-right">口座種類</label>
 				<div class="col-sm-8 d-flex align-items-center">
 					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="actype1" name="actype"
+						<input type="radio" id="actype1" name="actype" value="1"
 							class="custom-control-input" th:checked="true"> <label
 							class="custom-control-label" for="actype1">普通預金</label>
 					</div>
 					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="actype2" name="actype"
+						<input type="radio" id="actype2" name="actype" value="2"
 							class="custom-control-input"> <label
 							class="custom-control-label" for="actype2">当座預金</label>
 					</div>

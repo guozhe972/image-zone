@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cncsys.imgz.mapper.TransferMapper">
+
+	<select id="selectTransfer" resultType="TransferEntity">
+		select
+		transno, username,
+		bank,
+		branch, actype, acnumber, acname, amount, done, createdt
+		from transfer
+		where done = #{done}
+		order by createdt asc
+	</select>
+
+	<insert id="insertTransfer" parameterType="TransferEntity">
+		insert into transfer
+		(transno, username, bank, branch, actype, acnumber, acname, amount,
+		done, createdt)
+		values
+		(#{transno}, #{username}, #{bank}, #{branch},
+		#{actype}, #{acnumber}, #{acname}, #{amount}, false, #{createdt})
+	</insert>
+
+	<update id="updateTransfer">
+		update transfer set done = true, updatedt =
+		#{updatedt}
+		where transno = #{transno}
+	</update>
+
+</mapper>

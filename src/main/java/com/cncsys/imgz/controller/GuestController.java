@@ -247,6 +247,8 @@ public class GuestController {
 		// charge success
 		sessionStatus.setComplete();
 		orderService.chargeOrder(number, email);
+
+		// TODO: calc money [amount += amount * (1d - 0.1)]
 		accountService.plusBalance(username, amount);
 
 		String link = "/download/" + number + "/" + codeParser.encrypt(email);
