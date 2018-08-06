@@ -27,8 +27,8 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<OrderEntity> getValidOrder(String number, String email) {
-		List<OrderEntity> result = orderMapper.selectOrder(number, email, LocalDate.now());
+	public List<OrderEntity> getValidOrder(String orderno, String email) {
+		List<OrderEntity> result = orderMapper.selectOrder(orderno, email, LocalDate.now());
 		return result;
 	}
 
@@ -44,7 +44,7 @@ public class OrderService {
 	}
 
 	@Transactional
-	public int chargeOrder(String number, String email) {
-		return orderMapper.updateCharged(number, email, true);
+	public int chargeOrder(String orderno, String email) {
+		return orderMapper.updateCharged(orderno, email, true);
 	}
 }

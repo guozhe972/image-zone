@@ -29,13 +29,15 @@ footer {
 	background-color: #dee2e6;
 }
 
-#toTop{
+#toTop {
 	position: fixed;
 	bottom: 6px;
 	right: 6px;
 	cursor: pointer;
 	display: none;
-	z-index: 50000;
+	z-index: 9999;
+	padding-left: 13px;
+	padding-right: 13px;
 }
 
 .mw-content {

@@ -83,14 +83,14 @@
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main">
-		<th:block layout:replace="~{layout/parts/alert::error}" />
-		<form class="mw-content mx-auto pt-3" id="fomCharge" novalidate
+	<div class="container bg-main pb-3">
+		<form class="mw-content mx-auto" id="fomCharge" novalidate
 			th:action="@{/guest/charge}" th:object="${chargeForm}" method="post"
 			autocomplete="off">
-			<div class="d-flex justify-content-between">
-				<h2 class="mb-0 ml-3">買上</h2>
-				<h2 class="mb-0 mr-3"
+			<th:block layout:replace="~{layout/parts/alert::error}" />
+			<div class="mt-3 d-flex justify-content-between">
+				<h2 class="mb-0">買上</h2>
+				<h2 class="mb-0"
 					th:text="|${#numbers.formatInteger(__${#aggregates.sum(cart.![price])}__,1,'COMMA')}円|"></h2>
 			</div>
 			<hr>
@@ -165,7 +165,7 @@
 			<div class="form-group row mb-0">
 				<div class="offset-sm-4 col-sm-8">
 					<button id="btnCharge" type="submit"
-						class="btn btn-primary btn-block-xs" style="width: 150px;">確定</button>
+						class="btn btn-primary btn-block-xs" style="width: 150px;">購入</button>
 				</div>
 			</div>
 		</form>

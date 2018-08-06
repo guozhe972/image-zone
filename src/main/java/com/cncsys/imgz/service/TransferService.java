@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Random;
 
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cncsys.imgz.entity.TransferEntity;
+import com.cncsys.imgz.mapper.AccountMapper;
 import com.cncsys.imgz.mapper.TransferMapper;
 
 @Service
@@ -18,6 +18,9 @@ public class TransferService {
 
 	@Autowired
 	private TransferMapper transferMapper;
+
+	@Autowired
+	private AccountMapper accountMapper;
 
 	private final Random intRandom = new Random();
 
@@ -33,12 +36,14 @@ public class TransferService {
 	}
 
 	@Transactional
-	public int insertTransfer(TransferEntity transfer) {
-		return transferMapper.insertTransfer(transfer);
+	public void acceptTransfer(TransferEntity transfer) {
+		if (transferMapper.insertTransfer(transfer) > 0) {
+			accountMapper.updateBalance(transfer.getUsername(), -transfer.getAmount());
+		}
 	}
 
 	@Transactional
 	public int updateTransfer(String transno) {
-		return transferMapper.updateTransfer(transno, LocalDate.now());
+		return transferMapper.updateTransfer(transno, DateTime.now());
 	}
 }

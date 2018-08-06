@@ -1,6 +1,6 @@
 package com.cncsys.imgz.entity;
 
-import org.joda.time.LocalDate;
+import org.joda.time.DateTime;
 
 import lombok.Data;
 
@@ -15,6 +15,6 @@ public class TransferEntity {
 	private String acname;
 	private int amount;
 	private boolean done;
-	private LocalDate createdt;
-	private LocalDate updatedt;
+	private DateTime createdt;
+	private DateTime updatedt;
 }

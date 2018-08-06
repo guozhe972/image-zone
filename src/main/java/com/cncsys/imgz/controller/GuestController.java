@@ -174,7 +174,7 @@ public class GuestController {
 		}
 
 		// order info
-		String number = orderService.createNumber();
+		String orderno = orderService.createNumber();
 		String email = form.getEmail();
 		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
 		String username = cart.get(0).getUsername();
@@ -183,21 +183,21 @@ public class GuestController {
 
 		// copy photos to order folder.
 		try {
-			fileHelper.createDirectory(ORDER_PATH + "/" + number);
+			fileHelper.createDirectory(ORDER_PATH + "/" + orderno);
 			for (PhotoForm photo : cart) {
 				PhotoEntity entity = photoService.getPhoto(photo.getUsername(), photo.getFolder(),
 						photo.getThumbnail());
 
 				Path src = Paths.get(ORIGINAL_PATH + "/" + entity.getUsername() + "/" +
 						String.valueOf(entity.getFolder()) + "/" + entity.getOriginal());
-				String destFile = ORDER_PATH + "/" + number + "/" + entity.getOriginal();
+				String destFile = ORDER_PATH + "/" + orderno + "/" + entity.getOriginal();
 				Path dest = Paths.get(destFile);
 				Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
 				photos.add(destFile);
 				amount = amount + entity.getPrice();
 
 				OrderEntity order = new OrderEntity();
-				order.setNumber(number);
+				order.setOrderno(orderno);
 				order.setEmail(email);
 				order.setUsername(entity.getUsername());
 				order.setFolder(entity.getFolder());
@@ -246,19 +246,19 @@ public class GuestController {
 
 		// charge success
 		sessionStatus.setComplete();
-		orderService.chargeOrder(number, email);
+		orderService.chargeOrder(orderno, email);
 
 		// TODO: calc money [amount += amount * (1d - 0.1)]
 		accountService.plusBalance(username, amount);
 
-		String link = "/download/" + number + "/" + codeParser.encrypt(email);
+		String link = "/download/" + orderno + "/" + codeParser.encrypt(email);
 		List<String> param = new ArrayList<String>();
-		param.add(number);
+		param.add(orderno);
 		param.add(expiredt.toString());
 		param.add(builder.path(link).build().toUriString());
 		mailHelper.sendOrderDone(email, param);
 
-		redirectAttributes.addFlashAttribute("order", number);
+		redirectAttributes.addFlashAttribute("order", orderno);
 		redirectAttributes.addFlashAttribute("link", link);
 		return "redirect:/guest/done";
 	}

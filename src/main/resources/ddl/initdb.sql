@@ -62,7 +62,7 @@ CREATE TABLE photo
 DROP TABLE IF EXISTS "order";
 CREATE TABLE "order"
 (
-    "number" varchar(100) NOT NULL,
+    orderno varchar(100) NOT NULL,
     email varchar (100) NOT NULL,
     username varchar(100) NOT NULL,
     folder int NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE "order"
     createdt timestamp NOT NULL,
     charged boolean NOT NULL,
     expiredt date NOT NULL,
-    CONSTRAINT order_pkey PRIMARY KEY ("number", email, original)
+    CONSTRAINT order_pkey PRIMARY KEY (orderno, email, original)
 );
 CREATE INDEX order_idx1 ON "order" (username, folder, thumbnail);
 

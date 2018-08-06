@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,7 @@ import com.cncsys.imgz.entity.AccountEntity;
 import com.cncsys.imgz.entity.FolderEntity;
 import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
+import com.cncsys.imgz.entity.TransferEntity;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.model.FolderForm;
 import com.cncsys.imgz.model.FolderForm.Share;
@@ -46,10 +48,12 @@ import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.OrderForm;
 import com.cncsys.imgz.model.PhotoForm;
+import com.cncsys.imgz.model.TransferForm;
 import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.FolderService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
+import com.cncsys.imgz.service.TransferService;
 import com.cncsys.imgz.service.UploadService;
 
 @Controller
@@ -84,6 +88,9 @@ public class UserController {
 	private OrderService orderService;
 
 	@Autowired
+	private TransferService transferService;
+
+	@Autowired
 	private PhotoService photoService;
 
 	@Autowired
@@ -115,7 +122,7 @@ public class UserController {
 	}
 
 	@GetMapping("/account")
-	public String account(Model model) {
+	public String account(@ModelAttribute TransferForm form, Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 		AccountEntity account = accountService.getAccountInfo(user.getUsername());
@@ -123,6 +130,38 @@ public class UserController {
 
 		model.addAttribute("balance", user.getBalance());
 		return "/user/account";
+	}
+
+	@PostMapping("/transfer")
+	public String transfer(@ModelAttribute TransferForm form, BindingResult result,
+			RedirectAttributes redirectAttributes) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		List<String> infos = new ArrayList<String>();
+		if (user.getBalance() != form.getAmount()) {
+			infos.add("残高が更新されました。もう一度ご確認ください。");
+			redirectAttributes.addFlashAttribute("infos", infos);
+			redirectAttributes.addFlashAttribute("transferForm", form);
+			return "redirect:/user/account";
+		}
+
+		String transno = transferService.createNumber();
+		TransferEntity entity = new TransferEntity();
+		entity.setTransno(transno);
+		entity.setUsername(user.getUsername());
+		entity.setBank(form.getBank());
+		entity.setBranch(form.getBranch());
+		entity.setActype(form.getActype());
+		entity.setAcnumber(form.getAcnumber());
+		entity.setAcname(form.getAcname());
+		entity.setAmount(form.getAmount());
+		entity.setCreatedt(DateTime.now());
+		transferService.acceptTransfer(entity);
+
+		infos.add("振込申請を受け付けました。受付番号：" + transno);
+		redirectAttributes.addFlashAttribute("infos", infos);
+		return "redirect:/user/account";
 	}
 
 	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
@@ -309,17 +348,6 @@ public class UserController {
 	public String clear(@RequestParam("folder") int folder, RedirectAttributes redirectAttributes) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
-
-		// error test ===============
-		if (folder == 3) {
-			List<String> errors = new ArrayList<String>();
-			errors.add("あいうえお error 1");
-			errors.add("あいうえお error 2");
-			errors.add("あいうえお error 3");
-			redirectAttributes.addFlashAttribute("errors", errors);
-			return "redirect:/user/home";
-		}
-		// error test ===============
 
 		// clear db
 		folderService.initFolder(user.getUsername(), folder);

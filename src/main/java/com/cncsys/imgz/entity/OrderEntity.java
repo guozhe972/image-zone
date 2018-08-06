@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class OrderEntity {
-	private String number;
+	private String orderno;
 	private String email;
 	private String username;
 	private int folder;
