@@ -38,7 +38,7 @@ public class TransferService {
 	@Transactional
 	public void acceptTransfer(TransferEntity transfer) {
 		if (transferMapper.insertTransfer(transfer) > 0) {
-			accountMapper.updateBalance(transfer.getUsername(), -transfer.getAmount());
+			accountMapper.updateBalance(transfer.getUsername(), -Math.abs(transfer.getAmount()));
 		}
 	}
 

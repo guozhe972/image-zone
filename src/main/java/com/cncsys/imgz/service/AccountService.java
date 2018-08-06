@@ -78,12 +78,12 @@ public class AccountService {
 
 	@Transactional
 	public int plusBalance(String username, int amount) {
-		return accountMapper.updateBalance(username, amount);
+		return accountMapper.updateBalance(username, Math.abs(amount));
 	}
 
 	@Transactional
 	public int minusBalance(String username, int amount) {
-		return accountMapper.updateBalance(username, -amount);
+		return accountMapper.updateBalance(username, -Math.abs(amount));
 	}
 
 	@Transactional
