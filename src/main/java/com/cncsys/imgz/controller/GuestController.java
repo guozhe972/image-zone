@@ -64,6 +64,9 @@ public class GuestController {
 	@Value("${order.file.path}")
 	private String ORDER_PATH;
 
+	@Value("${cost.settle.percent}")
+	private int COST_SETTLE;
+
 	@Autowired
 	private PhotoService photoService;
 
@@ -248,7 +251,7 @@ public class GuestController {
 		sessionStatus.setComplete();
 		orderService.chargeOrder(orderno, email);
 
-		// TODO: calc money [amount += amount * (1d - 0.1)]
+		amount -= Math.round(amount * COST_SETTLE / 100F);
 		accountService.plusBalance(username, amount);
 
 		String link = "/download/" + orderno + "/" + codeParser.encrypt(email);

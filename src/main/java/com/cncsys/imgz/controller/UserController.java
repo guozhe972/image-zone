@@ -69,6 +69,9 @@ public class UserController {
 	@Value("${default.expired.days}")
 	private int DEFAULT_EXPIRED;
 
+	@Value("${cost.transfer.amount}")
+	private int COST_TRANSFER;
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -134,13 +137,28 @@ public class UserController {
 
 	@PostMapping("/transfer")
 	public String transfer(@ModelAttribute TransferForm form, BindingResult result,
-			RedirectAttributes redirectAttributes) {
+			RedirectAttributes redirectAttributes, Locale locale) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
+		// check balance
+		if (user.getBalance() < COST_TRANSFER) {
+			result.reject("error.transfer.amount");
+		}
+
+		if (result.hasErrors()) {
+			List<String> errors = new ArrayList<String>();
+			for (ObjectError err : result.getAllErrors()) {
+				errors.add(messageSource.getMessage(err.getCode(), null, locale));
+			}
+			redirectAttributes.addFlashAttribute("errors", errors);
+			return "redirect:/user/account";
+		}
+
 		List<String> infos = new ArrayList<String>();
 		if (user.getBalance() != form.getAmount()) {
-			infos.add("残高が更新されました。もう一度ご確認ください。");
+			// 改竄エラー
+			infos.add("残高が変更されました。もう一度ご確認ください。");
 			redirectAttributes.addFlashAttribute("infos", infos);
 			redirectAttributes.addFlashAttribute("transferForm", form);
 			return "redirect:/user/account";
@@ -157,8 +175,16 @@ public class UserController {
 		entity.setAcname(form.getAcname());
 		entity.setAmount(form.getAmount());
 		entity.setCreatedt(DateTime.now());
-		transferService.acceptTransfer(entity);
+		int balance = transferService.acceptTransfer(entity);
+		if (balance < 0) {
+			// 多重エラー
+			infos.add("残高が変更されました。もう一度ご確認ください。");
+			redirectAttributes.addFlashAttribute("infos", infos);
+			redirectAttributes.addFlashAttribute("transferForm", form);
+			return "redirect:/user/account";
+		}
 
+		user.setBalance(balance);
 		infos.add("振込申請を受け付けました。受付番号：" + transno);
 		redirectAttributes.addFlashAttribute("infos", infos);
 		return "redirect:/user/account";

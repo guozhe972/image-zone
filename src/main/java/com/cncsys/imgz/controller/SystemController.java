@@ -38,20 +38,4 @@ public class SystemController {
 	public String accessDenied() {
 		return "/system/denied";
 	}
-
-	@GetMapping("/about")
-	public String aboutSite() {
-		return "/system/about";
-	}
-
-	@GetMapping("/terms")
-	public String siteTerms() {
-		return "/system/terms";
-	}
-
-	@GetMapping("/privacy")
-	public String privacyPolicy() {
-		return "/system/privacy";
-	}
-
 }

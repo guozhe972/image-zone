@@ -1,13 +1,16 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
 <head>
-<meta charset="UTF-8">
 <title>none</title>
 </head>
-<body>
-	<h1>none page</h1>
-	<p>
-		<a th:href="@{/}">go to index</a>
-	</p>
+<body layout:fragment="body" class="pt-header">
+	<header layout:replace="~{layout/parts/header::header(false, false)}"></header>
+	<div class="container bg-main">
+		<div class="mw-content mx-auto text-center pt-5">
+			<h1>none page</h1>
+		</div>
+	</div>
 </body>
 </html>

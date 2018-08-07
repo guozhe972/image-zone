@@ -7,7 +7,10 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.cncsys.imgz.entity.TransferEntity;
 import com.cncsys.imgz.mapper.AccountMapper;
@@ -22,6 +25,9 @@ public class TransferService {
 	@Autowired
 	private AccountMapper accountMapper;
 
+	@Autowired
+	private PlatformTransactionManager transactionManager;
+
 	private final Random intRandom = new Random();
 
 	public String createNumber() {
@@ -35,11 +41,23 @@ public class TransferService {
 		return result;
 	}
 
-	@Transactional
-	public void acceptTransfer(TransferEntity transfer) {
-		if (transferMapper.insertTransfer(transfer) > 0) {
-			accountMapper.updateBalance(transfer.getUsername(), -Math.abs(transfer.getAmount()));
+	public int acceptTransfer(TransferEntity transfer) {
+		int balance = -1;
+		TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+
+		try {
+			balance = accountMapper.updateBalance(transfer.getUsername(), -Math.abs(transfer.getAmount()));
+			if (balance < 0) {
+				transactionManager.rollback(status);
+			} else {
+				transferMapper.insertTransfer(transfer);
+				transactionManager.commit(status);
+			}
+		} catch (Exception e) {
+			transactionManager.rollback(status);
 		}
+
+		return balance;
 	}
 
 	@Transactional

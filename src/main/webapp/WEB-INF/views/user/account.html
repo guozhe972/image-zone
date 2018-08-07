@@ -36,6 +36,7 @@
 		<form class="mw-content mx-auto" id="fomTransfer" novalidate
 			th:action="@{/user/transfer}" th:object="${transferForm}"
 			method="post">
+			<th:block layout:replace="~{layout/parts/alert::error}" />
 			<th:block layout:replace="~{layout/parts/alert::info}" />
 			<div class="mt-3 d-flex justify-content-between">
 				<input type="hidden" id="amount" name="amount" th:value="${balance}" />
@@ -45,7 +46,7 @@
 			</div>
 			<hr class="mb-0">
 			<div class="mb-3 text-right">
-				<small class="form-text text-muted">振込手数料に1,200円が掛かります</small>
+				<small class="form-text text-muted">振込手数料に1,000円が掛かります</small>
 			</div>
 			<div class="form-group row">
 				<label for="bank" class="col-sm-4 col-form-label text-sm-right">金融機関名</label>
@@ -98,7 +99,7 @@
 			<div class="form-group row mb-0">
 				<div class="offset-sm-4 col-sm-8">
 					<button id="btnTransfer" type="button"
-						th:disabled="${balance}<=1200"
+						th:disabled="${balance}<${@applicationProperties.getProperty('cost.transfer.amount')}"
 						class="btn btn-primary btn-block-xs" style="width: 150px;"
 						data-toggle="modal" data-target="#mdlTransfer">振込申請</button>
 				</div>

@@ -20,6 +20,21 @@ public class WelcomeController {
 		return "/auth/signin";
 	}
 
+	@GetMapping("/about/site")
+	public String aboutSite() {
+		return "/about/about";
+	}
+
+	@GetMapping("/about/terms")
+	public String siteTerms() {
+		return "/about/terms";
+	}
+
+	@GetMapping("/about/privacy")
+	public String privacyPolicy() {
+		return "/about/privacy";
+	}
+
 	//@GetMapping("/hello")
 	//public String hello(@RequestParam(name = "name", required = false) String name) {
 	//@GetMapping("/hello/{age}")

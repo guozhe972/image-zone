@@ -3,14 +3,16 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>denied</title>
+<title>privacy</title>
 </head>
 <body layout:fragment="body" class="pt-header">
-	<header layout:replace="~{layout/parts/header::header(false, false)}"></header>
+	<header layout:replace="~{layout/parts/header::header(true, true)}"></header>
 	<div class="container bg-main">
 		<div class="mw-content mx-auto text-center pt-5">
-			<h1>denied page</h1>
+			<h1>privacy page</h1>
 		</div>
 	</div>
+	<div class="pb-footer"></div>
+	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>
 </html>
