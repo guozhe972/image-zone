@@ -288,7 +288,7 @@ public class UserController {
 	}
 
 	@GetMapping("/share/{seq}")
-	public String shareGet(@PathVariable("seq") int seq, @ModelAttribute FolderForm form) {
+	public String shareGet(@PathVariable("seq") int seq, @ModelAttribute FolderForm form, Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
@@ -296,8 +296,9 @@ public class UserController {
 		form.setSeq(folder.getSeq());
 		form.setName(folder.getName());
 		form.setGuest(folder.getGuest());
-		form.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED));
+		form.setExpiredt(LocalDate.now().plusDays(30));
 
+		model.addAttribute("limit", LocalDate.now().plusDays(DEFAULT_EXPIRED));
 		return "/user/share";
 	}
 

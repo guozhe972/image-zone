@@ -44,6 +44,24 @@ footer {
 	max-width: 580px;
 }
 
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button
+	{
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+input[type="number"] {
+	-moz-appearance: textfield;
+}
+
+input[type=date]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+
+input[type=date]::-webkit-clear-button {
+	-webkit-appearance: none;
+}
+
 .rounded-left-0 {
 	border-top-left-radius: 0px;
 	border-bottom-left-radius: 0px;
