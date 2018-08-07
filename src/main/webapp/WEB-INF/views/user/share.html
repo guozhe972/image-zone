@@ -6,8 +6,10 @@
 <title>share folder</title>
 <link rel="stylesheet" th:href="@{/css/flatpickr.css}">
 <script th:src="@{/js/flatpickr.min.js}"></script>
-<script th:if="${#locale.language}=='ja'" th:src="@{/js/flatpickr.ja.js}"></script>
-<script th:if="${#locale.language}=='zh'" th:src="@{/js/flatpickr.zh.js}"></script>
+<script th:if="${#locale.language}=='ja'"
+	th:src="@{/js/flatpickr.ja.js}"></script>
+<script th:if="${#locale.language}=='zh'"
+	th:src="@{/js/flatpickr.zh.js}"></script>
 <style>
 html {
 	height: 100%;
@@ -38,6 +40,8 @@ html {
 							dateFormat : 'Y-m-d',
 							allowInput : false,
 							disableMobile : true,
+							prevArrow : '<i class="fas fa-chevron-left"></i>',
+							nextArrow : '<i class="fas fa-chevron-right"></i>',
 							minDate : '[(${#dates.format(#dates.createToday(),"yyyy-MM-dd")})]',
 							maxDate : '[(${limit})]',
 							defaultDate : '[(${folderForm.expiredt})]',
