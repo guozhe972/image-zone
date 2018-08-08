@@ -15,7 +15,8 @@
 </style>
 </head>
 <body layout:fragment="body" class="pt-header">
-	<header layout:replace="~{layout/parts/header::header(true, true)}"></header>
+	<header layout:insert="~{layout/parts/header::home(true, true)}"
+		class="fixed-top bg-header"></header>
 	<div class="jumbotron rounded-0">
 		<div class="container">
 			<h1 class="display-4">[[#{label.welcome}]]</h1>

@@ -112,7 +112,8 @@ html {
 </script>
 </head>
 <body layout:fragment="body" class="pt-header d-flex align-items-center">
-	<header layout:replace="~{layout/parts/header::header(true, true)}"></header>
+	<header layout:insert="~{layout/parts/header::home(true, true)}"
+		class="fixed-top bg-header"></header>
 	<div class="container bg-main my-auto pb-footer">
 		<form class="mw-content mx-auto pt-3" th:action="@{/signup/mail}"
 			th:object="${signupForm}" method="post" autocomplete="off">

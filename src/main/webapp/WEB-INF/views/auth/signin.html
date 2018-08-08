@@ -12,7 +12,8 @@ html {
 </head>
 <body layout:fragment="body"
 	class="pt-header pb-footer d-flex align-items-center">
-	<header layout:replace="~{layout/parts/header::header(true, false)}"></header>
+	<header layout:insert="~{layout/parts/header::home(true, false)}"
+		class="fixed-top bg-header"></header>
 	<div class="container bg-main my-auto pb-5">
 		<form class="mw-content mx-auto pt-3" th:action="@{/login}" method="post">
 			<h4>[[#{label.login}]]</h4>

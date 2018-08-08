@@ -6,7 +6,8 @@
 <title>none</title>
 </head>
 <body layout:fragment="body" class="pt-header">
-	<header layout:replace="~{layout/parts/header::header(false, false)}"></header>
+	<header layout:insert="~{layout/parts/header::home(false, false)}"
+		class="fixed-top bg-header"></header>
 	<div class="container bg-main">
 		<div class="mw-content mx-auto text-center pt-5">
 			<h1>none page</h1>
