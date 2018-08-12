@@ -27,6 +27,8 @@
 			}).done(function(data, textStatus, jqXHR) {
 				$('#bagCart').text(data);
 				$('#btnAdd' + target).prop('disabled', true);
+				$('#btnAdd' + target).addClass('btn-secondary')
+				.removeClass('btn-info');
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 				// do nothing
 			}).always(function() {
@@ -64,7 +66,8 @@
 					</div>
 					<div class="card-footer p-1 bg-white">
 						<button type="button" th:id="|btnAdd${stat.count}|"
-							class="btn btn-success btn-sm w-100" th:disabled="*{incart}"
+							class="btn btn-sm w-100" th:classappend="*{incart}?'btn-secondary':'btn-info'"
+							th:disabled="*{incart}"
 							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">カートに追加</button>
 					</div>
 				</div>

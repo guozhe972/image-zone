@@ -90,7 +90,7 @@ button[id^="btnPrice"]:disabled {
 					data-toggle="modal" data-target="#mdlPrice"
 					th:disabled="${#lists.isEmpty(photos)}"
 					th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('default.photo.price')});|">一括金額設定</button>
-				<a class="btn btn-success ml-auto" id="btnShare"
+				<a class="btn btn-info ml-auto" id="btnShare"
 					th:classappend="${#lists.isEmpty(photos)}?'disabled'"
 					th:href="@{|/user/share/${folder}|}" role="button"><i
 					class="fas fa-share-alt"></i>&nbsp;公開する</a>
@@ -112,7 +112,7 @@ button[id^="btnPrice"]:disabled {
 					</div>
 					<div class="card-footer p-1 bg-white btn-group d-flex" role="group">
 						<button type="button" th:id="|btnPrice${stat.count}|"
-							class="btn btn-warning btn-sm w-100 font-weight-bold"
+							class="btn btn-warning btn-sm w-100"
 							th:classappend="${shared}?'rounded'" th:disabled="${shared}"
 							data-toggle="modal" data-target="#mdlPrice"
 							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{mark.money}','').replace(/,/g,''));|"

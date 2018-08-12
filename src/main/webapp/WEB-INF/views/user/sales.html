@@ -17,7 +17,7 @@
 				th:text="|${#numbers.formatInteger(total,1,'COMMA')}円|"></h2>
 		</div>
 		<div th:if="${#lists.isEmpty(orders)}" id="altInfo"
-			class="alert alert-success alert-dismissible fade show mt-3 mb-0 mw-content mx-auto"
+			class="alert alert-info alert-dismissible fade show mt-3 mb-0 mw-content mx-auto"
 			role="alert">
 			<button type="button" class="close" data-dismiss="alert">&times;</button>
 			<div>

@@ -20,7 +20,7 @@ html {
 		<h4>ご購入いただきありがとうございます</h4>
 		<br>
 		<p th:if="${order}" th:text="${order}"></p>
-		<br> <a th:if="${link}" class="btn btn-success"
+		<br> <a th:if="${link}" class="btn btn-info"
 			th:href="@{${link}}" role="button">ダウンロードへ</a>
 	</div>
 </body>

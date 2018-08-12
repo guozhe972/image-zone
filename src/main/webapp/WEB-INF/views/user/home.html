@@ -120,7 +120,7 @@ label.custom-file-label::after {
 									'edge') < 0) {
 								$('.progress-bar').css('width', '0%');
 							}
-							$('.progress-bar').addClass('bg-success')
+							$('.progress-bar').addClass('bg-info')
 									.removeClass('bg-warning');
 							$('#mdlUpload').modal('show');
 						},
@@ -135,7 +135,7 @@ label.custom-file-label::after {
 									$('.progress-bar-title').text('処理中...');
 									$('.progress-bar').text('');
 									$('.progress-bar').addClass('bg-warning')
-											.removeClass('bg-success');
+											.removeClass('bg-info');
 								}
 							};
 							return xhr;
@@ -204,19 +204,19 @@ label.custom-file-label::after {
 					</div>
 					<div class="form-group btn-group d-flex mb-0" role="group">
 						<button type="submit"
-							class="btn btn-primary text-none w-100 rounded-sm"
-							th:classappend="*{shared}?'btn-secondary'"
+							class="btn text-none w-100 rounded-sm"
+							th:classappend="*{shared}?'btn-secondary':'btn-info'"
 							th:disabled="*{shared}"
 							th:onclick="|return checkFolder(*{seq});|">
 							<i class="fas fa-upload"></i><span>&nbsp;アップロード</span>
 						</button>
-						<a class="btn btn-success text-none w-100 ml-sm-3 rounded-sm"
+						<a class="btn btn-warning text-none w-100 ml-sm-3 rounded-sm"
 							th:onclick="|return checkFolder(*{seq});|"
 							th:href="@{|/user/folder/*{seq}|}" role="button"> <i
 							class="fas fa-yen-sign"></i><span>&nbsp;<th:block
 									th:text="*{shared} ? '金額確認':'金額設定'">金額設定</th:block></span>
 						</a> <a class="btn text-none w-100 ml-sm-3 rounded-sm"
-							th:classappend="*{shared}?'btn-warning':'btn-secondary disabled'"
+							th:classappend="*{shared}?'btn-success':'btn-secondary disabled'"
 							th:href="@{|/user/sales/*{seq}|}" role="button"> <i
 							class="fas fa-piggy-bank"></i><span>&nbsp;売上確認</span>
 						</a>

@@ -89,7 +89,7 @@
 				合計&nbsp;&nbsp; <span id="total"
 					th:text="${#lists.isEmpty(cart)}?|#{mark.money}0|:|#{mark.money}${#numbers.formatInteger(__${#aggregates.sum(cart.![price])}__,1,'COMMA')}|"></span>
 			</button>
-			<a class="btn btn-success ml-auto" id="btnOrder"
+			<a class="btn btn-info ml-auto" id="btnOrder"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
 				th:href="@{/guest/charge}" role="button">注文手続きへ</a>
 		</div>
