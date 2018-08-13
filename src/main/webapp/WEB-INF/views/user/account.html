@@ -46,7 +46,7 @@
 			</div>
 			<hr class="mb-0">
 			<div class="mb-3 text-right">
-				<small class="form-text text-muted">振込手数料に1,000円が掛かります</small>
+				<small class="form-text text-muted">振込手数料に${#numbers.formatInteger(balance,1,'COMMA')}円が掛かります</small>
 			</div>
 			<div class="form-group row">
 				<label for="bank" class="col-sm-4 col-form-label text-sm-right">金融機関名</label>
@@ -123,10 +123,10 @@
 					</p>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">いいえ</button>
 					<button type="button" class="btn btn-primary" data-dismiss="modal"
 						onclick="mdlTransfer=1;">はい</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">いいえ</button>
 				</div>
 			</div>
 		</div>

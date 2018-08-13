@@ -7,17 +7,28 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cncsys.imgz.entity.OrderEntity;
+import com.cncsys.imgz.mapper.AccountMapper;
 import com.cncsys.imgz.mapper.OrderMapper;
 
 @Service
 public class OrderService {
 
+	@Value("${cost.settle.percent}")
+	private int COST_SETTLE;
+
+	@Value("${admin.username}")
+	private String ADMIN_NAME;
+
 	@Autowired
 	private OrderMapper orderMapper;
+
+	@Autowired
+	private AccountMapper accountMapper;
 
 	private final Random intRandom = new Random();
 
@@ -44,7 +55,11 @@ public class OrderService {
 	}
 
 	@Transactional
-	public int chargeOrder(String orderno, String email) {
-		return orderMapper.updateCharged(orderno, email, true);
+	public void chargeOrder(String orderno, String email, String username, int amount) {
+		orderMapper.updateCharged(orderno, email, true);
+
+		int fee = Math.round(amount * COST_SETTLE / 100F);
+		accountMapper.updateBalance(username, amount - fee);
+		accountMapper.updateBalance(ADMIN_NAME, fee);
 	}
 }

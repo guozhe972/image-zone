@@ -4,15 +4,77 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>home</title>
+<script>
+	var mdlDone = 0;
+	$(function() {
+		$('#mdlDone').on('hide.bs.modal', function(e) {
+			if (mdlDone == 1) {
+				mdlDone = 0;
+				$('#mdlWaiting').modal('show');
+				$('#fomDone').submit();
+			}
+		});
+	});
+</script>
 </head>
 <body layout:fragment="body" class="pt-header">
 	<header layout:insert="~{layout/parts/header::admin(0)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
-	<div class="container bg-main">
-		<div class="mw-content mx-auto text-center pt-5">
-			<h1>admin page</h1>
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
+	<div class="container bg-main px-0">
+		<div class="mw-content mx-auto mt-3 d-flex justify-content-between">
+			<h2 class="mb-0 ml-3">売上</h2>
+			<h2 class="mb-0 mr-3"
+				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}円|"></h2>
+		</div>
+		<ul class="list-group mw-content mx-auto py-3">
+			<li
+				class="list-group-item rounded-0 border-left-0 border-right-0 px-0 py-2"
+				th:each="form,stat : ${transfer}" th:object="${form}">
+				<div class="float-left pl-3" style="width: 120px;">
+					<span th:text="*{bank}"></span><br> <span th:text="*{branch}"></span><br>
+					<th:block th:switch="*{actype}">
+						<span th:case="1"> 普通&nbsp;&nbsp;[(*{acnumber})]</span>
+						<span th:case="2"> 当座&nbsp;&nbsp;[(*{acnumber})]</span>
+					</th:block>
+					<br> <span th:text="*{acname}"></span>
+				</div>
+				<div class="text-right pr-3">
+					<p class="h5"
+						th:text="|*{#numbers.formatInteger(amount,1,'COMMA')}円|"></p>
+					<button type="button" class="btn btn-info" data-toggle="modal"
+						data-target="#mdlDone"
+						th:onclick="|$('#transno').val('*{transno}');|">振込完了</button>
+				</div>
+			</li>
+		</ul>
+	</div>
+
+	<form id="fomDone" th:action="@{/admin/done}" method="post">
+		<input type="hidden" id="transno" name="transno" />
+	</form>
+	<div id="mdlDone" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">確認</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>振込完了しましたか。</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal"
+						onclick="mdlDone=1;">はい</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">いいえ</button>
+				</div>
+			</div>
 		</div>
 	</div>
 </body>

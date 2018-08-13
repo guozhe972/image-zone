@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class TransferForm {
 
+	private String transno;
 	private String bank;
 	private String branch;
 	private int actype = 1;

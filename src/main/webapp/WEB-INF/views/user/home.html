@@ -8,10 +8,6 @@
 label.custom-file-label::after {
 	content: "[(#{input.file.button})]";
 }
-
-.list-group-flush .list-group-item:first-child {
-	border-top: 0;
-}
 </style>
 <script>
 	var mdlClear = 0;
@@ -120,8 +116,8 @@ label.custom-file-label::after {
 									'edge') < 0) {
 								$('.progress-bar').css('width', '0%');
 							}
-							$('.progress-bar').addClass('bg-info')
-									.removeClass('bg-warning');
+							$('.progress-bar').addClass('bg-info').removeClass(
+									'bg-warning');
 							$('#mdlUpload').modal('show');
 						},
 						xhr : function() {
@@ -203,8 +199,7 @@ label.custom-file-label::after {
 						</div>
 					</div>
 					<div class="form-group btn-group d-flex mb-0" role="group">
-						<button type="submit"
-							class="btn text-none w-100 rounded-sm"
+						<button type="submit" class="btn text-none w-100 rounded-sm"
 							th:classappend="*{shared}?'btn-secondary':'btn-info'"
 							th:disabled="*{shared}"
 							th:onclick="|return checkFolder(*{seq});|">
@@ -249,10 +244,10 @@ label.custom-file-label::after {
 					<p>初期化しますか。</p>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">いいえ</button>
 					<button type="button" class="btn btn-primary" data-dismiss="modal"
 						onclick="mdlClear=1;">はい</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">いいえ</button>
 				</div>
 			</div>
 		</div>

@@ -38,7 +38,6 @@ import com.cncsys.imgz.helper.MailHelper;
 import com.cncsys.imgz.model.ChargeForm;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
-import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
 
@@ -64,17 +63,11 @@ public class GuestController {
 	@Value("${order.file.path}")
 	private String ORDER_PATH;
 
-	@Value("${cost.settle.percent}")
-	private int COST_SETTLE;
-
 	@Autowired
 	private PhotoService photoService;
 
 	@Autowired
 	private OrderService orderService;
-
-	@Autowired
-	private AccountService accountService;
 
 	//@Autowired
 	//private AsyncService asyncService;
@@ -249,10 +242,7 @@ public class GuestController {
 
 		// charge success
 		sessionStatus.setComplete();
-		orderService.chargeOrder(orderno, email);
-
-		amount -= Math.round(amount * COST_SETTLE / 100F);
-		accountService.plusBalance(username, amount);
+		orderService.chargeOrder(orderno, email, username, amount);
 
 		String link = "/download/" + orderno + "/" + codeParser.encrypt(email);
 		List<String> param = new ArrayList<String>();

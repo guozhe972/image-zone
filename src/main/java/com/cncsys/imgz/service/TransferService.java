@@ -6,6 +6,7 @@ import java.util.Random;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -18,6 +19,12 @@ import com.cncsys.imgz.mapper.TransferMapper;
 
 @Service
 public class TransferService {
+
+	@Value("${cost.transfer.amount}")
+	private int COST_TRANSFER;
+
+	@Value("${admin.username}")
+	private String ADMIN_NAME;
 
 	@Autowired
 	private TransferMapper transferMapper;
@@ -50,7 +57,9 @@ public class TransferService {
 			if (balance < 0) {
 				transactionManager.rollback(status);
 			} else {
+				transfer.setAmount(transfer.getAmount() - COST_TRANSFER);
 				transferMapper.insertTransfer(transfer);
+				accountMapper.updateBalance(ADMIN_NAME, COST_TRANSFER);
 				transactionManager.commit(status);
 			}
 		} catch (Exception e) {

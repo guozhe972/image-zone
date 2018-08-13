@@ -5517,6 +5517,7 @@ input[type="button"].btn-block {
   border-radius: 0;
 }
 
+.list-group-flush .list-group-item:first-child,
 .list-group-flush:first-child .list-group-item:first-child {
   border-top: 0;
 }
