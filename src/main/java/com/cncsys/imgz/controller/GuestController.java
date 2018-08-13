@@ -244,11 +244,11 @@ public class GuestController {
 		sessionStatus.setComplete();
 		orderService.chargeOrder(orderno, email, username, amount);
 
+		String[] param = new String[3];
+		param[0] = orderno;
+		param[1] = expiredt.toString();
 		String link = "/download/" + orderno + "/" + codeParser.encrypt(email);
-		List<String> param = new ArrayList<String>();
-		param.add(orderno);
-		param.add(expiredt.toString());
-		param.add(builder.path(link).build().toUriString());
+		param[2] = builder.path(link).build().toUriString();
 		mailHelper.sendOrderDone(email, param);
 
 		redirectAttributes.addFlashAttribute("order", orderno);

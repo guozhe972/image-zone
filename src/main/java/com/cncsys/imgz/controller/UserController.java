@@ -42,6 +42,7 @@ import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.entity.TransferEntity;
 import com.cncsys.imgz.helper.FileHelper;
+import com.cncsys.imgz.helper.MailHelper;
 import com.cncsys.imgz.model.FolderForm;
 import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
@@ -77,6 +78,9 @@ public class UserController {
 
 	@Autowired
 	private FileHelper fileHelper;
+
+	@Autowired
+	private MailHelper mailHelper;
 
 	@Autowired
 	private AccountService accountService;
@@ -183,8 +187,24 @@ public class UserController {
 			redirectAttributes.addFlashAttribute("transferForm", form);
 			return "redirect:/user/account";
 		}
-
 		user.setBalance(balance);
+
+		// send accept mail
+		String[] param = new String[5];
+		param[0] = transno;
+		param[1] = form.getBank();
+		param[2] = form.getBranch();
+		switch (form.getActype()) {
+		case 1:
+			param[3] = "普通 " + form.getAcnumber();
+			break;
+		case 2:
+			param[3] = "当座 " + form.getAcnumber();
+			break;
+		}
+		param[4] = String.format("%,d", entity.getAmount()) + "円";
+		mailHelper.sendTransAccept(user.getEmail(), param);
+
 		infos.add("振込申請を受け付けました。受付番号：" + transno);
 		redirectAttributes.addFlashAttribute("infos", infos);
 		return "redirect:/user/account";

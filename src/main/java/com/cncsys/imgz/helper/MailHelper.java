@@ -1,6 +1,5 @@
 package com.cncsys.imgz.helper;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -57,17 +56,23 @@ public class MailHelper {
 		mailSender.send(mail);
 	}
 
-	public void sendOrderDone(String to, List<String> param) {
+	public void sendOrderDone(String to, String[] param) {
 		Locale locale = LocaleContextHolder.getLocale();
-
-		String order = param.get(0);
-		String expiry = param.get(1);
-		String link = param.get(2);
-		//String price = param.get(3);
-		//String amount = param.get(4);
-
 		String subject = messageSource.getMessage("email.order.subject", null, locale);
-		String text = messageSource.getMessage("email.order.message", new String[] { order, expiry, link }, locale);
+		String text = messageSource.getMessage("email.order.message", param, locale);
+
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setFrom(MAIL_FROM);
+		mail.setTo(to);
+		mail.setSubject(subject);
+		mail.setText(text);
+		mailSender.send(mail);
+	}
+
+	public void sendTransAccept(String to, String[] param) {
+		Locale locale = LocaleContextHolder.getLocale();
+		String subject = messageSource.getMessage("email.transfer.subject", null, locale);
+		String text = messageSource.getMessage("email.transfer.message", param, locale);
 
 		SimpleMailMessage mail = new SimpleMailMessage();
 		mail.setFrom(MAIL_FROM);
