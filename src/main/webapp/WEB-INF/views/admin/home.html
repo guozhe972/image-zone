@@ -7,6 +7,14 @@
 <script>
 	var mdlDone = 0;
 	$(function() {
+		$('#mdlDone').on('shown.bs.modal', function() {
+			$('#money').trigger('focus');
+		});
+
+		$('#money').focus(function() {
+			$(this).select();
+		});
+
 		$('#mdlDone').on('hide.bs.modal', function(e) {
 			if (mdlDone == 1) {
 				mdlDone = 0;
@@ -33,15 +41,16 @@
 			<li
 				class="list-group-item rounded-0 border-left-0 border-right-0 px-0 py-2"
 				th:each="form,stat : ${transfer}" th:object="${form}">
-				<div class="float-left pl-3" style="width: 120px;">
-					<span th:text="*{bank}"></span><br> <span th:text="*{branch}"></span><br>
+				<div class="float-left px-3">
+					<div th:text="*{bank}"></div>
+					<span th:text="*{branch}"></span><br>
 					<th:block th:switch="*{actype}">
 						<span th:case="1"> 普通&nbsp;&nbsp;[(*{acnumber})]</span>
 						<span th:case="2"> 当座&nbsp;&nbsp;[(*{acnumber})]</span>
 					</th:block>
 					<br> <span th:text="*{acname}"></span>
 				</div>
-				<div class="text-right pr-3">
+				<div class="float-right pr-3 text-right">
 					<p class="h5"
 						th:text="|*{#numbers.formatInteger(amount,1,'COMMA')}円|"></p>
 					<button type="button" class="btn btn-info" data-toggle="modal"
@@ -53,24 +62,34 @@
 	</div>
 
 	<form id="fomDone" th:action="@{/admin/done}" method="post">
-		<input type="hidden" id="transno" name="transno" />
+		<input type="hidden" id="transno" name="transno" /> <input
+			type="hidden" id="fee" name="fee" />
 	</form>
 	<div id="mdlDone" class="modal fade" tabindex="-1" role="dialog"
 		data-backdrop="static" data-keyboard="false">
-		<div class="modal-dialog" role="document">
+		<div class="modal-dialog modal-sm" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">確認</h5>
+					<h5 class="modal-title">振込</h5>
 					<button type="button" class="close" data-dismiss="modal">
 						<span>&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<p>振込完了しましたか。</p>
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">手数料</span>
+						</div>
+						<input type="number" id="money" value="0" min="0" max="1000"
+							maxlength="4" class="form-control text-right num-only" />
+						<div class="input-group-append">
+							<span class="input-group-text">円</span>
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" data-dismiss="modal"
-						onclick="mdlDone=1;">はい</button>
+						onclick="$('#fee').val($('#money').val());mdlDone=1;">はい</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">いいえ</button>
 				</div>

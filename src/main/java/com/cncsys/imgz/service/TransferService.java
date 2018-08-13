@@ -59,7 +59,7 @@ public class TransferService {
 			} else {
 				transfer.setAmount(transfer.getAmount() - COST_TRANSFER);
 				transferMapper.insertTransfer(transfer);
-				accountMapper.updateBalance(ADMIN_NAME, COST_TRANSFER);
+				//accountMapper.updateBalance(ADMIN_NAME, COST_TRANSFER);
 				transactionManager.commit(status);
 			}
 		} catch (Exception e) {
@@ -70,7 +70,9 @@ public class TransferService {
 	}
 
 	@Transactional
-	public int updateTransfer(String transno) {
-		return transferMapper.updateTransfer(transno, DateTime.now());
+	public void doneTransfer(String transno, int fee) {
+		transferMapper.updateTransfer(transno, DateTime.now());
+		//accountMapper.updateBalance(ADMIN_NAME, -Math.abs(fee));
+		accountMapper.updateBalance(ADMIN_NAME, COST_TRANSFER - Math.abs(fee));
 	}
 }

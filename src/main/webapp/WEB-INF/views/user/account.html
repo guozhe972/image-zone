@@ -7,6 +7,13 @@
 <script>
 	var mdlTransfer = 0;
 	$(function() {
+		// for test =====
+		$('#bank').val('三菱ＵＦＪ銀行');
+		$('#branch').val('東京支店');
+		$('#acnumber').val('1222334');
+		$('#acname').val('ワカバ タロウ');
+		// for test =====
+
 		$('#mdlTransfer').on('hide.bs.modal', function(e) {
 			if (mdlTransfer == 1) {
 				mdlTransfer = 0;
@@ -82,7 +89,7 @@
 			<div class="form-group row">
 				<label for="acnumber" class="col-sm-4 col-form-label text-sm-right">口座番号</label>
 				<div class="col-sm-8">
-					<input type="text" id="acnumber" name="acnumber"
+					<input type="number" id="acnumber" name="acnumber"
 						th:value="*{acnumber}" class="form-control num-only" maxlength="8"
 						placeholder="" required />
 					<div class="invalid-feedback">acnumber error</div>

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cncsys.imgz.entity.AccountEntity;
 import com.cncsys.imgz.entity.TransferEntity;
@@ -59,8 +58,8 @@ public class AdminController {
 	}
 
 	@PostMapping("/done")
-	public String done(@RequestParam("transno") String transno, RedirectAttributes redirectAttributes) {
-		transferService.updateTransfer(transno);
+	public String done(@RequestParam("transno") String transno, @RequestParam("fee") int fee) {
+		transferService.doneTransfer(transno, fee);
 		return "redirect:/admin/home";
 	}
 }
