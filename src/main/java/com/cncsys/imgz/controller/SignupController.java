@@ -62,8 +62,7 @@ public class SignupController {
 
 	@GetMapping("/input")
 	public String input(Model model) {
-		BindingResult result = (BindingResult) model.asMap().get(BindingResult.MODEL_KEY_PREFIX + FORM_MODEL_KEY);
-		if (result == null) {
+		if (!model.containsAttribute(BindingResult.MODEL_KEY_PREFIX + FORM_MODEL_KEY)) {
 			model.addAttribute(FORM_MODEL_KEY, initSignupForm());
 		}
 		return "/auth/signup";

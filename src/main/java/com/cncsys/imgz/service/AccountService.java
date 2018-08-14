@@ -100,6 +100,11 @@ public class AccountService {
 	}
 
 	@Transactional
+	public void changePassword(String username, String password) {
+		accountMapper.updatePassword(username, passwordEncoder.encode(password));
+	}
+
+	@Transactional
 	public void updateLogindt(String username) {
 		accountMapper.updateLogindt(username, DateTime.now());
 	}

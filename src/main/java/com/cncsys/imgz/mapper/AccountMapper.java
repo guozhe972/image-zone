@@ -15,5 +15,7 @@ public interface AccountMapper {
 
 	int updateAccount(AccountEntity account);
 
+	int updatePassword(@Param("username") String username, @Param("password") String password);
+
 	int updateBalance(@Param("username") String username, @Param("balance") int balance);
 }

@@ -43,6 +43,8 @@ import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.entity.TransferEntity;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.helper.MailHelper;
+import com.cncsys.imgz.model.ChangeForm;
+import com.cncsys.imgz.model.ChangeForm.Input;
 import com.cncsys.imgz.model.FolderForm;
 import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
@@ -101,11 +103,19 @@ public class UserController {
 	private PhotoService photoService;
 
 	@Autowired
-	private FolderValidator uploadValidator;
+	private FolderValidator folderValidator;
 
 	@InitBinder("folderForm")
-	public void initUploadBinder(WebDataBinder binder) {
-		binder.addValidators(uploadValidator);
+	public void initFolderBinder(WebDataBinder binder) {
+		binder.addValidators(folderValidator);
+	}
+
+	@Autowired
+	private ChangeValidator changeValidator;
+
+	@InitBinder("changeForm")
+	public void initChangeBinder(WebDataBinder binder) {
+		binder.addValidators(changeValidator);
 	}
 
 	@GetMapping("/home")
@@ -208,6 +218,40 @@ public class UserController {
 		infos.add("振込申請を受け付けました。受付番号：" + transno);
 		redirectAttributes.addFlashAttribute("infos", infos);
 		return "redirect:/user/account";
+	}
+
+	@GetMapping("/change")
+	public String info(Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		if (!model.containsAttribute("changeForm")) {
+			ChangeForm form = new ChangeForm();
+			form.setUsername(user.getUsername());
+			form.setEmail(user.getEmail());
+			model.addAttribute("changeForm", form);
+		}
+		return "/user/change";
+	}
+
+	@PostMapping("/change")
+	public String change(@ModelAttribute @Validated(Input.class) ChangeForm form, BindingResult result,
+			RedirectAttributes redirectAttributes, Locale locale) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		if (result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("changeForm", form);
+			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "changeForm", result);
+			return "redirect:/user/change";
+		}
+
+		accountService.changePassword(user.getUsername(), form.getPassword());
+
+		List<String> infos = new ArrayList<String>();
+		infos.add("パスワードを変更しました。");
+		redirectAttributes.addFlashAttribute("infos", infos);
+		return "redirect:/user/change";
 	}
 
 	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
