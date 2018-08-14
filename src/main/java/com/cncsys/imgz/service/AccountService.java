@@ -22,6 +22,12 @@ public class AccountService {
 	@Value("${default.expired.days}")
 	private int DEFAULT_EXPIRED;
 
+	@Value("${cost.settle.percent}")
+	private int COST_SETTLE;
+
+	@Value("${admin.username}")
+	private String ADMIN_NAME;
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
@@ -84,6 +90,13 @@ public class AccountService {
 	@Transactional
 	public int minusBalance(String username, int amount) {
 		return accountMapper.updateBalance(username, -Math.abs(amount));
+	}
+
+	@Transactional
+	public void chargeBalance(String username, int amount, int real) {
+		int fee = Math.round(amount * COST_SETTLE / 100F);
+		accountMapper.updateBalance(username, amount - fee);
+		accountMapper.updateBalance(ADMIN_NAME, fee - (amount - real));
 	}
 
 	@Transactional

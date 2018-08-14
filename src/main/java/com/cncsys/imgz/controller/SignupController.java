@@ -35,7 +35,7 @@ import com.cncsys.imgz.service.AccountService;
 @SessionAttributes("signupForm")
 public class SignupController {
 
-	public static final String FORM_MODEL_KEY = "signupForm";
+	private static final String FORM_MODEL_KEY = "signupForm";
 
 	@Autowired
 	private AccountService accountService;

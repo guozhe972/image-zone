@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -38,15 +40,21 @@ import com.cncsys.imgz.helper.MailHelper;
 import com.cncsys.imgz.model.ChargeForm;
 import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.PhotoForm;
+import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
+
+import co.omise.Client;
+import co.omise.models.Charge;
+import co.omise.models.ChargeStatus;
+import co.omise.models.Transaction;
 
 @Controller
 @RequestMapping("/guest")
 @SessionAttributes("cart")
 public class GuestController {
-
-	public static final String FORM_MODEL_KEY = "cart";
+	private static final Logger logger = LoggerFactory.getLogger(GuestController.class);
+	private static final String FORM_MODEL_KEY = "cart";
 
 	@ModelAttribute(FORM_MODEL_KEY)
 	public List<PhotoForm> initCartList() {
@@ -68,6 +76,9 @@ public class GuestController {
 
 	@Autowired
 	private OrderService orderService;
+
+	@Autowired
+	private AccountService accountService;
 
 	//@Autowired
 	//private AsyncService asyncService;
@@ -208,42 +219,46 @@ public class GuestController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-
-			sessionStatus.setComplete();
+			logger.error(e.getMessage());
 			List<String> errors = new ArrayList<String>();
 			errors.add(e.getMessage());
 			redirectAttributes.addFlashAttribute("errors", errors);
 			return "redirect:/guest/charge";
 		}
 
-		// make thumbnail.
+		// make thumbnail
 		//asyncService.makeThumbnail(photos);
 
-		//		// charge process
-		//		try {
-		//			Client client = new Client("skey_test_5crja3ps6nt8ihsag20");
-		//			Charge charge = client.charges().create(new Charge.Create()
-		//					.amount(amount)
-		//					.currency("jpy")
-		//					.capture(true)
-		//					.description("Order Number: " + order)
-		//					.card(form.getToken()));
-		//			logger.info("created charge: " + charge.getId());
-		//			if (charge.getStatus() != ChargeStatus.Successful) {
-		//				logger.info(charge.getFailureCode() + ": " + charge.getFailureMessage());
-		//				// TODO: set error to RedirectAttributes
-		//				return "redirect:/guest/charge";
-		//			}
-		//		} catch (Exception e) {
-		//			e.printStackTrace();
-		//			// TODO: set error to RedirectAttributes
-		//			return "redirect:/guest/charge";
-		//		}
+		// charge process
+		try {
+			Client client = new Client("skey_test_5crja3ps6nt8ihsag20");
+			Charge charge = client.charges().create(new Charge.Create()
+					.amount(amount)
+					.currency("jpy")
+					.capture(true)
+					.description("Order Number: " + orderno)
+					.card(form.getToken()));
+			if (charge.getStatus() != ChargeStatus.Successful) {
+				List<String> errors = new ArrayList<String>();
+				errors.add(charge.getFailureCode() + ": " + charge.getFailureMessage());
+				redirectAttributes.addFlashAttribute("errors", errors);
+				return "redirect:/guest/charge";
+			} else {
+				orderService.chargeOrder(orderno, email);
+				Transaction trans = client.transactions().get(charge.getTransaction());
+				int real = (int) trans.getAmount();
+				accountService.chargeBalance(username, amount, real);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.getMessage());
+			List<String> errors = new ArrayList<String>();
+			errors.add(e.getMessage());
+			redirectAttributes.addFlashAttribute("errors", errors);
+			return "redirect:/guest/charge";
+		}
 
-		// charge success
-		sessionStatus.setComplete();
-		orderService.chargeOrder(orderno, email, username, amount);
-
+		// send order mail
 		String[] param = new String[3];
 		param[0] = orderno;
 		param[1] = expiredt.toString();
@@ -251,6 +266,7 @@ public class GuestController {
 		param[2] = builder.path(link).build().toUriString();
 		mailHelper.sendOrderDone(email, param);
 
+		sessionStatus.setComplete();
 		redirectAttributes.addFlashAttribute("order", orderno);
 		redirectAttributes.addFlashAttribute("link", link);
 		return "redirect:/guest/done";
