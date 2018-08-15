@@ -4,7 +4,7 @@
 <body>
 	<nav layout:fragment="home(lang, sign)"
 		class="navbar navbar-expand navbar-dark">
-		<a class="navbar-brand h1 mb-0" th:href="@{/}">iZone</a>
+		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
 		<form th:if="${lang}" id="fomLang"
 			class="navbar-nav form-inline ml-auto" th:action="@{/system/lang}"
 			method="post">
@@ -33,7 +33,7 @@
 			onclick="$('#navMenu').toggleClass('open');">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<a class="navbar-brand h1 mb-0" th:href="@{/}">iZone</a>
+		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
 		<div class="navbar-collapse offcanvas-collapse" id="navMenu">
 			<ul class="navbar-nav">
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a
@@ -54,7 +54,7 @@
 			onclick="$('#navMenu').toggleClass('open');">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<a class="navbar-brand h1 mb-0" th:href="@{/}">iZone</a>
+		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
 		<div class="navbar-collapse offcanvas-collapse" id="navMenu">
 			<ul class="navbar-nav">
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a
@@ -82,7 +82,7 @@
 			onclick="$('#navMenu').toggleClass('open');">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<a class="navbar-brand h1 mb-0" th:href="@{/}">iZone</a>
+		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
 		<div class="navbar-collapse offcanvas-collapse" id="navMenu">
 			<ul class="navbar-nav">
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a

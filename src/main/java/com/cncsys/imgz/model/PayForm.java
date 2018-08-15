@@ -3,7 +3,7 @@ package com.cncsys.imgz.model;
 import lombok.Data;
 
 @Data
-public class ChargeForm {
+public class PayForm {
 
 	private String email;
 	private String token;

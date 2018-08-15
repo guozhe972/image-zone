@@ -16,5 +16,8 @@ public interface OrderMapper {
 
 	int insertOrder(OrderEntity order);
 
-	int updateCharged(@Param("orderno") String orderno, @Param("email") String email, @Param("charged") boolean charged);
+	int updateCharged(@Param("orderno") String orderno, @Param("email") String email,
+			@Param("charged") boolean charged);
+
+	int deleteOrder(@Param("orderno") String orderno);
 }

@@ -13,8 +13,10 @@
 		where orderno = #{orderno}
 		and email =
 		#{email}
+		and charged = true
 		and expiredt >= #{expiredt}
-		order by createdt asc
+		order by createdt
+		asc
 	</select>
 
 	<select id="selectByFolder" resultType="OrderEntity">
@@ -54,5 +56,10 @@
 		where orderno
 		= #{orderno} and email = #{email}
 	</update>
+
+	<delete id="deleteOrder">
+		delete from "order" where orderno = #{orderno} and
+		charged = false
+	</delete>
 
 </mapper>

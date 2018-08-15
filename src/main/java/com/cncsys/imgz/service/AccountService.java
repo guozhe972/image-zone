@@ -83,17 +83,7 @@ public class AccountService {
 	}
 
 	@Transactional
-	public int plusBalance(String username, int amount) {
-		return accountMapper.updateBalance(username, Math.abs(amount));
-	}
-
-	@Transactional
-	public int minusBalance(String username, int amount) {
-		return accountMapper.updateBalance(username, -Math.abs(amount));
-	}
-
-	@Transactional
-	public void chargeBalance(String username, int amount, int real) {
+	public void updateBalance(String username, int amount, int real) {
 		int fee = Math.round(amount * COST_SETTLE / 100F);
 		accountMapper.updateBalance(username, amount - fee);
 		accountMapper.updateBalance(ADMIN_NAME, fee - (amount - real));

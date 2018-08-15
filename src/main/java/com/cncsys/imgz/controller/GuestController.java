@@ -37,10 +37,11 @@ import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.helper.CodeParser;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.helper.MailHelper;
-import com.cncsys.imgz.model.ChargeForm;
 import com.cncsys.imgz.model.LoginUser;
+import com.cncsys.imgz.model.PayForm;
 import com.cncsys.imgz.model.PhotoForm;
 import com.cncsys.imgz.service.AccountService;
+import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
 
@@ -80,8 +81,8 @@ public class GuestController {
 	@Autowired
 	private AccountService accountService;
 
-	//@Autowired
-	//private AsyncService asyncService;
+	@Autowired
+	private AsyncService asyncService;
 
 	@Autowired
 	private CodeParser codeParser;
@@ -153,15 +154,15 @@ public class GuestController {
 		return "redirect:/guest/home";
 	}
 
-	@GetMapping("/charge")
-	public String charge(@ModelAttribute ChargeForm form, Model model) {
+	@GetMapping("/pay")
+	public String pay(@ModelAttribute PayForm form, Model model) {
 		int[] years = new int[10];
 		int year = LocalDate.now().getYear();
 		for (int i = 0; i < years.length; i++) {
 			years[i] = year + i;
 		}
 		model.addAttribute("years", years);
-		return "/guest/charge";
+		return "/guest/pay";
 	}
 
 	@PostMapping(path = "/confirm", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
@@ -171,8 +172,8 @@ public class GuestController {
 		return "ok";
 	}
 
-	@PostMapping("/charge")
-	public String order(@ModelAttribute ChargeForm form, BindingResult result, Model model,
+	@PostMapping("/pay")
+	public String order(@ModelAttribute PayForm form, BindingResult result, Model model,
 			RedirectAttributes redirectAttributes, SessionStatus sessionStatus, UriComponentsBuilder builder) {
 		@SuppressWarnings("unchecked")
 		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
@@ -183,6 +184,8 @@ public class GuestController {
 		// order info
 		String orderno = orderService.createNumber();
 		String email = form.getEmail();
+		if (email == null)
+			email = orderno;
 		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
 		String username = cart.get(0).getUsername();
 		List<String> photos = new ArrayList<String>();
@@ -223,7 +226,7 @@ public class GuestController {
 			List<String> errors = new ArrayList<String>();
 			errors.add(e.getMessage());
 			redirectAttributes.addFlashAttribute("errors", errors);
-			return "redirect:/guest/charge";
+			return "redirect:/guest/pay";
 		}
 
 		// make thumbnail
@@ -239,23 +242,27 @@ public class GuestController {
 					.description("Order Number: " + orderno)
 					.card(form.getToken()));
 			if (charge.getStatus() != ChargeStatus.Successful) {
+				logger.error(charge.getFailureCode() + ": " + charge.getFailureMessage());
+				asyncService.deleteOrder(orderno);
 				List<String> errors = new ArrayList<String>();
-				errors.add(charge.getFailureCode() + ": " + charge.getFailureMessage());
+				// TODO: charge.getFailureCode()を判断して、FailureMessageを多言語化
+				errors.add(charge.getFailureMessage());
 				redirectAttributes.addFlashAttribute("errors", errors);
-				return "redirect:/guest/charge";
+				return "redirect:/guest/pay";
 			} else {
-				orderService.chargeOrder(orderno, email);
+				orderService.updateOrder(orderno, email);
 				Transaction trans = client.transactions().get(charge.getTransaction());
 				int real = (int) trans.getAmount();
-				accountService.chargeBalance(username, amount, real);
+				accountService.updateBalance(username, amount, real);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
+			asyncService.deleteOrder(orderno);
 			List<String> errors = new ArrayList<String>();
 			errors.add(e.getMessage());
 			redirectAttributes.addFlashAttribute("errors", errors);
-			return "redirect:/guest/charge";
+			return "redirect:/guest/pay";
 		}
 
 		// send order mail

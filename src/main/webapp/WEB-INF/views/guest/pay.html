@@ -3,8 +3,8 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>charge</title>
-<script th:src="@{/js/omise.js}"></script>
+<title>pay</title>
+<script th:src="@{/js/omise.min.js}"></script>
 <script>
 	$(function() {
 		// for test =====
@@ -34,7 +34,7 @@
 			});
 		});
 
-		$('#fomCharge').submit(
+		$('#fomPay').submit(
 				function(event) {
 					event.preventDefault();
 					var form = $(this).get(0);
@@ -55,15 +55,11 @@
 
 					Omise.createToken('card', card, function(statusCode,
 							response) {
-						if (response.object == 'error'
-								|| !response.card.security_code_check) {
-							var message = 'SECURITY CODE ERROR!';
-							if (response.object == "error") {
-								message = response.message;
-							}
+						if (statusCode != 200 || response.object == 'error') {
+							var message = response.message;
+							// TODO: messageの多言語化
 							var errors = [ message ];
 							showAlertError(errors);
-
 							$('#mdlWaiting').modal('hide');
 						} else {
 							$('#token').val(response.id);
@@ -84,8 +80,8 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main pb-3">
-		<form class="mw-content mx-auto" id="fomCharge" novalidate
-			th:action="@{/guest/charge}" th:object="${chargeForm}" method="post"
+		<form class="mw-content mx-auto" id="fomPay" novalidate
+			th:action="@{/guest/pay}" th:object="${payForm}" method="post"
 			autocomplete="off">
 			<th:block layout:replace="~{layout/parts/alert::error}" />
 			<div class="mt-3 d-flex justify-content-between">
@@ -164,7 +160,7 @@
 			</div>
 			<div class="form-group row mb-0">
 				<div class="offset-sm-4 col-sm-8">
-					<button id="btnCharge" type="submit"
+					<button id="btnPay" type="submit"
 						class="btn btn-primary btn-block-xs" style="width: 150px;">購入</button>
 				</div>
 			</div>
