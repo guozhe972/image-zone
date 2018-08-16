@@ -31,9 +31,9 @@
 	<mvc:resources mapping="/images/**"
 		location="/WEB-INF/images/" />
 	<mvc:resources mapping="/upload/**"
-		location="file:/apl/imgz/upload/" />
+		location="file:${upload.file.path}/" />
 	<mvc:resources mapping="/order/**"
-		location="file:/apl/imgz/order/" />
+		location="file:${order.file.path}/" />
 
 	<bean id="messageSource"
 		class="org.springframework.context.support.ResourceBundleMessageSource">
@@ -164,6 +164,10 @@
 			access="permitAll" />
 		<sec:intercept-url pattern="/download/**"
 			access="permitAll" />
+		<sec:intercept-url pattern="/public/**"
+			access="permitAll" />
+		<sec:intercept-url pattern="/upload/**"
+			access="permitAll" />
 		<sec:intercept-url pattern="/order/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/admin/**"
@@ -212,9 +216,14 @@
 		<property name="protocol" value="smtp" />
 		<property name="host" value="${email.host}" />
 		<property name="port" value="${email.port}" />
-		<!-- <property name="username" value="user" /> <property name="password"
-			value="1234" /> <property name="javaMailProperties"> <props> <prop key="mail.smtp.auth">true</prop>
-			<prop key="mail.smtp.starttls.enable">true</prop> </props> </property> -->
+		<property name="username" value="${email.username}" />
+		<property name="password" value="${email.password}" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">${email.auth}</prop>
+				<prop key="mail.smtp.starttls.enable">${email.tls}</prop>
+			</props>
+		</property>
 	</bean>
 
 </beans>

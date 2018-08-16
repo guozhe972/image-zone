@@ -51,7 +51,11 @@ public class FolderService {
 
 		AccountEntity account = new AccountEntity();
 		account.setUsername(guest);
-		account.setPassword(passwordEncoder.encode(password));
+		if (password == null || password.isEmpty()) {
+			account.setPassword("");
+		} else {
+			account.setPassword(passwordEncoder.encode(password));
+		}
 		account.setEnabled(true);
 		account.setExpiredt(expiredt);
 		accountMapper.updateAccount(account);

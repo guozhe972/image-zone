@@ -378,15 +378,20 @@ public class UserController {
 	}
 
 	@GetMapping("/share/{seq}")
-	public String shareGet(@PathVariable("seq") int seq, @ModelAttribute FolderForm form, Model model) {
+	public String shareGet(@PathVariable("seq") int seq, Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
-		form.setSeq(folder.getSeq());
-		form.setName(folder.getName());
-		form.setGuest(folder.getGuest());
-		form.setExpiredt(LocalDate.now().plusDays(30));
+		if (!model.containsAttribute("folderForm")) {
+			FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
+			FolderForm form = new FolderForm();
+			form.setSeq(folder.getSeq());
+			form.setName(folder.getName());
+			form.setGuest(folder.getGuest());
+			form.setPassword("");
+			form.setExpiredt(LocalDate.now().plusDays(30));
+			model.addAttribute("folderForm", form);
+		}
 
 		model.addAttribute("limit", LocalDate.now().plusDays(DEFAULT_EXPIRED));
 		return "/user/share";
@@ -397,6 +402,7 @@ public class UserController {
 			BindingResult result, RedirectAttributes redirectAttributes) {
 
 		if (result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("folderForm", form);
 			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "folderForm", result);
 			return "redirect:/user/share/" + String.valueOf(form.getSeq());
 		}

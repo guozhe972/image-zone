@@ -41,12 +41,14 @@ public class ImageEditor {
 		AffineTransform at = AffineTransform.getScaleInstance(xScale, yScale);
 		g2d.drawRenderedImage(source, at);
 
-		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
 		g2d.setColor(Color.DARK_GRAY);
 		g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
 		g2d.setTransform(AffineTransform.getRotateInstance(Math.atan2(sHeight, sWidth)));
 		Rectangle2D rect = g2d.getFontMetrics().getStringBounds(WATERMARK_TEXT, g2d);
+		//int tHeight = (int) rect.getHeight();
 		int tWidth = (int) rect.getWidth();
+		// 対角線上の距離
 		int distance = (int) Math.sqrt(sWidth * sWidth + sHeight * sHeight);
 		int centerX = (distance - tWidth) / 2;
 		g2d.drawString(WATERMARK_TEXT, centerX, 0);

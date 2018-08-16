@@ -33,6 +33,25 @@
 		photo.createdt asc
 	</select>
 
+	<select id="selectByPublic" resultType="PhotoEntity">
+		select photo.username,
+		photo.folder,
+		photo.thumbnail, photo.original, photo.filename,
+		photo.price,
+		photo.createdt
+		from photo, folder, account
+		where
+		folder.username = photo.username
+		and folder.seq = photo.folder
+		and folder.shared = true
+		and folder.guest = account.username
+		and account.password = ''
+		and account.enabled = true
+		and account.expiredt >= #{expiredt}
+		order by
+		photo.createdt desc
+	</select>
+
 	<select id="selectPhoto" resultType="PhotoEntity">
 		select username, folder,
 		thumbnail, original, filename, price, createdt

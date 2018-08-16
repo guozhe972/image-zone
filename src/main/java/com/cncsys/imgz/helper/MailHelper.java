@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class MailHelper {
 
+	@Value("${email.send}")
+	private boolean MAIL_SEND;
+
 	@Value("${email.from}")
 	private String MAIL_FROM;
 
@@ -37,7 +40,8 @@ public class MailHelper {
 		mail.setTo(to);
 		mail.setSubject(subject);
 		mail.setText(text);
-		mailSender.send(mail);
+		if (MAIL_SEND)
+			mailSender.send(mail);
 
 		return code;
 	}
@@ -53,7 +57,8 @@ public class MailHelper {
 		mail.setTo(to);
 		mail.setSubject(subject);
 		mail.setText(text);
-		mailSender.send(mail);
+		if (MAIL_SEND)
+			mailSender.send(mail);
 	}
 
 	public void sendOrderDone(String to, String[] param) {
@@ -66,7 +71,8 @@ public class MailHelper {
 		mail.setTo(to);
 		mail.setSubject(subject);
 		mail.setText(text);
-		mailSender.send(mail);
+		if (MAIL_SEND)
+			mailSender.send(mail);
 	}
 
 	public void sendTransAccept(String to, String[] param) {
@@ -79,6 +85,7 @@ public class MailHelper {
 		mail.setTo(to);
 		mail.setSubject(subject);
 		mail.setText(text);
-		mailSender.send(mail);
+		if (MAIL_SEND)
+			mailSender.send(mail);
 	}
 }

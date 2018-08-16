@@ -2,6 +2,7 @@ package com.cncsys.imgz.service;
 
 import java.util.List;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,12 @@ public class PhotoService {
 	@Transactional(readOnly = true)
 	public List<PhotoEntity> getPhotosByGuest(String guest) {
 		List<PhotoEntity> result = photoMapper.selectByGuest(guest);
+		return result;
+	}
+
+	@Transactional(readOnly = true)
+	public List<PhotoEntity> getPhotosByPublic() {
+		List<PhotoEntity> result = photoMapper.selectByPublic(LocalDate.now());
 		return result;
 	}
 

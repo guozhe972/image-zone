@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -36,6 +37,9 @@ import com.cncsys.imgz.service.AccountService;
 public class SignupController {
 
 	private static final String FORM_MODEL_KEY = "signupForm";
+
+	@Value("${email.send}")
+	private boolean MAIL_SEND;
 
 	@Autowired
 	private AccountService accountService;
@@ -87,7 +91,9 @@ public class SignupController {
 
 		String code = mailHelper.sendRegisterConfirm(form.getEmail());
 		form.setToken(passwordEncoder.encode(code));
-		form.setCode(null);
+		form.setCode(code);
+		if (MAIL_SEND)
+			form.setCode(null);
 
 		return "redirect:/signup/confirm";
 	}
