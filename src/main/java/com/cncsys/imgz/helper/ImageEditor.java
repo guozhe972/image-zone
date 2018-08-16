@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -41,17 +40,35 @@ public class ImageEditor {
 		AffineTransform at = AffineTransform.getScaleInstance(xScale, yScale);
 		g2d.drawRenderedImage(source, at);
 
-		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
 		g2d.setColor(Color.DARK_GRAY);
 		g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
 		g2d.setTransform(AffineTransform.getRotateInstance(Math.atan2(sHeight, sWidth)));
-		Rectangle2D rect = g2d.getFontMetrics().getStringBounds(WATERMARK_TEXT, g2d);
+		// 対角線上の距離 / 2
+		int distance = (int) Math.sqrt(sWidth * sWidth + sHeight * sHeight) / 2;
+
+		//Rectangle2D rect = g2d.getFontMetrics().getStringBounds(WATERMARK_TEXT, g2d);
 		//int tHeight = (int) rect.getHeight();
-		int tWidth = (int) rect.getWidth();
-		// 対角線上の距離
-		int distance = (int) Math.sqrt(sWidth * sWidth + sHeight * sHeight);
-		int centerX = (distance - tWidth) / 2;
-		g2d.drawString(WATERMARK_TEXT, centerX, 0);
+		//int tWidth = (int) rect.getWidth();
+		//int centerX = (distance - tWidth) / 2;
+		//g2d.drawString(WATERMARK_TEXT, centerX, 0);
+
+		String text1 = WATERMARK_TEXT + "          " + WATERMARK_TEXT + "          " + WATERMARK_TEXT + "          "
+				+ WATERMARK_TEXT + "          ";
+		String text2 = "           " + WATERMARK_TEXT + "          " + WATERMARK_TEXT + "          " + WATERMARK_TEXT
+				+ "          " + WATERMARK_TEXT;
+
+		int x = 0;
+		int y = -distance;
+		while (y < distance) {
+			if (x % 2 == 0) {
+				g2d.drawString(text1, 0, y);
+			} else {
+				g2d.drawString(text2, 0, y);
+			}
+			x++;
+			y += 60;
+		}
 
 		g2d.dispose();
 		return marked;
