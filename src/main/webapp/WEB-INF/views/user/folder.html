@@ -57,7 +57,7 @@ button[id^="btnPrice"]:disabled {
 										$('#btnPrice' + target).text(
 												'[(#{mark.money})]' + data);
 									} else {
-										window.location.reload();
+										location.reload();
 									}
 									break;
 								case 'delete':
@@ -69,7 +69,11 @@ button[id^="btnPrice"]:disabled {
 									break;
 								}
 							}).fail(function(jqXHR, textStatus, errorThrown) {
-						// do nothing
+						if (jqXHR.status == 400) {
+							var errors = [];
+							errors.push(jqXHR.responseText);
+							showAlertError(errors);
+						}
 					}).always(function() {
 						$('#mdlWaiting').modal('hide');
 					});
