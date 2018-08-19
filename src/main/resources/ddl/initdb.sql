@@ -1,9 +1,9 @@
 DROP TABLE IF EXISTS account;
 CREATE TABLE account
 (
-    username varchar(100) NOT NULL,
-    password varchar (100) NOT NULL,
-    email varchar (100),
+    username varchar(20) NOT NULL,
+    password varchar (60) NOT NULL,
+    email varchar (255),
     authority varchar(10) NOT NULL,
     balance int NOT NULL DEFAULT 0,
     createdt timestamp NOT NULL,
@@ -17,12 +17,12 @@ DROP FUNCTION IF EXISTS get_folder_seq() CASCADE;
 DROP TABLE IF EXISTS folder;
 CREATE TABLE folder
 (
-    username varchar(100) NOT NULL,
+    username varchar(20) NOT NULL,
     seq int NOT NULL,
-    name varchar(100),
+    name varchar(255),
     locked boolean NOT NULL,
     shared boolean NOT NULL,
-    guest varchar(100),
+    guest varchar(20),
     createdt timestamp NOT NULL,
     CONSTRAINT folder_pkey PRIMARY KEY (username, seq)
 );
@@ -40,10 +40,10 @@ CREATE TRIGGER folder_insert
 DROP TABLE IF EXISTS photo;
 CREATE TABLE photo
 (
-    username varchar(100) NOT NULL,
+    username varchar(20) NOT NULL,
     folder int NOT NULL,
-    thumbnail varchar(100) NOT NULL,
-    original varchar(100) NOT NULL,
+    thumbnail varchar(50) NOT NULL,
+    original varchar(50) NOT NULL,
     filename varchar(255) NOT NULL,
     price int NOT NULL,
     createdt timestamp NOT NULL,
@@ -53,12 +53,12 @@ CREATE TABLE photo
 DROP TABLE IF EXISTS "order";
 CREATE TABLE "order"
 (
-    orderno varchar(100) NOT NULL,
-    email varchar (100) NOT NULL,
-    username varchar(100) NOT NULL,
+    orderno varchar(20) NOT NULL,
+    email varchar (255) NOT NULL,
+    username varchar(20) NOT NULL,
     folder int NOT NULL,
-    thumbnail varchar(100) NOT NULL,
-    original varchar(100) NOT NULL,
+    thumbnail varchar(50) NOT NULL,
+    original varchar(50) NOT NULL,
     filename varchar(255) NOT NULL,
     price int NOT NULL,
     createdt timestamp NOT NULL,
@@ -71,12 +71,12 @@ CREATE INDEX order_idx1 ON "order" (username, folder, thumbnail);
 DROP TABLE IF EXISTS transfer;
 CREATE TABLE transfer
 (
-	transno varchar(100) NOT NULL,
-    username varchar(100) NOT NULL,
+	transno varchar(20) NOT NULL,
+    username varchar(20) NOT NULL,
     bank varchar(100) NOT NULL,
     branch varchar(100) NOT NULL,
     actype int NOT NULL,
-    acnumber varchar(100) NOT NULL,
+    acnumber varchar(10) NOT NULL,
     acname varchar(100) NOT NULL,
     amount int NOT NULL,
     done boolean NOT NULL,

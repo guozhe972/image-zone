@@ -101,13 +101,14 @@ input[type=date]::-webkit-clear-button {
 	}
 }
 
-@media ( max-width : 767px) {
+@media ( max-width : 575px) {
 	.offcanvas-collapse {
 		position: fixed;
 		top: 56px;
 		bottom: 0;
 		right: 100%;
 		width: 100%;
+		z-index: 10000;
 		padding-right: 1rem;
 		padding-left: 1rem;
 		overflow-y: auto;

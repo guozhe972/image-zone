@@ -25,10 +25,8 @@
 				supporting pieces of content. Use it as a starting point to create
 				something more unique.</p>
 			<p>
-				<a class="btn btn-primary btn-lg mr-3" th:href="@{/signup/input}"
+				<a class="btn btn-primary btn-lg" th:href="@{/signup/input}"
 					role="button" style="width: 200px;">[[#{label.signup}]]</a>
-				<a class="btn btn-primary btn-lg d-none" th:href="@{/public/home}"
-					role="button" style="width: 200px;">公開写真</a>
 			</p>
 		</div>
 	</div>
@@ -105,6 +103,9 @@
 			</div>
 		</div>
 	</div>
+	<button type="button" id="toTop" class="btn btn-primary rounded-circle">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 	<div class="pb-footer"></div>
 	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>

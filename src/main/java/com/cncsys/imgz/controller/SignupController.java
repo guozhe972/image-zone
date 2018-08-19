@@ -1,5 +1,8 @@
 package com.cncsys.imgz.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -7,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -51,6 +55,9 @@ public class SignupController {
 	private MailHelper mailHelper;
 
 	@Autowired
+	private MessageSource messageSource;
+
+	@Autowired
 	private SignupValidator signupValidator;
 
 	@ModelAttribute(FORM_MODEL_KEY)
@@ -72,9 +79,8 @@ public class SignupController {
 		return "/auth/signup";
 	}
 
-	//	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	//	public @ResponseBody SignupForm check(@RequestBody Map<String, Object> json) {
-
+	//@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	//public @ResponseBody SignupForm check(@RequestBody Map<String, Object> json) {
 	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody String check(@RequestBody Map<String, Object> json) {
 		return String.valueOf(accountService.isExistUser(json.get("username").toString()));
@@ -110,21 +116,31 @@ public class SignupController {
 
 	@PostMapping("/register")
 	public String register(@Validated(Confirm.class) SignupForm form, BindingResult result,
-			RedirectAttributes redirectAttributes, SessionStatus sessionStatus, HttpServletRequest request)
+			RedirectAttributes redirectAttributes, Locale locale, SessionStatus sessionStatus,
+			HttpServletRequest request)
 			throws ServletException {
 
 		if (result.hasErrors()) {
 			form.setToken(null);
 			form.setCode(null);
 			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + FORM_MODEL_KEY, result);
+			if (result.hasFieldErrors("code")) {
+				List<String> errors = new ArrayList<String>();
+				errors.add(messageSource.getMessage(result.getFieldError("code").getCode(), null, locale));
+				redirectAttributes.addFlashAttribute("errors", errors);
+			}
 			return "redirect:/signup/input";
 		}
 
 		accountService.registerUser(form.getUsername(), form.getPassword(), form.getEmail());
 		request.login(form.getUsername(), form.getPassword());
 		accountService.updateLogindt(form.getUsername());
-		sessionStatus.setComplete();
 
+		String[] param = new String[2];
+		param[0] = form.getUsername();
+		param[1] = form.getPassword();
+		mailHelper.sendRegisterSuccess(form.getEmail(), param);
+		sessionStatus.setComplete();
 		return "redirect:/auth/signin";
 	}
 }

@@ -22,7 +22,7 @@
 				cache : false,
 				data : $('#fomPhoto').serialize(),
 				beforeSend : function() {
-					$('#mdlWaiting').modal('show');
+					//$('#mdlWaiting').modal('show');
 				}
 			}).done(function(data, textStatus, jqXHR) {
 				$('#bagCart').text(data);
@@ -32,7 +32,7 @@
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 				// do nothing
 			}).always(function() {
-				$('#mdlWaiting').modal('hide');
+				//$('#mdlWaiting').modal('hide');
 			});
 		});
 	});

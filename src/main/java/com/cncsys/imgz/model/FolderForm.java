@@ -21,6 +21,9 @@ public class FolderForm {
 	public static interface Share {
 	};
 
+	public static interface Rename {
+	};
+
 	private int seq;
 	private String name;
 	private boolean shared;

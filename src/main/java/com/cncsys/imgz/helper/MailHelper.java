@@ -46,6 +46,20 @@ public class MailHelper {
 		return code;
 	}
 
+	public void sendRegisterSuccess(String to, String[] param) {
+		Locale locale = LocaleContextHolder.getLocale();
+		String subject = messageSource.getMessage("email.success.subject", null, locale);
+		String text = messageSource.getMessage("email.success.message", param, locale);
+
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setFrom(MAIL_FROM);
+		mail.setTo(to);
+		mail.setSubject(subject);
+		mail.setText(text);
+		if (MAIL_SEND)
+			mailSender.send(mail);
+	}
+
 	public void sendMailConfirm(String to) {
 		Locale locale = LocaleContextHolder.getLocale();
 

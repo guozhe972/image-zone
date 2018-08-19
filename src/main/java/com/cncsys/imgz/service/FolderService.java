@@ -75,6 +75,11 @@ public class FolderService {
 		photoMapper.deleteByFolder(username, seq);
 	}
 
+	@Transactional
+	public String changeName(String username, int seq, String name) {
+		return folderMapper.updateFolder(username, seq, name);
+	}
+
 	@Transactional(readOnly = true)
 	public boolean isLocked(String username, int seq) {
 		FolderEntity folder = folderMapper.selectFolder(username, seq);

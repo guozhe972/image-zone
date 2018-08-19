@@ -3,7 +3,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>user folder</title>
+<title>[[#{title.user}]]</title>
 <script th:src="@{/js/jquery.lazyload.min.js}"></script>
 <style>
 button[id^="btnPrice"]:disabled {
@@ -89,11 +89,11 @@ button[id^="btnPrice"]:disabled {
 				<button type="button" class="btn btn-warning" id="btnBulk"
 					data-toggle="modal" data-target="#mdlPrice"
 					th:disabled="${#lists.isEmpty(photos)}"
-					th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('default.photo.price')});|">一括金額設定</button>
+					th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|">[[#{label.folder.price}]]</button>
 				<a class="btn btn-info ml-auto" id="btnShare"
 					th:classappend="${#lists.isEmpty(photos)}?'disabled'"
 					th:href="@{|/user/share/${folder}|}" role="button"><i
-					class="fas fa-share-alt"></i>&nbsp;公開する</a>
+					class="fas fa-share-alt"></i>&nbsp;[[#{label.folder.share}]]</a>
 			</div>
 			<hr class="mb-0">
 		</th:block>
@@ -116,18 +116,18 @@ button[id^="btnPrice"]:disabled {
 							th:classappend="${shared}?'rounded'" th:disabled="${shared}"
 							data-toggle="modal" data-target="#mdlPrice"
 							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{mark.money}','').replace(/,/g,''));|"
-							th:text="|#{mark.money}*{#numbers.formatInteger(price,1,'COMMA')}|">金額</button>
+							th:text="|#{mark.money}*{#numbers.formatInteger(price,1,'COMMA')}|"></button>
 						<button type="button" class="btn btn-danger btn-sm w-100"
 							th:classappend="${shared}?'d-none'" data-toggle="modal"
 							data-target="#mdlDelete"
-							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|">削除</button>
+							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|">[[#{label.folder.delete}]]</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<form id="fomSubmit">
+	<form id="fomSubmit" action="#">
 		<input type="hidden" id="folder" name="folder" th:value="${folder}" />
 		<input type="hidden" id="thumbnail" name="thumbnail" /> <input
 			type="hidden" id="price" name="price" value="0" /> <input
@@ -150,7 +150,9 @@ button[id^="btnPrice"]:disabled {
 						<div class="input-group-prepend">
 							<span class="input-group-text">金額</span>
 						</div>
-						<input type="number" id="money" min="100" max="6000000"
+						<input type="number" id="money"
+							th:min="${@applicationProperties.getProperty('photo.price.min')}"
+							th:max="${@applicationProperties.getProperty('photo.price.max')}"
 							value="100" maxlength="7"
 							class="form-control text-right num-only" />
 						<div class="input-group-append">

@@ -45,7 +45,7 @@ html {
 
 		function checkStrength(password) {
 			var strength = 0;
-			if (password.length >= 4 && password.length <= 16
+			if (password.length >= 8 && password.length <= 16
 					&& /^[\u0020-\u007e]+$/.test(password)) {
 				if (/[a-zA-Z]+/.test(password))
 					strength++;

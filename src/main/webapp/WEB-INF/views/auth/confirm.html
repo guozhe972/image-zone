@@ -3,44 +3,79 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>confirm</title>
+<title>[[#{title.signup}]]</title>
 <style>
 html {
 	height: 100%;
 }
 </style>
+<script>
+	$(function() {
+		function isValidForm() {
+			var isValid = true;
+			$('.is-invalid').removeClass('is-invalid');
+			$('.invalid-feedback').remove();
+
+			//if (!$('#code').get(0).checkValidity()) {
+			if ($('#code').val().length == 0) {
+				$('#code').addClass('is-invalid');
+				$('#grpCode').after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{error.confirm.code})]'
+				}));
+				isValid = false;
+			}
+			return isValid;
+		}
+
+		$('#fomConfirm').submit(function(event) {
+			if (!isValidForm()) {
+				event.preventDefault();
+				event.stopPropagation();
+			} else {
+				$('#mdlWaiting').modal('show');
+			}
+		});
+	});
+</script>
 </head>
 <body layout:fragment="body"
 	class="pt-header pb-footer d-flex align-items-center">
 	<header layout:insert="~{layout/parts/header::home(false, false)}"
 		class="fixed-top bg-header"></header>
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto pb-5">
-		<form class="mw-content mx-auto pt-3" th:action="@{/signup/register}"
-			th:object="${signupForm}" method="post">
-			<h4>[[#{label.confirm}]]</h4>
+		<form id="fomConfirm" class="mw-content mx-auto pt-3" novalidate
+			th:action="@{/signup/register}" th:object="${signupForm}"
+			method="post" autocomplete="off">
+			<h4>[[#{header.confirm}]]</h4>
 			<hr>
 			<div class="form-group row">
-				<label for="username" class="col-sm-4 col-form-label text-sm-right">ユーザー名</label>
+				<label for="username" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.username}]]</label>
 				<div class="col-sm-8">
 					<input type="text" th:field="*{username}" class="form-control"
 						readonly />
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="email" class="col-sm-4 col-form-label text-sm-right">メールアドレス</label>
+				<label for="email" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.email}]]</label>
 				<div class="col-sm-8">
 					<input type="email" th:field="*{email}" class="form-control"
 						readonly />
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="code" class="col-sm-4 col-form-label text-sm-right">確認コード</label>
-				<div class="col-sm-8 input-group">
-					<input type="text" th:field="*{code}" class="form-control"
-						placeholder="" maxlength="6" required autofocus />
-					<div class="input-group-append">
-						<button type="submit" class="btn btn-primary rounded-right"
-							style="width: 100px;">確認</button>
+				<label for="code" class="col-sm-4 col-form-label text-sm-right">[[#{label.confirm.code}]]</label>
+				<div class="col-sm-8">
+					<div id="grpCode" class="input-group">
+						<input type="number" th:field="*{code}" min="0" max="999999"
+							class="form-control num-only rounded-left" maxlength="6"
+							autofocus required />
+						<div class="input-group-append">
+							<button type="submit" class="btn btn-primary rounded-right"
+								style="width: 100px;">[[#{label.confirm.button}]]</button>
+						</div>
 					</div>
 				</div>
 			</div>

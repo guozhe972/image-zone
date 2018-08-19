@@ -5,26 +5,34 @@
 <mapper namespace="com.cncsys.imgz.mapper.FolderMapper">
 
 	<select id="selectByUser" resultType="FolderEntity">
-		select folder.username, folder.seq, folder.name,
-		folder.locked, folder.shared, folder.guest, account.expiredt
-		from folder left join account on folder.guest = account.username
+		select folder.username,
+		folder.seq, folder.name,
+		folder.locked, folder.shared, folder.guest,
+		account.expiredt
+		from folder left join account on folder.guest =
+		account.username
 		where folder.username = #{username}
-		order by folder.seq asc
+		order by folder.seq
+		asc
 	</select>
 
 	<select id="selectFolder" resultType="FolderEntity">
-		select folder.username, folder.seq, folder.name,
-		folder.locked, folder.shared, folder.guest, account.expiredt
-		from folder left join account on folder.guest = account.username
+		select folder.username,
+		folder.seq, folder.name,
+		folder.locked, folder.shared, folder.guest,
+		account.expiredt
+		from folder left join account on folder.guest =
+		account.username
 		where folder.username = #{username} and folder.seq =
 		#{seq}
 	</select>
 
 	<select id="insertFolder" resultType="int">
 		insert into folder
-		(username, locked, shared, createdt)
+		(username, name, locked, shared, createdt)
 		values
-		(#{username}, false, false, #{createdt})
+		(#{username}, '', false, false,
+		#{createdt})
 		returning
 		seq
 	</select>
@@ -46,6 +54,13 @@
 		#{shared}
 		where username = #{username} and seq = #{seq}
 		returning guest
+	</select>
+
+	<select id="updateFolder" resultType="String">
+		update folder set name =
+		#{name}
+		where username = #{username} and seq = #{seq}
+		returning name
 	</select>
 
 </mapper>

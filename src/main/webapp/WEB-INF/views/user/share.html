@@ -98,7 +98,7 @@ html {
 		<form id="fomShare" class="mw-content mx-auto pt-3" novalidate
 			th:action="@{/user/share}" th:object="${folderForm}" method="post">
 			<input type="hidden" th:field="*{seq}" />
-			<h4 th:text="*{name}?:|#{label.folder} *{seq}|">フォルダ公開</h4>
+			<h4 th:text="*{name}?:|#{default.folder.name} *{seq}|">フォルダ公開</h4>
 			<hr>
 			<div class="form-group row">
 				<label for="guest" class="col-sm-4 col-form-label text-sm-right">ユーザー名</label>

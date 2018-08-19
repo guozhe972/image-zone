@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -44,30 +45,26 @@ public class ImageEditor {
 		g2d.setColor(Color.DARK_GRAY);
 		g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
 		g2d.setTransform(AffineTransform.getRotateInstance(Math.atan2(sHeight, sWidth)));
-		// 対角線上の距離 / 2
-		int distance = (int) Math.sqrt(sWidth * sWidth + sHeight * sHeight) / 2;
+		int tWidth = (int) Math.sqrt(sWidth * sWidth + sHeight * sHeight);
+		int tHeight = sWidth * sHeight / tWidth;
+		Rectangle2D rect = g2d.getFontMetrics().getStringBounds(WATERMARK_TEXT, g2d);
+		int rHeight = (int) rect.getHeight();
+		int rWidth = (int) rect.getWidth();
 
-		//Rectangle2D rect = g2d.getFontMetrics().getStringBounds(WATERMARK_TEXT, g2d);
-		//int tHeight = (int) rect.getHeight();
-		//int tWidth = (int) rect.getWidth();
-		//int centerX = (distance - tWidth) / 2;
+		//int centerX = (tWidth - rWidth) / 2;
 		//g2d.drawString(WATERMARK_TEXT, centerX, 0);
 
-		String text1 = WATERMARK_TEXT + "          " + WATERMARK_TEXT + "          " + WATERMARK_TEXT + "          "
-				+ WATERMARK_TEXT + "          ";
-		String text2 = "           " + WATERMARK_TEXT + "          " + WATERMARK_TEXT + "          " + WATERMARK_TEXT
-				+ "          " + WATERMARK_TEXT;
-
-		int x = 0;
-		int y = -distance;
-		while (y < distance) {
-			if (x % 2 == 0) {
-				g2d.drawString(text1, 0, y);
-			} else {
-				g2d.drawString(text2, 0, y);
+		int row = 0, x = 0, y = -tHeight;
+		while (y < tHeight) {
+			x = 0;
+			if (row % 2 == 1)
+				x += rWidth;
+			while (x < tWidth) {
+				g2d.drawString(WATERMARK_TEXT, x, y);
+				x += rWidth * 2;
 			}
-			x++;
-			y += 60;
+			y += rHeight * 2;
+			row++;
 		}
 
 		g2d.dispose();

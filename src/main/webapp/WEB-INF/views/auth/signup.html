@@ -20,7 +20,6 @@ html {
 			animation : 'fade',
 			arrow : true,
 			placement : 'top',
-			//size : 'small',
 			hideOnClick : false,
 			trigger : 'focus'
 		});
@@ -34,8 +33,7 @@ html {
 			if (name.length == 0)
 				return false;
 
-			if (name.length >= 4 && name.length <= 16
-					&& /^[a-zA-Z0-9]+[a-zA-Z0-9_\-]*$/.test(name)) {
+			if (checkNameSpell(name)) {
 				label.append(check);
 				return true;
 			}
@@ -43,36 +41,13 @@ html {
 			label.append(times);
 			return false;
 		}
-
-		/*
-		$('#username').change(function() {
-			if (checkUsername($(this).val())) {
-				var label = $('label[for="username"]');
-				var name = $(this).val();
-
-				$.ajax({
-					url : '[(@{/signup/check})]',
-					method : 'POST',
-					headers : {
-						'[(${_csrf.headerName})]' : '[(${_csrf.token})]'
-					},
-					cache : false,
-					timeout : 10000,
-					contentType : "application/json",
-					data : JSON.stringify({
-						username : name
-					})
-				}).done(function(data, textStatus, jqXHR) {
-					if (data == 'true') {
-						label.children('i').remove();
-						label.append(times);
-					}
-				}).fail(function(jqXHR, textStatus, errorThrown) {
-					// do nothing
-				});
+		function checkNameSpell(name) {
+			if (name.length >= 4 && name.length <= 16
+					&& /^[a-zA-Z0-9]+[a-zA-Z0-9_\-]*$/.test(name)) {
+				return true;
 			}
-		});
-		 */
+			return false;
+		}
 
 		$('#password').on('input', function() {
 			checkPassword($(this).val());
@@ -84,20 +59,23 @@ html {
 			if (password.length == 0)
 				return;
 
+			var strength = checkStrength(password);
+			if (strength == 2) {
+				label.append(check);
+			} else {
+				label.append(times);
+			}
+		}
+		function checkStrength(password) {
 			var strength = 0;
-			if (password.length >= 4 && password.length <= 16
+			if (password.length >= 8 && password.length <= 16
 					&& /^[\u0020-\u007e]+$/.test(password)) {
 				if (/[a-zA-Z]+/.test(password))
 					strength++;
 				if (/[0-9]+/.test(password))
 					strength++;
 			}
-
-			if (strength == 2) {
-				label.append(check);
-			} else {
-				label.append(times);
-			}
+			return strength;
 		}
 
 		$('#confirm').on('input', function() {
@@ -115,61 +93,120 @@ html {
 				label.append(times);
 			}
 		}
+
+		function checkMailAddress(mail) {
+			var reg = new RegExp(
+					"^(([0-9a-zA-Z!#\$%&'\*\+\-/=\?\^_`\{\}\|~]+(\.[0-9a-zA-Z!#\$%&'\*\+\-/=\?\^_`\{\}\|~]+)*)|(\"[^\"]*\"))@[0-9a-zA-Z!#\$%&'\*\+\-/=\?\^_`\{\}\|~]+(\.[0-9a-zA-Z!#\$%&'\*\+\-/=\?\^_`\{\}\|~]+)*$");
+			if (mail.length > 0 && reg.test(mail)) {
+				return true;
+			}
+			return false;
+		}
+
+		function isValidForm() {
+			var isValid = true;
+			$('.is-invalid').removeClass('is-invalid');
+			$('.invalid-feedback').remove();
+
+			if (!checkNameSpell($('#username').val())) {
+				$('#username').addClass('is-invalid');
+				$('#username').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.signup.username})]'
+				}));
+				isValid = false;
+			}
+
+			if (!checkMailAddress($('#email').val())) {
+				$('#email').addClass('is-invalid');
+				$('#email').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.signup.email})]'
+				}));
+				isValid = false;
+			}
+
+			if (checkStrength($('#password').val()) != 2) {
+				$('#password').addClass('is-invalid');
+				$('#password').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.signup.password})]'
+				}));
+				isValid = false;
+			}
+
+			if ($('#confirm').val() != $('#password').val()) {
+				$('#confirm').addClass('is-invalid');
+				$('#confirm').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.signup.confirm})]'
+				}));
+				isValid = false;
+			}
+
+			return isValid;
+		}
+
+		$('#fomSignup').submit(function(event) {
+			if (!isValidForm()) {
+				event.preventDefault();
+				event.stopPropagation();
+			} else {
+				$('#mdlWaiting').modal('show');
+			}
+		});
 	});
 </script>
 </head>
 <body layout:fragment="body" class="pt-header d-flex align-items-center">
 	<header layout:insert="~{layout/parts/header::home(true, true)}"
 		class="fixed-top bg-header"></header>
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto pb-footer">
-		<form class="mw-content mx-auto pt-3" th:action="@{/signup/mail}"
-			th:object="${signupForm}" method="post" autocomplete="off">
-			<h4>[[#{label.signup}]]</h4>
+		<th:block layout:replace="~{layout/parts/alert::error}" />
+		<form id="fomSignup" class="mw-content mx-auto pt-3" novalidate
+			th:action="@{/signup/mail}" th:object="${signupForm}" method="post"
+			autocomplete="off">
+			<h4>[[#{header.signup}]]</h4>
 			<hr>
-			<div th:if="${#fields.hasErrors('code')}"
-				class="alert alert-danger alert-dismissible fade show" role="alert">
-				<div th:each="err : ${#fields.errors('code')}" th:text="${err}">code
-					error</div>
-				<button type="button" class="close" data-dismiss="alert">&times;</button>
-			</div>
 			<div class="form-group row">
-				<label for="username" class="col-sm-4 col-form-label text-sm-right">ユーザー名</label>
+				<label for="username" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.username}]]</label>
 				<div class="col-sm-8">
 					<input type="text" th:field="*{username}" class="form-control"
 						data-toggle="tooltip" th:title="#{tooltip.signup.username}"
-						th:errorclass="is-invalid" maxlength="16" placeholder="" required
-						autofocus />
+						th:errorclass="is-invalid" maxlength="16" autofocus required />
 					<div class="invalid-feedback"
 						th:if="${#fields.hasErrors('username')}" th:errors="*{username}">username
 						error</div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="email" class="col-sm-4 col-form-label text-sm-right">メールアドレス</label>
+				<label for="email" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.email}]]</label>
 				<div class="col-sm-8">
 					<input type="email" th:field="*{email}" class="form-control"
-						th:errorclass="is-invalid" placeholder="" required />
+						th:errorclass="is-invalid" maxlength="255" required />
 					<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
 						th:errors="*{email}">email error</div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="password" class="col-sm-4 col-form-label text-sm-right">パスワード<span
+				<label for="password" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.password}]]<span
 					id="result"></span></label>
 				<div class="col-sm-8">
 					<input type="password" th:field="*{password}" class="form-control"
 						data-toggle="tooltip" th:title="#{tooltip.signup.password}"
-						th:errorclass="is-invalid" maxlength="16" placeholder="" required />
+						th:errorclass="is-invalid" maxlength="16" required />
 					<div class="invalid-feedback"
 						th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password
 						error</div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="confirm" class="col-sm-4 col-form-label text-sm-right">パスワード確認</label>
+				<label for="confirm" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.passconfirm}]]</label>
 				<div class="col-sm-8">
 					<input type="password" th:field="*{confirm}" class="form-control"
-						th:errorclass="is-invalid" maxlength="16" placeholder="" required />
+						th:errorclass="is-invalid" maxlength="16" required />
 					<div class="invalid-feedback"
 						th:if="${#fields.hasErrors('confirm')}" th:errors="*{confirm}">confirm
 						error</div>
@@ -181,8 +218,7 @@ html {
 						<input class="custom-control-input" type="checkbox" id="chkAccept"
 							th:checked="false"
 							onchange="$('#btnRegister').prop('disabled', !$(this).prop('checked'));" />
-						<label class="custom-control-label" for="chkAccept">I
-							accept the terms and conditions. </label>
+						<label class="custom-control-label" for="chkAccept"><small>[[#{label.signup.accept}]]</small></label>
 					</div>
 				</div>
 			</div>
@@ -190,10 +226,8 @@ html {
 				<div class="offset-sm-4 col-sm-8">
 					<button id="btnRegister" type="submit"
 						class="btn btn-primary btn-block-xs" style="width: 150px;"
-						disabled>登録</button>
-					<small class="form-text text-muted">You will receive an
-						email to complete the registration and validation process. Be sure
-						to check your spam folders. </small>
+						disabled>[[#{label.signup.register}]]</button>
+					<small class="form-text text-muted">[(#{message.signup.process})]</small>
 				</div>
 			</div>
 		</form>

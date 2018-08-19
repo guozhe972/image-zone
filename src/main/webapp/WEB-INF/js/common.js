@@ -1,7 +1,7 @@
 $(function() {
-	$('body').append(
-			'<button type="button" id="toTop" class="btn btn-primary rounded-circle">'
-					+ '<i class="fas fa-angle-up fa-2x"></i>' + '</button>');
+	//$('body').append(
+	//		'<button type="button" id="toTop" class="btn btn-primary rounded-circle">'
+	//				+ '<i class="fas fa-angle-up fa-2x"></i>' + '</button>');
 	$(window).scroll(function() {
 		if ($(this).scrollTop() > 100) {
 			$('#toTop').fadeIn();

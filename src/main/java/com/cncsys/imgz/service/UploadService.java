@@ -30,8 +30,8 @@ public class UploadService {
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
 
-	@Value("${default.photo.price}")
-	private int DEFAULT_PRICE;
+	@Value("${photo.price.default}")
+	private int PRICE_DEFAULT;
 
 	@Autowired
 	private ImageEditor imageEditor;
@@ -92,7 +92,7 @@ public class UploadService {
 								photo.setThumbnail(thumbId);
 								photo.setOriginal(originId);
 								photo.setFilename(fileName);
-								photo.setPrice(DEFAULT_PRICE);
+								photo.setPrice(PRICE_DEFAULT);
 								photo.setCreatedt(DateTime.now());
 								photoService.insertPhoto(photo);
 							} catch (Exception e) {
@@ -131,7 +131,7 @@ public class UploadService {
 					photo.setThumbnail(thumbId);
 					photo.setOriginal(originId);
 					photo.setFilename(fileName);
-					photo.setPrice(DEFAULT_PRICE);
+					photo.setPrice(PRICE_DEFAULT);
 					photo.setCreatedt(DateTime.now());
 					photoService.insertPhoto(photo);
 				} catch (Exception e) {

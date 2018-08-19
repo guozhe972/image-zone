@@ -32,22 +32,21 @@ public class FolderValidator implements SmartValidator {
 
 		if (ArrayUtils.contains(validationHints, Upload.class)) {
 			long size = 0L;
-
 			for (MultipartFile file : form.getFiles()) {
 				if (file.isEmpty()) {
-					errors.rejectValue("files", "message.upload.none");
+					errors.rejectValue("files", "validation.upload.nofile");
 					return;
 				}
 
 				size += file.getSize();
 				if (!file.getOriginalFilename().toLowerCase().matches(".+(\\.zip|\\.jpg|\\.jpeg)$")) {
-					errors.rejectValue("files", "message.upload.error");
+					errors.rejectValue("files", "validation.upload.invalid");
 					return;
 				}
 			}
 
 			if (size > UPLOAD_SIZE) {
-				errors.rejectValue("files", "message.upload.error");
+				errors.rejectValue("files", "validation.upload.invalid");
 			}
 		}
 	}

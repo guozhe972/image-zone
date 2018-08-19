@@ -5792,15 +5792,15 @@ button.close {
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   border-bottom: 1px solid #ecf0f1;
   border-top-left-radius: 0.3rem;
   border-top-right-radius: 0.3rem;
 }
 
 .modal-header .close {
-  padding: 1rem;
-  margin: -1rem -1rem -1rem auto;
+  padding: 0.5rem 1rem;
+  margin: -0.5rem -1rem -0.5rem auto;
 }
 
 .modal-title {
@@ -5826,7 +5826,7 @@ button.close {
   -webkit-box-pack: end;
       -ms-flex-pack: end;
           justify-content: flex-end;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   border-top: 1px solid #ecf0f1;
 }
 
