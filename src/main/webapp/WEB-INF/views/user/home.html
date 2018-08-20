@@ -228,7 +228,6 @@ a.text-folder:hover {
 	<th:block layout:replace="~{layout/parts/dialog::progress}" />
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main">
-		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<ul class="list-group list-group-flush mw-content mx-auto">
 			<li class="list-group-item px-0 py-3" th:each="form : ${folders}">
 				<form data-type="upload" enctype="multipart/form-data" novalidate
@@ -264,8 +263,8 @@ a.text-folder:hover {
 					<div class="form-group btn-group d-flex mb-0" role="group">
 						<button type="submit" class="btn text-none w-100 rounded-sm"
 							th:classappend="*{shared}?'btn-secondary':'btn-info'"
-							th:onclick="|return checkFolder(*{seq});|"
-							th:disabled="*{shared}">
+							th:disabled="*{shared}"
+							th:onclick="|return checkFolder(*{seq});|">
 							<i class="fas fa-upload"></i><span>&nbsp;[[#{label.user.upload}]]</span>
 						</button>
 						<a class="btn btn-warning text-none w-100 ml-sm-3 rounded-sm"

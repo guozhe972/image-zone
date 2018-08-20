@@ -284,7 +284,8 @@ public class UserController {
 			photoService.updateAllPrice(photo);
 		}
 
-		return ResponseEntity.ok().body(String.format("%,d", price));
+		return ResponseEntity.ok().body(messageSource.getMessage("money.mark", null, locale) +
+				String.format("%,d", price));
 	}
 
 	@PostMapping("/delete")

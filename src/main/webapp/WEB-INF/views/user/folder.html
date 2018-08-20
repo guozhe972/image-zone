@@ -9,6 +9,11 @@
 button[id^="btnPrice"]:disabled {
 	opacity: 1 !important;
 }
+
+.input-group.is-invalid .input-group-text, .input-group.is-invalid .form-control
+	{
+	border-color: #E74C3C;
+}
 </style>
 <script>
 	var target = 0;
@@ -19,43 +24,58 @@ button[id^="btnPrice"]:disabled {
 		$('#mdlPrice').on('shown.bs.modal', function() {
 			$('#money').trigger('focus');
 		});
-
 		$('#money').focus(function() {
 			$(this).select();
 		});
 
-		$('#fomSubmit').submit(
-				function(event) {
-					event.preventDefault();
-					var action = '';
-					switch (process) {
-					case 'price':
-						$('#mdlPrice').modal('hide');
-						action = '[(@{/user/price})]';
-						break;
-					case 'delete':
-						$('#mdlDelete').modal('hide');
-						action = '[(@{/user/delete})]';
-						break;
-					}
-					if (action == '')
-						return;
+		$('#fomSubmit')
+				.submit(
+						function(event) {
+							event.preventDefault();
+							var action = '';
+							switch (process) {
+							case 'price':
+								$('.is-invalid').removeClass('is-invalid');
+								$('.invalid-feedback').remove();
+								if ($('#price').val() < Number('[(${@applicationProperties.getProperty("photo.price.min")})]')
+										|| $('#price').val() > Number('[(${@applicationProperties.getProperty("photo.price.max")})]')) {
+									$('#grpMoney').addClass('is-invalid');
+									$('#grpMoney')
+											.after(
+													$(
+															'<div/>',
+															{
+																'class' : 'invalid-feedback d-block',
+																text : '[(${#messages.msg("validation.photo.price", #numbers.formatInteger(@applicationProperties.getProperty("photo.price.min"),1,"COMMA"), #numbers.formatInteger(@applicationProperties.getProperty("photo.price.max"),1,"COMMA"))})]'
+															}));
+								} else {
+									$('#mdlPrice').modal('hide');
+									action = '[(@{/user/price})]';
+								}
+								break;
+							case 'delete':
+								$('#mdlDelete').modal('hide');
+								action = '[(@{/user/delete})]';
+								break;
+							}
+							if (action == '') {
+								event.stopPropagation();
+								return;
+							}
 
-					$.ajax({
-						url : action,
-						method : 'POST',
-						cache : false,
-						data : $('#fomSubmit').serialize(),
-						beforeSend : function() {
-							$('#mdlWaiting').modal('show');
-						}
-					}).done(
-							function(data, textStatus, jqXHR) {
+							$.ajax({
+								url : action,
+								method : 'POST',
+								cache : false,
+								data : $('#fomSubmit').serialize(),
+								beforeSend : function() {
+									$('#mdlWaiting').modal('show');
+								}
+							}).done(function(data, textStatus, jqXHR) {
 								switch (process) {
 								case 'price':
 									if (target > 0) {
-										$('#btnPrice' + target).text(
-												'[(#{mark.money})]' + data);
+										$('#btnPrice' + target).text(data);
 									} else {
 										location.reload();
 									}
@@ -69,15 +89,18 @@ button[id^="btnPrice"]:disabled {
 									break;
 								}
 							}).fail(function(jqXHR, textStatus, errorThrown) {
-						if (jqXHR.status == 400) {
-							var errors = [];
-							errors.push(jqXHR.responseText);
-							showAlertError(errors);
-						}
-					}).always(function() {
-						$('#mdlWaiting').modal('hide');
-					});
-				});
+								if (textStatus == 'error') {
+									location.href = '[(@{/system/error})]';
+								}
+							}).always(function() {
+								$('#mdlWaiting').modal('hide');
+							});
+						});
+
+		$('#mdlPrice').on('hide.bs.modal', function(e) {
+			$('.is-invalid').removeClass('is-invalid');
+			$('.invalid-feedback').remove();
+		});
 	});
 </script>
 </head>
@@ -88,19 +111,17 @@ button[id^="btnPrice"]:disabled {
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
-		<th:block th:unless="${shared}">
-			<div class="pt-3 d-flex justify-content-between">
-				<button type="button" class="btn btn-warning" id="btnBulk"
-					data-toggle="modal" data-target="#mdlPrice"
-					th:disabled="${#lists.isEmpty(photos)}"
-					th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|">[[#{label.folder.price}]]</button>
-				<a class="btn btn-info ml-auto" id="btnShare"
-					th:classappend="${#lists.isEmpty(photos)}?'disabled'"
-					th:href="@{|/user/share/${folder}|}" role="button"><i
-					class="fas fa-share-alt"></i>&nbsp;[[#{label.folder.share}]]</a>
-			</div>
-			<hr class="mb-0">
-		</th:block>
+
+		<div th:unless="${shared}" class="pt-3 d-flex justify-content-between">
+			<button type="button" class="btn btn-warning" id="btnBulk"
+				th:disabled="${#lists.isEmpty(photos)}"
+				th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|"
+				data-toggle="modal" data-target="#mdlPrice">[[#{label.folder.bulk}]]</button>
+			<a class="btn btn-info ml-auto" id="btnShare"
+				th:classappend="${#lists.isEmpty(photos)}?'disabled'"
+				th:href="@{|/user/share/${folder}|}" role="button"><i
+				class="fas fa-share-alt"></i>&nbsp;[[#{label.folder.share}]]</a>
+		</div>
 
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
@@ -118,25 +139,27 @@ button[id^="btnPrice"]:disabled {
 						<button type="button" th:id="|btnPrice${stat.count}|"
 							class="btn btn-warning btn-sm w-100"
 							th:classappend="${shared}?'rounded'" th:disabled="${shared}"
+							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{money.mark}','').replace(/,/g,''));|"
 							data-toggle="modal" data-target="#mdlPrice"
-							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{mark.money}','').replace(/,/g,''));|"
-							th:text="|#{mark.money}*{#numbers.formatInteger(price,1,'COMMA')}|"></button>
+							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></button>
 						<button type="button" class="btn btn-danger btn-sm w-100"
-							th:classappend="${shared}?'d-none'" data-toggle="modal"
-							data-target="#mdlDelete"
-							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|">[[#{label.folder.delete}]]</button>
+							th:classappend="${shared}?'d-none'"
+							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|"
+							data-toggle="modal" data-target="#mdlDelete">[[#{label.folder.delete}]]</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+	<button type="button" id="toTop" class="btn btn-primary rounded-circle">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 
 	<form id="fomSubmit" action="#">
 		<input type="hidden" id="folder" name="folder" th:value="${folder}" />
 		<input type="hidden" id="thumbnail" name="thumbnail" /> <input
-			type="hidden" id="price" name="price" value="0" /> <input
-			type="hidden" th:name="${_csrf.parameterName}"
-			th:value="${_csrf.token}" />
+			type="hidden" id="price" name="price" /> <input type="hidden"
+			th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 	</form>
 
 	<div id="mdlPrice" class="modal fade" tabindex="-1" role="dialog"
@@ -144,31 +167,31 @@ button[id^="btnPrice"]:disabled {
 		<div class="modal-dialog modal-sm" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">設定</h5>
+					<h5 class="modal-title">[[#{modal.price.header}]]</h5>
 					<button type="button" class="close" data-dismiss="modal">
 						<span>&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<div class="input-group">
+					<div id="grpMoney" class="input-group">
 						<div class="input-group-prepend">
-							<span class="input-group-text">金額</span>
+							<span class="input-group-text">[[#{money.label}]]</span>
 						</div>
 						<input type="number" id="money"
 							th:min="${@applicationProperties.getProperty('photo.price.min')}"
 							th:max="${@applicationProperties.getProperty('photo.price.max')}"
-							value="100" maxlength="7"
-							class="form-control text-right num-only" />
+							th:value="${@applicationProperties.getProperty('photo.price.default')}"
+							maxlength="7" class="form-control text-right num-only" />
 						<div class="input-group-append">
-							<span class="input-group-text">円</span>
+							<span class="input-group-text">[[#{money.unit}]]</span>
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary"
-						onclick="$('#price').val($('#money').val());$('#fomSubmit').submit();">確定</button>
+						onclick="$('#price').val($('#money').val());$('#fomSubmit').submit();">[[#{modal.button.ok}]]</button>
 					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">キャンセル</button>
+						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
 				</div>
 			</div>
 		</div>
@@ -179,19 +202,19 @@ button[id^="btnPrice"]:disabled {
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">確認</h5>
+					<h5 class="modal-title">[[#{modal.delete.header}]]</h5>
 					<button type="button" class="close" data-dismiss="modal">
 						<span>&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<p>削除しますか。</p>
+					<p>[[#{modal.delete.message}]]</p>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary"
-						onclick="$('#fomSubmit').submit();">はい</button>
+						onclick="$('#fomSubmit').submit();">[[#{modal.button.yes}]]</button>
 					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">いいえ</button>
+						data-dismiss="modal">[[#{modal.button.no}]]</button>
 				</div>
 			</div>
 		</div>
