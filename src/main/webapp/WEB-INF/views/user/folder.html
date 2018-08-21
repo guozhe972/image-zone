@@ -178,14 +178,16 @@ button[id^="btnPrice"]:disabled {
 				th:href="@{|/user/share/${folder}|}" role="button"><i
 				class="fas fa-share-alt"></i>&nbsp;[[#{label.folder.share}]]</a>
 			<button id="btnScroll" type="button"
-				class="btn btn-primary rounded-0 nofocus">
+				class="btn btn-primary rounded-0 nofocus"
+				style="padding-left: 13px; padding-right: 13px;">
 				<i class="fas fa-angle-up"></i>
 			</button>
 		</div>
 	</div>
 
 	<button type="button" id="toTop"
-		class="btn btn-primary rounded-circle nofocus d-none-xs">
+		class="btn btn-primary rounded-circle nofocus"
+		th:classappend="${shared}?'':'d-none-xs'">
 		<i class="fas fa-angle-up fa-2x"></i>
 	</button>
 
