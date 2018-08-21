@@ -1,6 +1,6 @@
 $(function() {
 	//$('body').append(
-	//		'<button type="button" id="toTop" class="btn btn-primary rounded-circle">'
+	//		'<button type="button" id="toTop" class="btn btn-primary rounded-circle nofocus">'
 	//				+ '<i class="fas fa-angle-up fa-2x"></i>' + '</button>');
 	$(window).scroll(function() {
 		if ($(this).scrollTop() > 100) {

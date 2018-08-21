@@ -20,8 +20,6 @@ a.text-folder:hover {
 }
 </style>
 <script>
-	var mdlRename = 0;
-	var mdlClear = 0;
 	function checkFolder(seq) {
 		var unLocked = true;
 		/*$.ajax({
@@ -43,6 +41,9 @@ a.text-folder:hover {
 				}
 			}
 		});*/
+		if (!unLocked) {
+			showAlertError([ '[(#{error.folder.uploading})]' ]);
+		}
 		return unLocked;
 	}
 
@@ -184,37 +185,35 @@ a.text-folder:hover {
 					});
 				});
 
-		$('#mdlRename').on('hide.bs.modal', function(e) {
-			if (mdlRename == 1) {
-				mdlRename = 0;
-				var seq = $('#seq').val();
-				$.ajax({
-					url : '[(@{/user/rename})]',
-					method : 'POST',
-					cache : false,
-					data : $('#fomRename').serialize(),
-					beforeSend : function() {
-						$('#mdlWaiting').modal('show');
-					}
-				}).done(function(data, textStatus, jqXHR) {
-					$('#lnkName' + seq).text(data);
-				}).fail(function(jqXHR, textStatus, errorThrown) {
-					if (jqXHR.status == 405) {
-						location.href = '[(@{/system/error})]';
-					}
-				}).always(function() {
-					$('#mdlWaiting').modal('hide');
-				});
-			}
+		$('#mdlRenameBtn').click(function() {
+			var seq = $('#seq').val();
+			$.ajax({
+				url : '[(@{/user/rename})]',
+				method : 'POST',
+				cache : false,
+				data : $('#fomRename').serialize(),
+				beforeSend : function() {
+					$('#mdlRename').modal('hide');
+					$('#mdlWaiting').modal('show');
+				}
+			}).done(function(data, textStatus, jqXHR) {
+				$('#lnkName' + seq).text(data);
+			}).fail(function(jqXHR, textStatus, errorThrown) {
+				if (textStatus == 'error') {
+					location.href = '[(@{/system/error})]';
+				}
+			}).always(function() {
+				$('#mdlWaiting').modal('hide');
+			});
 		});
 
-		$('#mdlClear').on('hide.bs.modal', function(e) {
-			if (mdlClear == 1) {
-				mdlClear = 0;
-				if (checkFolder($('#folder').val())) {
-					$('#mdlWaiting').modal('show');
-					$('#fomClear').submit();
-				}
+		$('#mdlClearBtn').click(function() {
+			if (checkFolder($('#folder').val())) {
+				$('#mdlClear').modal('hide');
+				$('#mdlWaiting').modal('show');
+				$('#fomClear').submit();
+			} else {
+				$('#mdlClear').modal('hide');
 			}
 		});
 	});
@@ -228,6 +227,7 @@ a.text-folder:hover {
 	<th:block layout:replace="~{layout/parts/dialog::progress}" />
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main">
+		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<ul class="list-group list-group-flush mw-content mx-auto">
 			<li class="list-group-item px-0 py-3" th:each="form : ${folders}">
 				<form data-type="upload" enctype="multipart/form-data" novalidate
@@ -288,7 +288,8 @@ a.text-folder:hover {
 			</li>
 		</ul>
 	</div>
-	<button type="button" id="toTop" class="btn btn-primary rounded-circle">
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
 		<i class="fas fa-angle-up fa-2x"></i>
 	</button>
 
@@ -314,8 +315,7 @@ a.text-folder:hover {
 					</form>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" data-dismiss="modal"
-						onclick="mdlRename=1;">[[#{modal.button.ok}]]</button>
+					<button id="mdlRenameBtn" type="button" class="btn btn-primary">[[#{modal.button.ok}]]</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
 				</div>
@@ -340,8 +340,7 @@ a.text-folder:hover {
 					</form>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" data-dismiss="modal"
-						onclick="mdlClear=1;">[[#{modal.button.yes}]]</button>
+					<button id="mdlClearBtn" type="button" class="btn btn-primary">[[#{modal.button.yes}]]</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">[[#{modal.button.no}]]</button>
 				</div>

@@ -319,7 +319,7 @@ public class UserController {
 			form.setName(folder.getName());
 			form.setGuest(folder.getGuest());
 			form.setPassword("");
-			form.setExpiredt(LocalDate.now().plusDays(30));
+			form.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED / 2));
 			model.addAttribute("folderForm", form);
 		}
 
