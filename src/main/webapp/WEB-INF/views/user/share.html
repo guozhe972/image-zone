@@ -3,7 +3,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>share folder</title>
+<title>[[#{title.user}]]</title>
 <link rel="stylesheet" th:href="@{/css/flatpickr.css}">
 <script th:src="@{/js/flatpickr.min.js}"></script>
 <script th:if="${#locale.language}=='ja'"
@@ -32,7 +32,7 @@ html {
 			return password;
 		}
 
-		$('#flatwrap')
+		$('#grpDate')
 				.flatpickr(
 						{
 							locale : '[(${#locale.language})]',
@@ -57,31 +57,43 @@ html {
 			}
 		});
 
-		$('#fomShare').submit(function(event) {
-			if (!$(this).get(0).checkValidity()) {
-				event.preventDefault();
-				event.stopPropagation();
-				$(this).addClass('was-validated');
-			} else {
-				$('#mdlWaiting').modal('show');
-			}
-		});
+		function isValidForm() {
+			var isValid = true;
+			$('.is-invalid').removeClass('is-invalid');
+			$('.invalid-feedback').remove();
 
-		/*
-		$('#btnShare').click(function(event) {
-			if (!$('#password').get(0).checkValidity()) {
+			var password = $('#password').val();
+			if (password.length < 4 || password.length > 16
+					|| !/^[a-zA-Z0-9]+$/.test(password)) {
 				$('#password').addClass('is-invalid');
-				$('#password').focus();
+				$('#grpPass').after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{validation.share.password})]'
+				}));
+				isValid = false;
 			}
-			event.preventDefault();
-			event.stopPropagation();
-		});
-		 */
 
-		$('#mdlShare').on('hide.bs.modal', function(e) {
-			if (mdlShare == 1) {
-				mdlShare = 0;
+			var expiredt = $('#expiredt').val();
+			if (true) {
+				$('#expiredt').addClass('is-invalid');
+				$('#grpDate').after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{validation.share.expiredt})]'
+				}));
+				isValid = false;
+			}
+
+			return isValid;
+		}
+
+		$('#mdlShareBtn').click(function() {
+			//if ($('#fomShare').get(0).checkValidity()) {
+			if (isValidForm()) {
+				$('#mdlShare').modal('hide');
+				$('#mdlWaiting').modal('show');
 				$('#fomShare').submit();
+			} else {
+				$('#mdlShare').modal('hide');
 			}
 		});
 	});
@@ -96,50 +108,61 @@ html {
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto pb-5">
 		<form id="fomShare" class="mw-content mx-auto pt-3" novalidate
-			th:action="@{/user/share}" th:object="${folderForm}" method="post">
+			th:action="@{/user/share}" th:object="${folderForm}" method="post"
+			autocomplete="off">
 			<input type="hidden" th:field="*{seq}" />
-			<h4 th:text="*{name}?:|#{default.folder.name} *{seq}|">フォルダ公開</h4>
+			<h4
+				th:text="*{#strings.isEmpty(name)}?|#{default.folder.name}*{#numbers.formatInteger(seq,2)}|:*{name}"></h4>
 			<hr>
 			<div class="form-group row">
-				<label for="guest" class="col-sm-4 col-form-label text-sm-right">ユーザー名</label>
+				<label for="guest" class="col-sm-4 col-form-label text-sm-right">[[#{label.share.username}]]</label>
 				<div class="col-sm-8">
 					<input type="text" th:field="*{guest}" class="form-control"
 						readonly />
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="password" class="col-sm-4 col-form-label text-sm-right">パスワード</label>
-				<div class="col-sm-8 input-group">
-					<div class="input-group">
+				<label for="password" class="col-sm-4 col-form-label text-sm-right">[[#{label.share.password}]]</label>
+				<div class="col-sm-8">
+					<div id="grpPass" class="input-group">
 						<input type="text" th:field="*{password}"
-							class="form-control rounded-left" maxlength="16" placeholder=""
-							autofocus />
+							class="form-control rounded-left" th:errorclass="is-invalid"
+							maxlength="16" autofocus required />
 						<div class="input-group-append">
 							<button type="button" id="btnAuto"
-								class="btn btn-success rounded-right">自動生成</button>
+								class="btn btn-info rounded-right">[[#{label.share.auto}]]</button>
 						</div>
 					</div>
-					<small class="form-text text-muted">未設定の場合、パブリック公開になります</small>
+					<div class="invalid-feedback d-block"
+						th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password
+						error</div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="expiredt" class="col-sm-4 col-form-label text-sm-right">公開期限</label>
-				<div class="col-sm-8 input-group" id="flatwrap">
-					<input type="date" th:field="*{expiredt}"
-						class="form-control rounded-left" data-input
-						th:min="${#dates.format(#dates.createToday(),'yyyy-MM-dd')}"
-						th:max="${limit}" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" required />
-					<div class="input-group-append">
-						<span class="btn btn-success rounded-right" data-toggle> <i
-							class="fas fa-calendar-alt"></i></span>
+				<label for="expiredt" class="col-sm-4 col-form-label text-sm-right">[[#{label.share.expiredt}]]</label>
+				<div class="col-sm-8">
+					<div id="grpDate" class="input-group">
+						<input type="date" th:field="*{expiredt}"
+							class="form-control rounded-left" th:errorclass="is-invalid"
+							th:min="${#dates.format(#dates.createToday(),'yyyy-MM-dd')}"
+							th:max="${limit}" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" data-input
+							required />
+						<div class="input-group-append">
+							<button type="button" class="btn btn-info rounded-right"
+								data-toggle>
+								<i class="fas fa-calendar-alt"></i>
+							</button>
+						</div>
 					</div>
+					<div class="invalid-feedback d-block"
+						th:if="${#fields.hasErrors('expiredt')}" th:errors="*{expiredt}">expiredt
+						error</div>
 				</div>
 			</div>
 			<div class="form-group row">
 				<div class="offset-sm-4 col-sm-8">
-					<button type="button" id="btnShare"
-						class="btn btn-primary btn-block-xs" style="width: 150px;"
-						data-toggle="modal" data-target="#mdlShare">公開</button>
+					<button type="button" class="btn btn-primary btn-block-xs"
+						style="width: 150px;" data-toggle="modal" data-target="#mdlShare">[[#{label.share.button}]]</button>
 				</div>
 			</div>
 		</form>
@@ -150,21 +173,18 @@ html {
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">確認</h5>
+					<h5 class="modal-title">[[#{modal.share.header}]]</h5>
 					<button type="button" class="close" data-dismiss="modal">
 						<span>&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<p>
-						公開後の写真の追加・削除および金額変更はできなくなります。 <br>公開してよろしいでしょうか。
-					</p>
+					<p>[(#{modal.share.message})]</p>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" data-dismiss="modal"
-						onclick="mdlShare=1;">はい</button>
+					<button id="mdlShareBtn" type="button" class="btn btn-primary">[[#{modal.button.yes}]]</button>
 					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">いいえ</button>
+						data-dismiss="modal">[[#{modal.button.no}]]</button>
 				</div>
 			</div>
 		</div>
