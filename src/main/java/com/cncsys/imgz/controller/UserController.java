@@ -43,6 +43,7 @@ import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.entity.TransferEntity;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.helper.MailHelper;
+import com.cncsys.imgz.model.BankForm;
 import com.cncsys.imgz.model.ChangeForm;
 import com.cncsys.imgz.model.ChangeForm.Input;
 import com.cncsys.imgz.model.FolderForm;
@@ -52,7 +53,6 @@ import com.cncsys.imgz.model.LoginUser;
 import com.cncsys.imgz.model.OrderForm;
 import com.cncsys.imgz.model.PhotoForm;
 import com.cncsys.imgz.model.PhotoForm.Price;
-import com.cncsys.imgz.model.TransferForm;
 import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.FolderService;
 import com.cncsys.imgz.service.OrderService;
@@ -73,7 +73,7 @@ public class UserController {
 	@Value("${default.expired.days}")
 	private int DEFAULT_EXPIRED;
 
-	@Value("${cost.transfer.amount}")
+	@Value("${cost.transfer.fee}")
 	private int COST_TRANSFER;
 
 	@Autowired
@@ -125,6 +125,14 @@ public class UserController {
 	@InitBinder("changeForm")
 	public void initChangeBinder(WebDataBinder binder) {
 		binder.addValidators(changeValidator);
+	}
+
+	@Autowired
+	private BankValidator bankValidator;
+
+	@InitBinder("bankForm")
+	public void initBankBinder(WebDataBinder binder) {
+		binder.addValidators(bankValidator);
 	}
 
 	@GetMapping("/home")
@@ -312,6 +320,8 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
+		model.addAttribute("mindt", LocalDate.now());
+		model.addAttribute("maxdt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
 		if (!model.containsAttribute("folderForm")) {
 			FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
 			FolderForm form = new FolderForm();
@@ -323,13 +333,12 @@ public class UserController {
 			model.addAttribute("folderForm", form);
 		}
 
-		model.addAttribute("limit", LocalDate.now().plusDays(DEFAULT_EXPIRED));
 		return "/user/share";
 	}
 
 	@PostMapping("/share")
 	public String sharePost(@ModelAttribute @Validated(Share.class) FolderForm form,
-			BindingResult result, RedirectAttributes redirectAttributes) {
+			BindingResult result, RedirectAttributes redirectAttributes, Locale locale) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
@@ -339,9 +348,21 @@ public class UserController {
 			return "redirect:/user/share/" + String.valueOf(form.getSeq());
 		}
 
-		folderService.shareFolder(user.getUsername(), form.getSeq(),
+		FolderEntity folder = folderService.shareFolder(user.getUsername(), form.getSeq(),
 				form.getPassword(), form.getExpiredt());
 
+		String folderName = folder.getName();
+		if (folderName == null || folderName.isEmpty()) {
+			folderName = messageSource.getMessage("default.folder.name", null, locale)
+					+ String.format("%02d", folder.getSeq());
+		}
+
+		String[] param = new String[4];
+		param[0] = folderName;
+		param[1] = folder.getGuest();
+		param[2] = form.getPassword();
+		param[3] = form.getExpiredt().toString();
+		mailHelper.sendShareFolder(user.getEmail(), param);
 		return "redirect:/user/home";
 	}
 
@@ -371,22 +392,33 @@ public class UserController {
 	}
 
 	@GetMapping("/account")
-	public String account(@ModelAttribute TransferForm form, Model model) {
+	public String account(Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
 		AccountEntity account = accountService.getAccountInfo(user.getUsername());
 		user.setBalance(account.getBalance());
-
 		model.addAttribute("balance", user.getBalance());
+
+		if (!model.containsAttribute("bankForm")) {
+			BankForm form = new BankForm();
+			model.addAttribute("bankForm", form);
+		}
+
 		return "/user/account";
 	}
 
-	@PostMapping("/transfer")
-	public String transfer(@ModelAttribute TransferForm form, BindingResult result,
+	@PostMapping("/request")
+	public String request(@ModelAttribute @Validated BankForm form, BindingResult result,
 			RedirectAttributes redirectAttributes, Locale locale) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		if (result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("bankForm", form);
+			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "bankForm", result);
+			return "redirect:/user/account";
+		}
 
 		// check balance
 		if (user.getBalance() < COST_TRANSFER) {
@@ -407,7 +439,7 @@ public class UserController {
 			// 改竄エラー
 			infos.add("残高が変更されました。もう一度ご確認ください。");
 			redirectAttributes.addFlashAttribute("infos", infos);
-			redirectAttributes.addFlashAttribute("transferForm", form);
+			redirectAttributes.addFlashAttribute("bankForm", form);
 			return "redirect:/user/account";
 		}
 
@@ -427,7 +459,7 @@ public class UserController {
 			// 多重エラー
 			infos.add("残高が変更されました。もう一度ご確認ください。");
 			redirectAttributes.addFlashAttribute("infos", infos);
-			redirectAttributes.addFlashAttribute("transferForm", form);
+			redirectAttributes.addFlashAttribute("bankForm", form);
 			return "redirect:/user/account";
 		}
 		user.setBalance(balance);
@@ -454,7 +486,7 @@ public class UserController {
 	}
 
 	@GetMapping("/change")
-	public String info(Model model) {
+	public String password(Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
@@ -469,7 +501,7 @@ public class UserController {
 
 	@PostMapping("/change")
 	public String change(@ModelAttribute @Validated(Input.class) ChangeForm form, BindingResult result,
-			RedirectAttributes redirectAttributes, Locale locale) {
+			RedirectAttributes redirectAttributes) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
@@ -481,9 +513,10 @@ public class UserController {
 
 		accountService.changePassword(user.getUsername(), form.getPassword());
 
-		List<String> infos = new ArrayList<String>();
-		infos.add("パスワードを変更しました。");
-		redirectAttributes.addFlashAttribute("infos", infos);
-		return "redirect:/user/change";
+		String[] param = new String[2];
+		param[0] = form.getUsername();
+		param[1] = form.getPassword();
+		mailHelper.sendChangeSuccess(user.getEmail(), param);
+		return "redirect:/user/change?info";
 	}
 }

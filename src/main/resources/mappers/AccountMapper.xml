@@ -32,6 +32,12 @@
 		where username = #{username}
 	</select>
 
+	<select id="selectByPass" resultType="AccountEntity">
+		select username, password, email, authority, balance, createdt, enabled, expiredt
+		from account
+		where username = #{username} and password = #{password}
+	</select>
+
 	<insert id="insertAccount" parameterType="AccountEntity">
 		insert into account (username, password, email, authority, createdt, enabled, expiredt)
 		values (#{username}, #{password}, #{email}, #{authority}, #{createdt}, #{enabled}, #{expiredt})

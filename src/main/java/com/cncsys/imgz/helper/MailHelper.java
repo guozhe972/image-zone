@@ -32,8 +32,8 @@ public class MailHelper {
 		Locale locale = LocaleContextHolder.getLocale();
 
 		String code = String.format("%06d", intRandom.nextInt(1000000));
-		String subject = messageSource.getMessage("email.register.subject", null, locale);
-		String text = messageSource.getMessage("email.register.message", new String[] { code }, locale);
+		String subject = messageSource.getMessage("email.confirm.subject", null, locale);
+		String text = messageSource.getMessage("email.confirm.message", new String[] { code }, locale);
 
 		SimpleMailMessage mail = new SimpleMailMessage();
 		mail.setFrom(MAIL_FROM);
@@ -48,8 +48,8 @@ public class MailHelper {
 
 	public void sendRegisterSuccess(String to, String[] param) {
 		Locale locale = LocaleContextHolder.getLocale();
-		String subject = messageSource.getMessage("email.success.subject", null, locale);
-		String text = messageSource.getMessage("email.success.message", param, locale);
+		String subject = messageSource.getMessage("email.register.subject", null, locale);
+		String text = messageSource.getMessage("email.register.message", param, locale);
 
 		SimpleMailMessage mail = new SimpleMailMessage();
 		mail.setFrom(MAIL_FROM);
@@ -60,11 +60,52 @@ public class MailHelper {
 			mailSender.send(mail);
 	}
 
-	public void sendMailConfirm(String to) {
+	public void sendChangeSuccess(String to, String[] param) {
 		Locale locale = LocaleContextHolder.getLocale();
+		String subject = messageSource.getMessage("email.change.subject", null, locale);
+		String text = messageSource.getMessage("email.change.message", param, locale);
 
-		String subject = messageSource.getMessage("email.confirm.subject", null, locale);
-		String text = messageSource.getMessage("email.confirm.message", null, locale);
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setFrom(MAIL_FROM);
+		mail.setTo(to);
+		mail.setSubject(subject);
+		mail.setText(text);
+		if (MAIL_SEND)
+			mailSender.send(mail);
+	}
+
+	public void sendShareFolder(String to, String[] param) {
+		Locale locale = LocaleContextHolder.getLocale();
+		String subject = messageSource.getMessage("email.shared.subject", null, locale);
+		String text = messageSource.getMessage("email.shared.message", param, locale);
+
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setFrom(MAIL_FROM);
+		mail.setTo(to);
+		mail.setSubject(subject);
+		mail.setText(text);
+		if (MAIL_SEND)
+			mailSender.send(mail);
+	}
+
+	public void sendForgotPass(String to, String[] param) {
+		Locale locale = LocaleContextHolder.getLocale();
+		String subject = messageSource.getMessage("email.forgot.subject", null, locale);
+		String text = messageSource.getMessage("email.forgot.message", param, locale);
+
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setFrom(MAIL_FROM);
+		mail.setTo(to);
+		mail.setSubject(subject);
+		mail.setText(text);
+		if (MAIL_SEND)
+			mailSender.send(mail);
+	}
+
+	public void sendMailReceive(String to) {
+		Locale locale = LocaleContextHolder.getLocale();
+		String subject = messageSource.getMessage("email.receive.subject", null, locale);
+		String text = messageSource.getMessage("email.receive.message", null, locale);
 
 		SimpleMailMessage mail = new SimpleMailMessage();
 		mail.setFrom(MAIL_FROM);
@@ -91,8 +132,8 @@ public class MailHelper {
 
 	public void sendTransAccept(String to, String[] param) {
 		Locale locale = LocaleContextHolder.getLocale();
-		String subject = messageSource.getMessage("email.transfer.subject", null, locale);
-		String text = messageSource.getMessage("email.transfer.message", param, locale);
+		String subject = messageSource.getMessage("email.accept.subject", null, locale);
+		String text = messageSource.getMessage("email.accept.message", param, locale);
 
 		SimpleMailMessage mail = new SimpleMailMessage();
 		mail.setFrom(MAIL_FROM);

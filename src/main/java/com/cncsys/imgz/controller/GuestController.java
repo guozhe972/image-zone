@@ -168,7 +168,7 @@ public class GuestController {
 	@PostMapping(path = "/confirm", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody String confirm(@RequestBody Map<String, Object> json) {
 		String email = json.get("email").toString();
-		mailHelper.sendMailConfirm(email);
+		mailHelper.sendMailReceive(email);
 		return "ok";
 	}
 

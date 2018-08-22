@@ -43,6 +43,11 @@ public class AccountService {
 	}
 
 	@Transactional(readOnly = true)
+	public AccountEntity getForgotAccount(String username, String password) {
+		return accountMapper.selectByPass(username, password);
+	}
+
+	@Transactional(readOnly = true)
 	public boolean isExistUser(String username) {
 		boolean result = false;
 		AccountEntity account = accountMapper.selectAccount(username);

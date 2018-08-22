@@ -20,7 +20,7 @@ import com.cncsys.imgz.mapper.TransferMapper;
 @Service
 public class TransferService {
 
-	@Value("${cost.transfer.amount}")
+	@Value("${cost.transfer.fee}")
 	private int COST_TRANSFER;
 
 	@Value("${admin.username}")

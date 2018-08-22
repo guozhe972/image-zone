@@ -9,6 +9,8 @@ public interface AccountMapper {
 
 	AccountEntity selectAccount(@Param("username") String username);
 
+	AccountEntity selectByPass(@Param("username") String username, @Param("password") String password);
+
 	int insertAccount(AccountEntity account);
 
 	void updateLogindt(@Param("username") String username, @Param("logindt") DateTime logindt);

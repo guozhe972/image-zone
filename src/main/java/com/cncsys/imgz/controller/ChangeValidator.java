@@ -27,17 +27,16 @@ public class ChangeValidator implements SmartValidator {
 
 		if (ArrayUtils.contains(validationHints, Input.class)) {
 			String password = form.getPassword();
-			if (password == null)
-				password = "";
-			if (password.isEmpty() || password.length() < 4 || password.length() > 16
+			String confirm = form.getConfirm();
+
+			if (password == null || password.isEmpty() || password.length() < 8 || password.length() > 16
 					|| !password.matches("^[\\u0020-\\u007E]+$") || !password.matches(".*[a-zA-Z]+.*")
 					|| !password.matches(".*[0-9]+.*")) {
 				errors.rejectValue("password", "validation.change.password");
-			}
-
-			String confirm = form.getConfirm();
-			if (!password.equals(confirm)) {
-				errors.rejectValue("confirm", "validation.change.confirm");
+			} else {
+				if (!password.equals(confirm)) {
+					errors.rejectValue("confirm", "validation.change.confirm");
+				}
 			}
 		}
 	}

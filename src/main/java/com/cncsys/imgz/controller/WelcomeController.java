@@ -15,11 +15,6 @@ public class WelcomeController {
 		return "/index";
 	}
 
-	@GetMapping("/auth/signin")
-	public String signin() {
-		return "/auth/signin";
-	}
-
 	@GetMapping("/about/site")
 	public String aboutSite() {
 		return "/about/about";

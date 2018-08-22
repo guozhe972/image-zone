@@ -49,8 +49,11 @@ button[id^="btnPrice"]:disabled {
 							case 'price':
 								$('.is-invalid').removeClass('is-invalid');
 								$('.invalid-feedback').remove();
-								if ($('#price').val() < Number('[(${@applicationProperties.getProperty("photo.price.min")})]')
-										|| $('#price').val() > Number('[(${@applicationProperties.getProperty("photo.price.max")})]')) {
+								var money = $('#money').val();
+								if (!/^[0-9]+$/.test(money)
+										|| money != $('#price').val()
+										|| money < Number('[(${@applicationProperties.getProperty("photo.price.min")})]')
+										|| money > Number('[(${@applicationProperties.getProperty("photo.price.max")})]')) {
 									$('#grpMoney').addClass('is-invalid');
 									$('#grpMoney')
 											.after(
@@ -143,7 +146,7 @@ button[id^="btnPrice"]:disabled {
 					<div class="card-body p-0 text-center"
 						style="height: 200px; line-height: 194px;">
 						<img class="lazyload img-fluid" style="max-height: 100%;"
-							th:src="@{/images/loading.svg}"
+							th:src="@{/images/loading.gif}"
 							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 					</div>
@@ -163,6 +166,12 @@ button[id^="btnPrice"]:disabled {
 			</div>
 		</div>
 	</div>
+
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus"
+		th:classappend="${shared}?'':'d-none-xs'">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 
 	<div th:unless="${shared}" class="d-none-sm"
 		style="width: 100%; height: 38px;">
@@ -184,12 +193,6 @@ button[id^="btnPrice"]:disabled {
 			</button>
 		</div>
 	</div>
-
-	<button type="button" id="toTop"
-		class="btn btn-primary rounded-circle nofocus"
-		th:classappend="${shared}?'':'d-none-xs'">
-		<i class="fas fa-angle-up fa-2x"></i>
-	</button>
 
 	<form id="fomSubmit" action="#">
 		<input type="hidden" id="folder" name="folder" th:value="${folder}" />
@@ -244,7 +247,7 @@ button[id^="btnPrice"]:disabled {
 					</button>
 				</div>
 				<div class="modal-body">
-					<p>[[#{modal.delete.message}]]</p>
+					<p>[(#{modal.delete.message})]</p>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary"

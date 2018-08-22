@@ -31,7 +31,8 @@
 		insert into folder
 		(username, name, locked, shared, createdt)
 		values
-		(#{username}, '', false, false,
+		(#{username}, '',
+		false, false,
 		#{createdt})
 		returning
 		seq
@@ -49,11 +50,12 @@
 		#{username} and seq = #{seq}
 	</update>
 
-	<select id="updateShared" resultType="String">
+	<select id="updateShared" resultType="FolderEntity">
 		update folder set shared =
 		#{shared}
 		where username = #{username} and seq = #{seq}
-		returning guest
+		returning
+		username, seq, name, locked, shared, guest
 	</select>
 
 	<select id="updateFolder" resultType="String">

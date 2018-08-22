@@ -20,6 +20,7 @@ public class CodeParser {
 
 	@PostConstruct
 	private void init() {
+		//txtEncryptor = Encryptors.text(ENCRYPT_PASSWORD, ENCRYPT_SALT);
 		txtEncryptor = Encryptors.delux(ENCRYPT_PASSWORD, ENCRYPT_SALT);
 	}
 

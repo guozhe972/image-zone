@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cncsys.imgz.entity.AccountEntity;
 import com.cncsys.imgz.entity.TransferEntity;
+import com.cncsys.imgz.model.BankForm;
 import com.cncsys.imgz.model.LoginUser;
-import com.cncsys.imgz.model.TransferForm;
 import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.TransferService;
 
@@ -39,10 +39,10 @@ public class AdminController {
 		user.setBalance(account.getBalance());
 		model.addAttribute("balance", user.getBalance());
 
-		List<TransferForm> trans = new ArrayList<TransferForm>();
+		List<BankForm> trans = new ArrayList<BankForm>();
 		List<TransferEntity> entity = transferService.selectTransfer(false);
 		for (TransferEntity transfer : entity) {
-			TransferForm form = new TransferForm();
+			BankForm form = new BankForm();
 			form.setTransno(transfer.getTransno());
 			form.setBank(transfer.getBank());
 			form.setBranch(transfer.getBranch());

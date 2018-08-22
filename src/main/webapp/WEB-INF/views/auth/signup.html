@@ -20,6 +20,7 @@ html {
 			animation : 'fade',
 			arrow : true,
 			placement : 'top',
+			//size : 'small',
 			hideOnClick : false,
 			trigger : 'focus'
 		});
@@ -191,8 +192,7 @@ html {
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="password" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.password}]]<span
-					id="result"></span></label>
+				<label for="password" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.password}]]</label>
 				<div class="col-sm-8">
 					<input type="password" th:field="*{password}" class="form-control"
 						data-toggle="tooltip" th:title="#{tooltip.signup.password}"

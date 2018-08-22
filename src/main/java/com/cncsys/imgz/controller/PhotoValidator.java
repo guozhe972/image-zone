@@ -34,10 +34,11 @@ public class PhotoValidator implements SmartValidator {
 
 		if (ArrayUtils.contains(validationHints, Price.class)) {
 			int price = form.getPrice();
-			if (price < PRICE_MIN || price > PRICE_MAX) {
-				errors.rejectValue("price", "validation.photo.price",
-						new Object[] { String.format("%,d", PRICE_MIN), String.format("%,d", PRICE_MAX) }, null);
-				return;
+			if (!errors.hasFieldErrors("price")) {
+				if (price < PRICE_MIN || price > PRICE_MAX) {
+					errors.rejectValue("price", "validation.photo.price",
+							new Object[] { String.format("%,d", PRICE_MIN), String.format("%,d", PRICE_MAX) }, null);
+				}
 			}
 		}
 	}

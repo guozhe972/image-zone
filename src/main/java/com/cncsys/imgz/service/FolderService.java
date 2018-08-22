@@ -46,11 +46,11 @@ public class FolderService {
 	}
 
 	@Transactional
-	public void shareFolder(String username, int seq, String password, LocalDate expiredt) {
-		String guest = folderMapper.updateShared(username, seq, true);
+	public FolderEntity shareFolder(String username, int seq, String password, LocalDate expiredt) {
+		FolderEntity folder = folderMapper.updateShared(username, seq, true);
 
 		AccountEntity account = new AccountEntity();
-		account.setUsername(guest);
+		account.setUsername(folder.getGuest());
 		if (password == null || password.isEmpty()) {
 			account.setPassword("");
 		} else {
@@ -59,15 +59,17 @@ public class FolderService {
 		account.setEnabled(true);
 		account.setExpiredt(expiredt);
 		accountMapper.updateAccount(account);
+
+		return folder;
 	}
 
 	@Transactional
 	public void initFolder(String username, int seq) {
-		String guest = folderMapper.updateShared(username, seq, false);
+		FolderEntity folder = folderMapper.updateShared(username, seq, false);
 
 		AccountEntity account = new AccountEntity();
-		account.setUsername(guest);
-		account.setPassword(passwordEncoder.encode(guest));
+		account.setUsername(folder.getGuest());
+		account.setPassword(passwordEncoder.encode(folder.getGuest()));
 		account.setEnabled(false);
 		account.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED));
 		accountMapper.updateAccount(account);

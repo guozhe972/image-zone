@@ -20,7 +20,6 @@ html {
 }
 </style>
 <script>
-	var mdlShare = 0;
 	$(function() {
 		function createPassword(len) {
 			var password = '';
@@ -32,21 +31,6 @@ html {
 			return password;
 		}
 
-		$('#grpDate')
-				.flatpickr(
-						{
-							locale : '[(${#locale.language})]',
-							dateFormat : 'Y-m-d',
-							allowInput : false,
-							disableMobile : false,
-							prevArrow : '<i class="fas fa-chevron-left"></i>',
-							nextArrow : '<i class="fas fa-chevron-right"></i>',
-							minDate : '[(${#dates.format(#dates.createToday(),"yyyy-MM-dd")})]',
-							maxDate : '[(${limit})]',
-							defaultDate : '[(${folderForm.expiredt})]',
-							wrap : true
-						});
-
 		$('#btnAuto').click(function() {
 			var password = '';
 			while (password = createPassword(8)) {
@@ -57,13 +41,44 @@ html {
 			}
 		});
 
+		$('#grpDate').flatpickr({
+			locale : '[(${#locale.language})]',
+			dateFormat : 'Y-m-d',
+			allowInput : false,
+			disableMobile : false,
+			prevArrow : '<i class="fas fa-chevron-left"></i>',
+			nextArrow : '<i class="fas fa-chevron-right"></i>',
+			minDate : '[(${mindt})]',
+			maxDate : '[(${maxdt})]',
+			defaultDate : '[(${folderForm.expiredt})]',
+			wrap : true
+		});
+
+		function checkDateFormat(text) {
+			var isValid = false;
+			if (/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/.test(text)) {
+				var year = Number(text.split('-')[0]);
+				var month = Number(text.split('-')[1]);
+				var day = Number(text.split('-')[2]);
+				if (year >= 1970) {
+					var date = new Date(text);
+					if (date.getFullYear() == year
+							&& date.getMonth() + 1 == month
+							&& date.getDate() == day) {
+						isValid = true;
+					}
+				}
+			}
+			return isValid;
+		}
+
 		function isValidForm() {
 			var isValid = true;
 			$('.is-invalid').removeClass('is-invalid');
 			$('.invalid-feedback').remove();
 
 			var password = $('#password').val();
-			if (password.length < 4 || password.length > 16
+			if (password.length < 4 || 16 < password.length
 					|| !/^[a-zA-Z0-9]+$/.test(password)) {
 				$('#password').addClass('is-invalid');
 				$('#grpPass').after($('<div/>', {
@@ -74,13 +89,30 @@ html {
 			}
 
 			var expiredt = $('#expiredt').val();
-			if (true) {
+			if (expiredt.length == 0 || !checkDateFormat(expiredt)) {
 				$('#expiredt').addClass('is-invalid');
 				$('#grpDate').after($('<div/>', {
 					'class' : 'invalid-feedback d-block',
-					text : '[(#{validation.share.expiredt})]'
+					text : '[(#{typeMismatch.org.joda.time.LocalDate})]'
 				}));
 				isValid = false;
+			} else {
+				var seldt = new Date($('#expiredt').val());
+				var mindt = new Date('[(${mindt})]');
+				var maxdt = new Date('[(${maxdt})]');
+				if (seldt.getTime() < mindt.getTime()
+						|| maxdt.getTime() < seldt.getTime()) {
+					$('#expiredt').addClass('is-invalid');
+					$('#grpDate')
+							.after(
+									$(
+											'<div/>',
+											{
+												'class' : 'invalid-feedback d-block',
+												text : '[(${#messages.msg("validation.share.expiredt", mindt, maxdt)})]'
+											}));
+					isValid = false;
+				}
 			}
 
 			return isValid;
@@ -106,7 +138,7 @@ html {
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main my-auto pb-5">
+	<div class="container bg-main my-auto">
 		<form id="fomShare" class="mw-content mx-auto pt-3" novalidate
 			th:action="@{/user/share}" th:object="${folderForm}" method="post"
 			autocomplete="off">
@@ -144,9 +176,9 @@ html {
 					<div id="grpDate" class="input-group">
 						<input type="date" th:field="*{expiredt}"
 							class="form-control rounded-left" th:errorclass="is-invalid"
-							th:min="${#dates.format(#dates.createToday(),'yyyy-MM-dd')}"
-							th:max="${limit}" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" data-input
-							required />
+							th:min="${mindt}" th:max="${maxdt}"
+							pattern="[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}" maxlength="10"
+							data-input required />
 						<div class="input-group-append">
 							<button type="button" class="btn btn-info rounded-right"
 								data-toggle>
@@ -163,6 +195,9 @@ html {
 				<div class="offset-sm-4 col-sm-8">
 					<button type="button" class="btn btn-primary btn-block-xs"
 						style="width: 150px;" data-toggle="modal" data-target="#mdlShare">[[#{label.share.button}]]</button>
+					<!--/*
+					<small class="form-text text-muted">[(#{message.share.public})]</small>
+					*/-->
 				</div>
 			</div>
 		</form>

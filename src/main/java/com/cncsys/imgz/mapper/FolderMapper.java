@@ -19,7 +19,7 @@ public interface FolderMapper {
 
 	int updateLocked(@Param("username") String username, @Param("seq") int seq, @Param("locked") boolean locked);
 
-	String updateShared(@Param("username") String username, @Param("seq") int seq, @Param("shared") boolean shared);
+	FolderEntity updateShared(@Param("username") String username, @Param("seq") int seq, @Param("shared") boolean shared);
 
 	String updateFolder(@Param("username") String username, @Param("seq") int seq, @Param("name") String name);
 }

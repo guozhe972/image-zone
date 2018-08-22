@@ -3,7 +3,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>sales</title>
+<title>[[#{title.user}]]</title>
 </head>
 <body layout:fragment="body" class="pt-header">
 	<header layout:insert="~{layout/parts/header::user(-1)}"
@@ -12,17 +12,15 @@
 
 	<div class="container bg-main px-0">
 		<div class="mw-content mx-auto mt-3 d-flex justify-content-between">
-			<h2 class="mb-0 ml-3">総額</h2>
+			<h2 class="mb-0 ml-3">[[#{header.sales}]]</h2>
 			<h2 class="mb-0 mr-3"
-				th:text="|${#numbers.formatInteger(total,1,'COMMA')}円|"></h2>
+				th:text="|${#numbers.formatInteger(total,1,'COMMA')}#{money.unit}|"></h2>
 		</div>
-		<div th:if="${#lists.isEmpty(orders)}" id="altInfo"
-			class="alert alert-info alert-dismissible fade show mt-3 mb-0 mw-content mx-auto"
+		<div th:if="${#lists.isEmpty(orders)}"
+			class="alert alert-info alert-dismissible fade show mw-content mx-auto mt-3 mb-0"
 			role="alert">
+			<div>[(#{info.sales.none})]</div>
 			<button type="button" class="close" data-dismiss="alert">&times;</button>
-			<div>
-				<div>売れた写真のみ表示されます。</div>
-			</div>
 		</div>
 		<ul class="list-group mw-content mx-auto py-3">
 			<li
@@ -36,13 +34,16 @@
 				</div>
 				<div class="text-right pr-3">
 					<p class="text-muted"
-						th:text="|*{#numbers.formatInteger(price,1,'COMMA')}円 * *{qty}枚|"></p>
+						th:text="|*{#numbers.formatInteger(price,1,'COMMA')}#{money.unit} * *{#numbers.formatInteger(qty,1,'COMMA')}#{photo.unit}|"></p>
 					<p class="h4"
-						th:text="|*{#numbers.formatInteger(amount,1,'COMMA')}円|"></p>
+						th:text="|*{#numbers.formatInteger(amount,1,'COMMA')}#{money.unit}|"></p>
 				</div>
 			</li>
 		</ul>
 	</div>
-
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 </body>
 </html>
