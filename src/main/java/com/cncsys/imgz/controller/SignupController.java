@@ -36,7 +36,7 @@ import com.cncsys.imgz.model.SignupForm.Input;
 import com.cncsys.imgz.service.AccountService;
 
 @Controller
-@RequestMapping("/signup")
+@RequestMapping("/auth")
 @SessionAttributes("signupForm")
 public class SignupController {
 
@@ -71,8 +71,8 @@ public class SignupController {
 		binder.addValidators(signupValidator);
 	}
 
-	@GetMapping("/input")
-	public String input(Model model) {
+	@GetMapping("/signup")
+	public String signup(Model model) {
 		if (!model.containsAttribute(BindingResult.MODEL_KEY_PREFIX + FORM_MODEL_KEY)) {
 			model.addAttribute(FORM_MODEL_KEY, initSignupForm());
 		}
@@ -86,13 +86,13 @@ public class SignupController {
 		return String.valueOf(accountService.isExistUser(json.get("username").toString()));
 	}
 
-	@PostMapping("/mail")
-	public String mail(@Validated(Input.class) SignupForm form, BindingResult result,
+	@PostMapping("/send")
+	public String send(@Validated(Input.class) SignupForm form, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + FORM_MODEL_KEY, result);
-			return "redirect:/signup/input";
+			return "redirect:/auth/signup";
 		}
 
 		String code = mailHelper.sendRegisterConfirm(form.getEmail());
@@ -101,7 +101,7 @@ public class SignupController {
 		if (MAIL_SEND)
 			form.setCode(null);
 
-		return "redirect:/signup/confirm";
+		return "redirect:/auth/confirm";
 	}
 
 	@GetMapping("/confirm")
@@ -109,7 +109,7 @@ public class SignupController {
 		SignupForm form = (SignupForm) model.asMap().get(FORM_MODEL_KEY);
 		String token = form.getToken();
 		if (token == null || token.isEmpty()) {
-			return "redirect:/signup/input";
+			return "redirect:/auth/signup";
 		}
 		return "/auth/confirm";
 	}
@@ -129,7 +129,7 @@ public class SignupController {
 				errors.add(messageSource.getMessage(result.getFieldError("code").getCode(), null, locale));
 				redirectAttributes.addFlashAttribute("errors", errors);
 			}
-			return "redirect:/signup/input";
+			return "redirect:/auth/signup";
 		}
 
 		accountService.registerUser(form.getUsername(), form.getPassword(), form.getEmail());

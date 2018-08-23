@@ -161,8 +161,11 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		if (name.length() > 120)
-			name = name.substring(0, 120);
+		if (name == null) {
+			name = "";
+		} else if (name.length() > 50) {
+			name = name.substring(0, 50);
+		}
 
 		String result = folderService.changeName(user.getUsername(), seq, name);
 		if (result == null || result.isEmpty()) {
@@ -511,12 +514,11 @@ public class UserController {
 			return "redirect:/user/change";
 		}
 
-		accountService.changePassword(user.getUsername(), form.getPassword());
-
+		String email = accountService.changePassword(user.getUsername(), form.getPassword());
 		String[] param = new String[2];
 		param[0] = form.getUsername();
 		param[1] = form.getPassword();
-		mailHelper.sendChangeSuccess(user.getEmail(), param);
+		mailHelper.sendChangeSuccess(email, param);
 		return "redirect:/user/change?info";
 	}
 }

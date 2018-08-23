@@ -185,6 +185,10 @@ a.text-folder:hover {
 					});
 				});
 
+		$('#mdlRename').on('shown.bs.modal', function() {
+			$('#name').focus();
+		});
+
 		$('#mdlRenameBtn').click(function() {
 			var seq = $('#seq').val();
 			$.ajax({
@@ -288,14 +292,10 @@ a.text-folder:hover {
 			</li>
 		</ul>
 	</div>
-	<button type="button" id="toTop"
-		class="btn btn-primary rounded-circle nofocus">
-		<i class="fas fa-angle-up fa-2x"></i>
-	</button>
 
 	<div id="mdlRename" class="modal fade" tabindex="-1" role="dialog"
 		data-backdrop="static" data-keyboard="false">
-		<div class="modal-dialog modal-sm" role="document">
+		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title">[[#{modal.rename.header}]]</h5>
@@ -303,12 +303,12 @@ a.text-folder:hover {
 						<span>&times;</span>
 					</button>
 				</div>
-				<div class="modal-body" style="padding-top: 0.5rem;">
+				<div class="modal-body">
 					<form id="fomRename" action="#" autocomplete="off">
 						<div class="form-group mb-0">
 							<label for="name">[[#{modal.rename.label}]]</label> <input
 								type="text" id="name" name="name" class="form-control"
-								maxlength="120" /> <input type="hidden" id="seq" name="seq" /><input
+								maxlength="50" /> <input type="hidden" id="seq" name="seq" /><input
 								type="hidden" th:name="${_csrf.parameterName}"
 								th:value="${_csrf.token}" />
 						</div>

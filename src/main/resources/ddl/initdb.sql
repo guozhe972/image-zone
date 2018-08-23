@@ -19,7 +19,7 @@ CREATE TABLE folder
 (
     username varchar(20) NOT NULL,
     seq int NOT NULL,
-    name varchar(255),
+    name varchar(100),
     locked boolean NOT NULL,
     shared boolean NOT NULL,
     guest varchar(20),
@@ -76,7 +76,7 @@ CREATE TABLE transfer
     bank varchar(100) NOT NULL,
     branch varchar(100) NOT NULL,
     actype int NOT NULL,
-    acnumber varchar(10) NOT NULL,
+    acnumber varchar(20) NOT NULL,
     acname varchar(100) NOT NULL,
     amount int NOT NULL,
     done boolean NOT NULL,

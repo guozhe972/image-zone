@@ -5,7 +5,6 @@
 <head>
 <title>[[#{title.user}]]</title>
 <script>
-	var mdlRequest = 0;
 	$(function() {
 		// for test =====
 		$('#bank').val('三菱UFJ銀行');
@@ -14,20 +13,74 @@
 		$('#acname').val('ワカバ タロウ');
 		// for test =====
 
-		$('#mdlRequest').on('hide.bs.modal', function(e) {
-			if (mdlRequest == 1) {
-				mdlRequest = 0;
-				$('#fomRequest').submit();
-			}
-		});
+		function isValidForm() {
+			var isValid = true;
+			$('.is-invalid').removeClass('is-invalid');
+			$('.invalid-feedback').remove();
 
-		$('#fomRequest').submit(function(event) {
-			if (!$(this).get(0).checkValidity()) {
-				event.preventDefault();
-				event.stopPropagation();
-				$(this).addClass('was-validated');
-			} else {
+			if ($('#bank').val().trim().length == 0) {
+				$('#bank').val('');
+				$('#bank').addClass('is-invalid');
+				$('#bank').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.bank.bank})]'
+				}));
+				isValid = false;
+			}
+
+			if ($('#branch').val().trim().length == 0) {
+				$('#branch').val('');
+				$('#branch').addClass('is-invalid');
+				$('#branch').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.bank.branch})]'
+				}));
+				isValid = false;
+			}
+
+
+			$('#actype1').prop('checked', false);
+			$('#actype2').prop('checked', false);
+			var actype = $('input[name="actype"]:checked').val();
+
+			var acnumber = $('#acnumber').val();
+			if (acnumber.trim().length == 0) {
+				$('#acnumber').val('');
+				$('#acnumber').addClass('is-invalid');
+				$('#acnumber').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.bank.acnumber})]'
+				}));
+				isValid = false;
+			} else if (!/^[0-9]+$/.test(acnumber)) {
+				$('#acnumber').addClass('is-invalid');
+				$('#acnumber').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.bank.errnum})]'
+				}));
+				isValid = false;
+			}
+
+			if ($('#acname').val().trim().length == 0) {
+				$('#acname').val('');
+				$('#acname').addClass('is-invalid');
+				$('#acname').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.bank.acname})]'
+				}));
+				isValid = false;
+			}
+
+			return isValid;
+		}
+
+		$('#mdlRequestBtn').click(function() {
+			if (isValidForm()) {
+				$('#mdlRequest').modal('hide');
 				$('#mdlWaiting').modal('show');
+				$('#fomRequest').submit();
+			} else {
+				$('#mdlRequest').modal('hide');
 			}
 		});
 	});
@@ -40,75 +93,87 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main pb-3">
-		<form class="mw-content mx-auto" id="fomRequest" novalidate
-			th:action="@{/user/request}" th:object="${bankForm}"
-			method="post">
-			<th:block layout:replace="~{layout/parts/alert::error}" />
-			<th:block layout:replace="~{layout/parts/alert::info}" />
-			<div class="mt-3 d-flex justify-content-between">
-				<input type="hidden" id="amount" name="amount" th:value="${balance}" />
-				<h2 class="mb-0">残高</h2>
-				<h2 class="mb-0"
-					th:text="|${#numbers.formatInteger(balance,1,'COMMA')}円|"></h2>
-			</div>
-			<hr class="mb-0">
-			<div class="mb-3 text-right">
-				<small class="form-text text-muted">振込手数料に500円が掛かります</small>
-			</div>
+		<div class="mw-content mx-auto mt-3 d-flex justify-content-between">
+			<input type="hidden" id="amount" name="amount" th:value="${balance}" />
+			<h2 class="mb-0">[[#{header.account}]]</h2>
+			<h2 class="mb-0"
+				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}#{money.unit}|"></h2>
+		</div>
+		<hr class="mb-0">
+
+		<th:block layout:replace="~{layout/parts/alert::error}" />
+		<th:block layout:replace="~{layout/parts/alert::info}" />
+
+		<form class="mw-content mx-auto pt-3" id="fomRequest" novalidate
+			th:action="@{/user/request}" th:object="${bankForm}" method="post">
 			<div class="form-group row">
-				<label for="bank" class="col-sm-4 col-form-label text-sm-right">金融機関名</label>
+				<label for="bank" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.bank}]]</label>
 				<div class="col-sm-8">
-					<input type="text" id="bank" name="bank" class="form-control"
-						th:value="*{bank}" placeholder="" required />
-					<div class="invalid-feedback">bank error</div>
+					<input type="text" th:field="*{bank}" class="form-control"
+						th:errorclass="is-invalid" maxlength="50" autofocus required />
+					<div class="invalid-feedback" th:if="${#fields.hasErrors('bank')}"
+						th:errors="*{bank}">bank error</div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="branch" class="col-sm-4 col-form-label text-sm-right">支店名</label>
+				<label for="branch" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.branch}]]</label>
 				<div class="col-sm-8">
-					<input type="text" id="branch" name="branch" class="form-control"
-						th:value="*{branch}" placeholder="" required />
-					<div class="invalid-feedback">branch error</div>
+					<input type="text" th:field="*{branch}" class="form-control"
+						th:errorclass="is-invalid" maxlength="50" required />
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('branch')}" th:errors="*{branch}">branch
+						error</div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="actype" class="col-sm-4 col-form-label text-sm-right">口座種類</label>
-				<div class="col-sm-8 d-flex align-items-center">
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="actype1" name="actype" value="1"
-							class="custom-control-input" th:checked="*{actype} == 1">
-						<label class="custom-control-label" for="actype1">普通預金</label>
+				<label for="actype" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.actype}]]</label>
+				<div class="col-sm-8">
+					<div id="grpType" class="d-flex align-items-center">
+						<div class="custom-control custom-radio custom-control-inline">
+							<input type="radio" id="actype1" name="actype" value="1"
+								class="custom-control-input" th:checked="*{actype} == 1">
+							<label class="custom-control-label" for="actype1">[[#{label.account.actype1}]]</label>
+						</div>
+						<div class="custom-control custom-radio custom-control-inline">
+							<input type="radio" id="actype2" name="actype" value="2"
+								class="custom-control-input" th:checked="*{actype} == 2">
+							<label class="custom-control-label" for="actype2">[[#{label.account.actype2}]]</label>
+						</div>
 					</div>
-					<div class="custom-control custom-radio custom-control-inline">
-						<input type="radio" id="actype2" name="actype" value="2"
-							class="custom-control-input" th:checked="*{actype} == 2">
-						<label class="custom-control-label" for="actype2">当座預金</label>
-					</div>
+					<div class="invalid-feedback d-block"
+						th:if="${#fields.hasErrors('actype')}" th:errors="*{actype}">actype
+						error</div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="acnumber" class="col-sm-4 col-form-label text-sm-right">口座番号</label>
+				<label for="acnumber" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.acnumber}]]</label>
 				<div class="col-sm-8">
-					<input type="number" id="acnumber" name="acnumber"
-						th:value="*{acnumber}" class="form-control num-only" maxlength="8"
-						placeholder="" required />
-					<div class="invalid-feedback">acnumber error</div>
+					<input type="number" th:field="*{acnumber}"
+						class="form-control num-only" th:errorclass="is-invalid"
+						pattern="[0-9]+" maxlength="10" required />
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('acnumber')}" th:errors="*{acnumber}">acnumber
+						error</div>
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="acname" class="col-sm-4 col-form-label text-sm-right">口座名義</label>
+				<label for="acname" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.acname}]]</label>
 				<div class="col-sm-8">
-					<input type="text" id="acname" name="acname" class="form-control"
-						th:value="*{acname}" placeholder="" required />
-					<div class="invalid-feedback">acname error</div>
+					<input type="text" th:field="*{acname}" class="form-control"
+						th:errorclass="is-invalid" maxlength="50" required />
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('acname')}" th:errors="*{acname}">acname
+						error</div>
 				</div>
 			</div>
 			<div class="form-group row mb-0">
 				<div class="offset-sm-4 col-sm-8">
-					<button id="btnRequest" type="button"
+					<button type="button" class="btn btn-primary btn-block-xs"
+						style="width: 150px;"
 						th:disabled="${balance}<${@applicationProperties.getProperty('cost.transfer.fee')}"
-						class="btn btn-primary btn-block-xs" style="width: 150px;"
-						data-toggle="modal" data-target="#mdlRequest">振込申請</button>
+						data-toggle="modal" data-target="#mdlRequest">[[#{label.request.button}]]</button>
+					<small class="form-text text-muted"
+						th:text="${#messages.msg('message.transfer.cost', #numbers.formatInteger(@applicationProperties.getProperty('cost.transfer.fee'),1,'COMMA'))}"></small>
 				</div>
 			</div>
 		</form>
@@ -119,21 +184,18 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">確認</h5>
+					<h5 class="modal-title">[[#{modal.request.header}]]</h5>
 					<button type="button" class="close" data-dismiss="modal">
 						<span>&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<p>
-						入金まで２、３日掛かる場合があります。 <br>振込申請してよろしいでしょうか。
-					</p>
+					<p>[(#{modal.request.message})]</p>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" data-dismiss="modal"
-						onclick="mdlRequest=1;">はい</button>
+					<button id="mdlRequestBtn" type="button" class="btn btn-primary">[[#{modal.button.yes}]]</button>
 					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">いいえ</button>
+						data-dismiss="modal">[[#{modal.button.no}]]</button>
 				</div>
 			</div>
 		</div>

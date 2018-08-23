@@ -158,15 +158,9 @@
 			access="permitAll" />
 		<sec:intercept-url pattern="/system/**"
 			access="permitAll" />
-		<sec:intercept-url pattern="/signup/**"
-			access="permitAll" />
 		<sec:intercept-url pattern="/auth/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/download/**"
-			access="permitAll" />
-		<sec:intercept-url pattern="/public/**"
-			access="permitAll" />
-		<sec:intercept-url pattern="/upload/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/order/**"
 			access="permitAll" />
@@ -204,7 +198,6 @@
 		<mvc:interceptor>
 			<mvc:mapping path="/" />
 			<mvc:mapping path="/about/*" />
-			<mvc:mapping path="/signup/*" />
 			<mvc:mapping path="/auth/*" />
 			<bean class="com.cncsys.imgz.handler.LoggedInUserHandler" />
 		</mvc:interceptor>

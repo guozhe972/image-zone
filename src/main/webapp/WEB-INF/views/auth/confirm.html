@@ -47,8 +47,8 @@ html {
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto pb-5">
 		<form id="fomConfirm" class="mw-content mx-auto pt-3" novalidate
-			th:action="@{/signup/register}" th:object="${signupForm}"
-			method="post" autocomplete="off">
+			th:action="@{/auth/register}" th:object="${signupForm}" method="post"
+			autocomplete="off">
 			<h4>[[#{header.confirm}]]</h4>
 			<hr>
 			<div class="form-group row">
@@ -70,8 +70,8 @@ html {
 				<div class="col-sm-8">
 					<div id="grpCode" class="input-group">
 						<input type="number" th:field="*{code}" min="0" max="999999"
-							class="form-control num-only rounded-left" maxlength="6"
-							autofocus required />
+							class="form-control num-only rounded-left" pattern="[0-9]+"
+							maxlength="6" autofocus required />
 						<div class="input-group-append">
 							<button type="submit" class="btn btn-primary rounded-right"
 								style="width: 100px;">[[#{label.confirm.button}]]</button>

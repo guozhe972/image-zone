@@ -44,7 +44,7 @@ public class AccountService {
 
 	@Transactional(readOnly = true)
 	public AccountEntity getForgotAccount(String username, String password) {
-		return accountMapper.selectByPass(username, password);
+		return accountMapper.selectByReset(username, password);
 	}
 
 	@Transactional(readOnly = true)
@@ -95,8 +95,8 @@ public class AccountService {
 	}
 
 	@Transactional
-	public void changePassword(String username, String password) {
-		accountMapper.updatePassword(username, passwordEncoder.encode(password));
+	public String changePassword(String username, String password) {
+		return accountMapper.updatePassword(username, passwordEncoder.encode(password));
 	}
 
 	@Transactional

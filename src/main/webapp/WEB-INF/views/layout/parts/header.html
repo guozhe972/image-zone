@@ -97,23 +97,5 @@
 			class="badge badge-pill badge-danger" th:text="${#lists.size(cart)}">0</span></a>
 	</nav>
 
-	<nav layout:fragment="public(active)"
-		class="navbar navbar-expand-sm navbar-dark">
-		<button class="navbar-toggler p-0 border-0" type="button"
-			onclick="$('#navMenu').toggleClass('open');">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
-		<div class="navbar-collapse offcanvas-collapse" id="navMenu">
-			<ul class="navbar-nav">
-				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a
-					class="nav-link" th:href="@{/public/home}">[[#{menu.public.home}]]</a></li>
-			</ul>
-		</div>
-		<a class="btn btn-primary" th:href="@{/public/basket}" role="button"><i
-			class="fas fa-shopping-cart"></i>&nbsp;<span id="bagBasket"
-			class="badge badge-pill badge-danger"
-			th:text="${#lists.size(basket)}">0</span></a>
-	</nav>
 </body>
 </html>

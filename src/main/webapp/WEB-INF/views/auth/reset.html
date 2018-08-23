@@ -3,7 +3,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>[[#{title.signup}]]</title>
+<title>[[#{title.reset}]]</title>
 <link rel="stylesheet" th:href="@{/css/tippy.css}">
 <script th:src="@{/js/tippy.min.js}"></script>
 <style>
@@ -16,39 +16,13 @@ html {
 		const check = '<i class="fas fa-check-circle text-success"></i>';
 		const times = '<i class="fas fa-times-circle text-danger"></i>';
 
-		tippy('[data-toggle="tooltip"]', {
+		tippy.one('#password', {
 			animation : 'fade',
 			arrow : true,
 			placement : 'top',
-			//size : 'small',
 			hideOnClick : false,
 			trigger : 'focus'
 		});
-
-		$('#username').on('input', function() {
-			checkUsername($(this).val());
-		});
-		function checkUsername(name) {
-			var label = $('label[for="username"]');
-			label.children('i').remove();
-			if (name.length == 0)
-				return false;
-
-			if (checkNameSpell(name)) {
-				label.append(check);
-				return true;
-			}
-
-			label.append(times);
-			return false;
-		}
-		function checkNameSpell(name) {
-			if (name.length >= 4 && name.length <= 16
-					&& /^[a-zA-Z0-9]+[a-zA-Z0-9_\-]*$/.test(name)) {
-				return true;
-			}
-			return false;
-		}
 
 		$('#password').on('input', function() {
 			checkPassword($(this).val());
@@ -67,6 +41,7 @@ html {
 				label.append(times);
 			}
 		}
+
 		function checkStrength(password) {
 			var strength = 0;
 			if (password.length >= 8 && password.length <= 16
@@ -95,43 +70,16 @@ html {
 			}
 		}
 
-		function checkMailAddress(mail) {
-			var reg = new RegExp(
-					"^(([0-9a-zA-Z!#\$%&'\*\+\-/=\?\^_`\{\}\|~]+(\.[0-9a-zA-Z!#\$%&'\*\+\-/=\?\^_`\{\}\|~]+)*)|(\"[^\"]*\"))@[0-9a-zA-Z!#\$%&'\*\+\-/=\?\^_`\{\}\|~]+(\.[0-9a-zA-Z!#\$%&'\*\+\-/=\?\^_`\{\}\|~]+)*$");
-			if (mail.length > 0 && reg.test(mail)) {
-				return true;
-			}
-			return false;
-		}
-
 		function isValidForm() {
 			var isValid = true;
 			$('.is-invalid').removeClass('is-invalid');
 			$('.invalid-feedback').remove();
 
-			if (!checkNameSpell($('#username').val())) {
-				$('#username').addClass('is-invalid');
-				$('#username').after($('<div/>', {
-					'class' : 'invalid-feedback',
-					text : '[(#{validation.signup.username})]'
-				}));
-				isValid = false;
-			}
-
-			if (!checkMailAddress($('#email').val())) {
-				$('#email').addClass('is-invalid');
-				$('#email').after($('<div/>', {
-					'class' : 'invalid-feedback',
-					text : '[(#{validation.signup.email})]'
-				}));
-				isValid = false;
-			}
-
 			if (checkStrength($('#password').val()) != 2) {
 				$('#password').addClass('is-invalid');
 				$('#password').after($('<div/>', {
 					'class' : 'invalid-feedback',
-					text : '[(#{validation.signup.password})]'
+					text : '[(#{validation.change.password})]'
 				}));
 				isValid = false;
 			}
@@ -140,7 +88,7 @@ html {
 				$('#confirm').addClass('is-invalid');
 				$('#confirm').after($('<div/>', {
 					'class' : 'invalid-feedback',
-					text : '[(#{validation.signup.confirm})]'
+					text : '[(#{validation.change.confirm})]'
 				}));
 				isValid = false;
 			}
@@ -148,7 +96,7 @@ html {
 			return isValid;
 		}
 
-		$('#fomSignup').submit(function(event) {
+		$('#fomChange').submit(function(event) {
 			if (!isValidForm()) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -159,44 +107,31 @@ html {
 	});
 </script>
 </head>
-<body layout:fragment="body" class="pt-header d-flex align-items-center">
-	<header layout:insert="~{layout/parts/header::home(true, true)}"
+<body layout:fragment="body"
+	class="pt-header pb-footer d-flex align-items-center">
+	<header layout:insert="~{layout/parts/header::home(true, false)}"
 		class="fixed-top bg-header"></header>
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main my-auto pb-footer">
-		<th:block layout:replace="~{layout/parts/alert::error}" />
-		<form id="fomSignup" class="mw-content mx-auto pt-3" novalidate
-			th:action="@{/auth/send}" th:object="${signupForm}" method="post"
+	<div class="container bg-main my-auto pb-5">
+		<form id="fomChange" class="mw-content mx-auto pt-3" novalidate
+			th:action="@{/auth/change}" th:object="${changeForm}" method="post"
 			autocomplete="off">
-			<h4>[[#{header.signup}]]</h4>
+			<h4>[[#{header.reset}]]</h4>
 			<hr>
 			<div class="form-group row">
 				<label for="username" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.username}]]</label>
 				<div class="col-sm-8">
 					<input type="text" th:field="*{username}" class="form-control"
-						data-toggle="tooltip" th:title="#{tooltip.signup.username}"
-						th:errorclass="is-invalid" maxlength="16" autofocus required />
-					<div class="invalid-feedback"
-						th:if="${#fields.hasErrors('username')}" th:errors="*{username}">username
-						error</div>
-				</div>
-			</div>
-			<div class="form-group row">
-				<label for="email" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.email}]]</label>
-				<div class="col-sm-8">
-					<input type="email" th:field="*{email}" class="form-control"
-						th:errorclass="is-invalid" maxlength="255" required />
-					<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
-						th:errors="*{email}">email error</div>
+						readonly />
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="password" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.password}]]</label>
 				<div class="col-sm-8">
 					<input type="password" th:field="*{password}" class="form-control"
-						data-toggle="tooltip" th:title="#{tooltip.signup.password}"
-						th:errorclass="is-invalid" maxlength="16" required />
+						th:title="#{tooltip.signup.password}" th:errorclass="is-invalid"
+						maxlength="16" autofocus required />
 					<div class="invalid-feedback"
 						th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password
 						error</div>
@@ -214,24 +149,11 @@ html {
 			</div>
 			<div class="form-group row">
 				<div class="offset-sm-4 col-sm-8">
-					<div class="custom-control custom-checkbox">
-						<input class="custom-control-input" type="checkbox" id="chkAccept"
-							th:checked="false"
-							onchange="$('#btnRegister').prop('disabled', !$(this).prop('checked'));" />
-						<label class="custom-control-label" for="chkAccept"><small>[[#{label.signup.accept}]]</small></label>
-					</div>
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="offset-sm-4 col-sm-8">
-					<button id="btnRegister" type="submit"
-						class="btn btn-primary btn-block-xs" style="width: 150px;"
-						disabled>[[#{label.signup.register}]]</button>
-					<small class="form-text text-muted">[(#{message.signup.process})]</small>
+					<button type="submit" class="btn btn-primary btn-block-xs"
+						style="width: 150px;">[[#{label.reset.button}]]</button>
 				</div>
 			</div>
 		</form>
 	</div>
-	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>
 </html>

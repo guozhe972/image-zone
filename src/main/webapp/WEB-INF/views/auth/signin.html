@@ -14,23 +14,25 @@ html {
 		function isValidForm() {
 			var isValid = true;
 			$('.is-invalid').removeClass('is-invalid');
-			$('.invalid-feedback').remove();
-
-			if ($('#usernm').val().length == 0) {
-				$('#usernm').addClass('is-invalid');
-				$('#usernm').after($('<div/>', {
-					'class' : 'invalid-feedback',
-					text : '[(#{error.signin.username})]'
-				}));
-				isValid = false;
-			}
+			//$('.invalid-feedback').remove();
 
 			if ($('#passwd').val().length == 0) {
 				$('#passwd').addClass('is-invalid');
-				$('#passwd').after($('<div/>', {
-					'class' : 'invalid-feedback',
-					text : '[(#{error.signin.password})]'
-				}));
+				//$('#passwd').after($('<div/>', {
+				//	'class' : 'invalid-feedback',
+				//	text : '[(#{error.signin.password})]'
+				//}));
+				$('#passwd').focus();
+				isValid = false;
+			}
+
+			if ($('#usernm').val().length == 0) {
+				$('#usernm').addClass('is-invalid');
+				//$('#usernm').after($('<div/>', {
+				//	'class' : 'invalid-feedback',
+				//	text : '[(#{error.signin.username})]'
+				//}));
+				$('#usernm').focus();
 				isValid = false;
 			}
 
@@ -45,6 +47,38 @@ html {
 				$('#mdlWaiting').modal('show');
 			}
 		});
+
+		$('#mdlForgot').on('shown.bs.modal', function() {
+			$('#username').focus();
+		});
+
+		$('#mdlForgotBtn').click(function() {
+			$('#username').removeClass('is-invalid');
+			if ($('#username').val().trim().length == 0) {
+				$('#username').val('');
+				$('#username').addClass('is-invalid');
+				$('#username').focus();
+				return;
+			}
+			$.ajax({
+				url : '[(@{/auth/forgot})]',
+				method : 'POST',
+				cache : false,
+				data : $('#fomForgot').serialize(),
+				beforeSend : function() {
+					$('#mdlForgot').modal('hide');
+					$('#mdlWaiting').modal('show');
+				}
+			}).done(function(data, textStatus, jqXHR) {
+				showAlertInfo([ data ]);
+			}).fail(function(jqXHR, textStatus, errorThrown) {
+				if (textStatus == 'error') {
+					location.href = '[(@{/system/error})]';
+				}
+			}).always(function() {
+				$('#mdlWaiting').modal('hide');
+			});
+		});
 	});
 </script>
 </head>
@@ -55,6 +89,7 @@ html {
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto pb-5">
+		<th:block layout:replace="~{layout/parts/alert::info}" />
 		<div th:if="${param.error}"
 			class="alert alert-danger alert-dismissible fade show mw-content mx-auto mt-3 mb-0"
 			role="alert">
@@ -77,6 +112,12 @@ html {
 				<div class="col-sm-8">
 					<input type="password" id="passwd" name="passwd"
 						class="form-control" maxlength="16" required />
+					<div class="form-text text-right">
+						<small><a href="javascript:;"
+							onclick="$('#username').val($('#usernm').val());"
+							data-toggle="modal" data-target="#mdlForgot">[[#{label.signin.forgot}]]</a>
+						</small>
+					</div>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -86,6 +127,36 @@ html {
 				</div>
 			</div>
 		</form>
+	</div>
+
+	<div id="mdlForgot" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">[[#{modal.forgot.header}]]</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>[(#{modal.forgot.message})]</p>
+					<form id="fomForgot" action="#" novalidate autocomplete="off">
+						<div class="form-group mb-0">
+							<input type="text" id="username" name="username"
+								class="form-control" maxlength="16" required /><input
+								type="hidden" th:name="${_csrf.parameterName}"
+								th:value="${_csrf.token}" />
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button id="mdlForgotBtn" type="button" class="btn btn-primary">[[#{modal.button.ok}]]</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </body>
 </html>

@@ -9,7 +9,7 @@ public interface AccountMapper {
 
 	AccountEntity selectAccount(@Param("username") String username);
 
-	AccountEntity selectByPass(@Param("username") String username, @Param("password") String password);
+	AccountEntity selectByReset(@Param("username") String username, @Param("password") String password);
 
 	int insertAccount(AccountEntity account);
 
@@ -17,7 +17,7 @@ public interface AccountMapper {
 
 	int updateAccount(AccountEntity account);
 
-	int updatePassword(@Param("username") String username, @Param("password") String password);
+	String updatePassword(@Param("username") String username, @Param("password") String password);
 
 	int updateBalance(@Param("username") String username, @Param("balance") int balance);
 }
