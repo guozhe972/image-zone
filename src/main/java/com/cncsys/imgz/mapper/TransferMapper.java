@@ -11,6 +11,8 @@ public interface TransferMapper {
 
 	List<TransferEntity> selectTransfer(@Param("done") boolean done);
 
+	List<TransferEntity> selectByUser(@Param("username") String username);
+
 	int insertTransfer(TransferEntity transfer);
 
 	int updateTransfer(@Param("transno") String transno, @Param("updatedt") DateTime updatedt);

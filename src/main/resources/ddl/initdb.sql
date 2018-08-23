@@ -84,6 +84,7 @@ CREATE TABLE transfer
     updatedt timestamp,
     CONSTRAINT transfer_pkey PRIMARY KEY (transno)
 );
+CREATE INDEX transfer_idx1 ON transfer (username);
 
 
 --passwd:1234
