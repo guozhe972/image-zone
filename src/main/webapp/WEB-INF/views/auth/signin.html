@@ -54,8 +54,7 @@ html {
 
 		$('#mdlForgotBtn').click(function() {
 			$('#username').removeClass('is-invalid');
-			if ($('#username').val().trim().length == 0) {
-				$('#username').val('');
+			if ($('#username').val().length == 0) {
 				$('#username').addClass('is-invalid');
 				$('#username').focus();
 				return;

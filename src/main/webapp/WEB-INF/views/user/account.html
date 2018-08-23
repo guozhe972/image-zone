@@ -9,6 +9,7 @@
 		// for test =====
 		$('#bank').val('三菱UFJ銀行');
 		$('#branch').val('東京支店');
+		$('input[name="actype"]').val([ '1' ]);
 		$('#acnumber').val('1222334');
 		$('#acname').val('ワカバ タロウ');
 		// for test =====
@@ -38,10 +39,15 @@
 				isValid = false;
 			}
 
-
-			$('#actype1').prop('checked', false);
-			$('#actype2').prop('checked', false);
 			var actype = $('input[name="actype"]:checked').val();
+			if (!actype) {
+				$('input[name="actype"]').addClass('is-invalid');
+				$('#grpType').after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{validation.bank.actype})]'
+				}));
+				isValid = false;
+			}
 
 			var acnumber = $('#acnumber').val();
 			if (acnumber.trim().length == 0) {
@@ -93,19 +99,17 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main pb-3">
-		<div class="mw-content mx-auto mt-3 d-flex justify-content-between">
-			<input type="hidden" id="amount" name="amount" th:value="${balance}" />
+		<div
+			class="mw-content mx-auto py-3 border-bottom d-flex justify-content-between">
 			<h2 class="mb-0">[[#{header.account}]]</h2>
 			<h2 class="mb-0"
 				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}#{money.unit}|"></h2>
 		</div>
-		<hr class="mb-0">
-
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<th:block layout:replace="~{layout/parts/alert::info}" />
-
 		<form class="mw-content mx-auto pt-3" id="fomRequest" novalidate
 			th:action="@{/user/request}" th:object="${bankForm}" method="post">
+			<input type="hidden" id="amount" name="amount" th:value="${balance}" />
 			<div class="form-group row">
 				<label for="bank" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.bank}]]</label>
 				<div class="col-sm-8">
@@ -128,16 +132,18 @@
 			<div class="form-group row">
 				<label for="actype" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.actype}]]</label>
 				<div class="col-sm-8">
-					<div id="grpType" class="d-flex align-items-center">
+					<div id="grpType" class="form-control border-transparent">
 						<div class="custom-control custom-radio custom-control-inline">
 							<input type="radio" id="actype1" name="actype" value="1"
-								class="custom-control-input" th:checked="*{actype} == 1">
-							<label class="custom-control-label" for="actype1">[[#{label.account.actype1}]]</label>
+								class="custom-control-input" th:errorclass="is-invalid"
+								th:checked="*{actype} == 1" required /> <label
+								class="custom-control-label" for="actype1">[[#{label.account.actype1}]]</label>
 						</div>
 						<div class="custom-control custom-radio custom-control-inline">
 							<input type="radio" id="actype2" name="actype" value="2"
-								class="custom-control-input" th:checked="*{actype} == 2">
-							<label class="custom-control-label" for="actype2">[[#{label.account.actype2}]]</label>
+								class="custom-control-input" th:errorclass="is-invalid"
+								th:checked="*{actype} == 2" /> <label
+								class="custom-control-label" for="actype2">[[#{label.account.actype2}]]</label>
 						</div>
 					</div>
 					<div class="invalid-feedback d-block"

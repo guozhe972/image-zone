@@ -26,6 +26,10 @@ footer {
 	background-color: #ffffff;
 }
 
+.border-transparent {
+	border-color: #ffffff;
+}
+
 .bg-header {
 	background-color: #18bc9c;
 }

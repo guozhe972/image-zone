@@ -64,6 +64,7 @@ public class TransferService {
 			}
 		} catch (Exception e) {
 			transactionManager.rollback(status);
+			throw e;
 		}
 
 		return balance;

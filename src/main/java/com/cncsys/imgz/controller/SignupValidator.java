@@ -33,11 +33,8 @@ public class SignupValidator implements SmartValidator {
 	@Override
 	public void validate(Object target, Errors errors, Object... validationHints) {
 		SignupForm form = (SignupForm) target;
-		String username = form.getUsername();
-		String email = form.getEmail();
-		String password = form.getPassword();
-		String confirm = form.getConfirm();
 
+		String username = form.getUsername();
 		if (username == null || username.isEmpty() || username.length() < 4 || username.length() > 16
 				|| !username.matches("^[a-zA-Z0-9]+[a-zA-Z0-9_\\-]*$")) {
 			errors.rejectValue("username", "validation.signup.username");
@@ -45,11 +42,14 @@ public class SignupValidator implements SmartValidator {
 			errors.rejectValue("username", "validation.signup.existuser");
 		}
 
+		String email = form.getEmail();
 		if (email == null || email.isEmpty() || !email.matches(
 				"^(([0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*)|(\"[^\"]*\"))@[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*$")) {
 			errors.rejectValue("email", "validation.signup.email");
 		}
 
+		String password = form.getPassword();
+		String confirm = form.getConfirm();
 		if (password == null || password.isEmpty() || password.length() < 8 || password.length() > 16
 				|| !password.matches("^[\\u0020-\\u007E]+$") || !password.matches(".*[a-zA-Z]+.*")
 				|| !password.matches(".*[0-9]+.*")) {
@@ -63,7 +63,6 @@ public class SignupValidator implements SmartValidator {
 		if (ArrayUtils.contains(validationHints, Confirm.class)) {
 			String code = form.getCode();
 			String token = form.getToken();
-
 			if (code == null || code.isEmpty() || token == null || token.isEmpty()
 					|| !passwordEncoder.matches(code, token)) {
 				errors.rejectValue("code", "validation.signup.code");

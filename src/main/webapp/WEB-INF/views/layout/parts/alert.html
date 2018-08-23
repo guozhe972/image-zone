@@ -8,7 +8,7 @@
 		<button type="button" class="close"
 			onclick="$('#altError').fadeOut(300);">&times;</button>
 		<div>
-			<div th:each="msg : ${errors}" th:text="${msg}"></div>
+			<div th:each="msg : ${errors}" th:utext="${msg}"></div>
 		</div>
 	</div>
 
@@ -18,7 +18,7 @@
 		<button type="button" class="close"
 			onclick="$('#altInfo').fadeOut(300);">&times;</button>
 		<div>
-			<div th:each="msg : ${infos}" th:text="${msg}"></div>
+			<div th:each="msg : ${infos}" th:utext="${msg}"></div>
 		</div>
 	</div>
 
@@ -28,7 +28,7 @@
 		<button type="button" class="close"
 			onclick="$('#altWarn').fadeOut(300);">&times;</button>
 		<div>
-			<div th:each="msg : ${warns}" th:text="${msg}"></div>
+			<div th:each="msg : ${warns}" th:utext="${msg}"></div>
 		</div>
 	</div>
 </body>

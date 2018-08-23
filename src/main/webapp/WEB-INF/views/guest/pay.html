@@ -34,42 +34,40 @@
 			});
 		});
 
-		$('#fomPay').submit(
-				function(event) {
-					event.preventDefault();
-					var form = $(this).get(0);
-					if (!form.checkValidity()) {
-						event.stopPropagation();
-						$(this).addClass('was-validated');
-						return;
-					}
-					$('#mdlWaiting').modal('show');
+		$('#fomPay').submit(function(event) {
+			event.preventDefault();
+			var form = $(this).get(0);
+			if (!form.checkValidity()) {
+				event.stopPropagation();
+				$(this).addClass('was-validated');
+				return;
+			}
+			$('#mdlWaiting').modal('show');
 
-					var card = {
-						name : $('#name').val(),
-						number : $('#number').val(),
-						expiration_month : $('#month').val(),
-						expiration_year : $('#year').val(),
-						security_code : $('#code').val()
-					};
+			var card = {
+				name : $('#name').val(),
+				number : $('#number').val(),
+				expiration_month : $('#month').val(),
+				expiration_year : $('#year').val(),
+				security_code : $('#code').val()
+			};
 
-					Omise.createToken('card', card, function(statusCode,
-							response) {
-						if (statusCode != 200 || response.object == 'error') {
-							var message = response.message;
-							// TODO: messageの多言語化
-							var errors = [ message ];
-							showAlertError(errors);
-							$('#mdlWaiting').modal('hide');
-						} else {
-							$('#token').val(response.id);
-							$('#number').val('');
-							$('#name').val('');
-							$('#code').val('');
-							form.submit();
-						}
-					});
-				});
+			Omise.createToken('card', card, function(statusCode, response) {
+				if (statusCode != 200 || response.object == 'error') {
+					var message = response.message;
+					// TODO: messageの多言語化
+					var errors = [ message ];
+					showAlertError(errors);
+					$('#mdlWaiting').modal('hide');
+				} else {
+					$('#token').val(response.id);
+					$('#number').val('');
+					$('#name').val('');
+					$('#code').val('');
+					form.submit();
+				}
+			});
+		});
 	});
 </script>
 </head>
@@ -127,18 +125,8 @@
 				<div class="col-sm-8">
 					<div class="input-group" id="expiry">
 						<select id="month" name="month" class="custom-select">
-							<option value="1" selected>01</option>
-							<option value="2">02</option>
-							<option value="3">03</option>
-							<option value="4">04</option>
-							<option value="5">05</option>
-							<option value="6">06</option>
-							<option value="7">07</option>
-							<option value="8">08</option>
-							<option value="9">09</option>
-							<option value="10">10</option>
-							<option value="11">11</option>
-							<option value="12">12</option>
+							<option th:each="i : ${#numbers.sequence(1,12)}" th:value="${i}"
+								th:selected="${i}==1" th:text="${#numbers.formatInteger(i,2)}">01</option>
 						</select>
 						<div class="input-group-append input-group-prepend">
 							<span class="input-group-text">/</span>

@@ -21,7 +21,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -405,6 +404,7 @@ public class UserController {
 
 		if (!model.containsAttribute("bankForm")) {
 			BankForm form = new BankForm();
+			form.setActype(BankForm.AcTypes[0]);
 			model.addAttribute("bankForm", form);
 		}
 
@@ -423,25 +423,19 @@ public class UserController {
 			return "redirect:/user/account";
 		}
 
-		// check balance
 		if (user.getBalance() < COST_TRANSFER) {
-			result.reject("error.transfer.amount");
-		}
-
-		if (result.hasErrors()) {
 			List<String> errors = new ArrayList<String>();
-			for (ObjectError err : result.getAllErrors()) {
-				errors.add(messageSource.getMessage(err.getCode(), null, locale));
-			}
+			errors.add(messageSource.getMessage("error.account.balance", null, locale));
 			redirectAttributes.addFlashAttribute("errors", errors);
+			redirectAttributes.addFlashAttribute("bankForm", form);
 			return "redirect:/user/account";
 		}
 
-		List<String> infos = new ArrayList<String>();
 		if (user.getBalance() != form.getAmount()) {
 			// 改竄エラー
-			infos.add("残高が変更されました。もう一度ご確認ください。");
-			redirectAttributes.addFlashAttribute("infos", infos);
+			List<String> errors = new ArrayList<String>();
+			errors.add(messageSource.getMessage("error.account.changed", null, locale));
+			redirectAttributes.addFlashAttribute("errors", errors);
 			redirectAttributes.addFlashAttribute("bankForm", form);
 			return "redirect:/user/account";
 		}
@@ -450,40 +444,37 @@ public class UserController {
 		TransferEntity entity = new TransferEntity();
 		entity.setTransno(transno);
 		entity.setUsername(user.getUsername());
-		entity.setBank(form.getBank());
-		entity.setBranch(form.getBranch());
+		entity.setBank(form.getBank().trim());
+		entity.setBranch(form.getBranch().trim());
 		entity.setActype(form.getActype());
-		entity.setAcnumber(form.getAcnumber());
-		entity.setAcname(form.getAcname());
+		entity.setAcnumber(form.getAcnumber().trim());
+		entity.setAcname(form.getAcname().trim());
 		entity.setAmount(form.getAmount());
 		entity.setCreatedt(DateTime.now());
 		int balance = transferService.acceptTransfer(entity);
 		if (balance < 0) {
 			// 多重エラー
-			infos.add("残高が変更されました。もう一度ご確認ください。");
-			redirectAttributes.addFlashAttribute("infos", infos);
+			List<String> errors = new ArrayList<String>();
+			errors.add(messageSource.getMessage("error.account.changed", null, locale));
+			redirectAttributes.addFlashAttribute("errors", errors);
 			redirectAttributes.addFlashAttribute("bankForm", form);
 			return "redirect:/user/account";
+		} else {
+			user.setBalance(balance);
 		}
-		user.setBalance(balance);
 
-		// send accept mail
 		String[] param = new String[5];
 		param[0] = transno;
-		param[1] = form.getBank();
-		param[2] = form.getBranch();
-		switch (form.getActype()) {
-		case 1:
-			param[3] = "普通 " + form.getAcnumber();
-			break;
-		case 2:
-			param[3] = "当座 " + form.getAcnumber();
-			break;
-		}
-		param[4] = String.format("%,d", entity.getAmount()) + "円";
+		param[1] = form.getBank().trim();
+		param[2] = form.getBranch().trim();
+		param[3] = messageSource.getMessage("bank.account.type" + String.valueOf(form.getActype()), null, locale) + " "
+				+ form.getAcnumber().trim();
+		param[4] = String.format("%,d", form.getAmount() - COST_TRANSFER)
+				+ messageSource.getMessage("money.unit", null, locale);
 		mailHelper.sendTransAccept(user.getEmail(), param);
 
-		infos.add("振込申請を受け付けました。受付番号：" + transno);
+		List<String> infos = new ArrayList<String>();
+		infos.add(messageSource.getMessage("info.transfer.accept", new Object[] { transno }, locale));
 		redirectAttributes.addFlashAttribute("infos", infos);
 		return "redirect:/user/account";
 	}

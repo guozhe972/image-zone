@@ -28,7 +28,6 @@ public class ChangeValidator implements SmartValidator {
 		if (ArrayUtils.contains(validationHints, Input.class)) {
 			String password = form.getPassword();
 			String confirm = form.getConfirm();
-
 			if (password == null || password.isEmpty() || password.length() < 8 || password.length() > 16
 					|| !password.matches("^[\\u0020-\\u007E]+$") || !password.matches(".*[a-zA-Z]+.*")
 					|| !password.matches(".*[0-9]+.*")) {
