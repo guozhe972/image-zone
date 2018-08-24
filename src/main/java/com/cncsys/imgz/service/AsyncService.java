@@ -52,7 +52,6 @@ public class AsyncService {
 
 	@Transactional
 	public void deleteOrder(String orderno) {
-		logger.info("async delete order start.");
 		try {
 			logger.info("delete " + orderno);
 			fileHelper.deleteFolder(new File(ORDER_PATH + "/" + orderno));
@@ -60,6 +59,5 @@ public class AsyncService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info("async delete order end.");
 	}
 }

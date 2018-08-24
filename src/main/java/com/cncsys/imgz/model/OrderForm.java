@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class OrderForm {
 
+	private String orderno;
 	private String username;
 	private int folder;
 	private String thumbnail;

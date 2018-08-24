@@ -3,7 +3,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>download</title>
+<title>[[#{title.download}]]</title>
 <script th:src="@{/js/jquery.lazyload.min.js}"></script>
 <script>
 	$(function() {
@@ -16,7 +16,7 @@
 		class="fixed-top bg-header"></header>
 
 	<div class="container-fluid bg-main">
-		<th:block layout:replace="~{layout/parts/alert::warn}" />
+		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
@@ -25,14 +25,14 @@
 						style="height: 200px; line-height: 194px;">
 						<img class="lazyload img-fluid" style="max-height: 100%;"
 							th:src="@{/images/loading.gif}"
-							th:data-original="@{|/order/*{username}/*{thumbnail}|}"
+							th:data-original="@{|/order/*{orderno}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 					</div>
 					<div class="card-footer p-1 bg-white">
 						<a role="button" th:target="_blank"
-							th:href="@{|/order/*{username}/*{thumbnail}|}"
+							th:href="@{|/order/*{orderno}/*{thumbnail}|}"
 							th:download="|IMG${#numbers.formatInteger(stat.count,5)}|"
-							class="btn btn-info btn-sm w-100">ダウンロード</a>
+							class="btn btn-info btn-sm w-100">[[#{label.download.button}]]</a>
 					</div>
 				</div>
 			</div>

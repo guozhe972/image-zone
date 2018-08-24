@@ -72,6 +72,9 @@ public class GuestController {
 	@Value("${order.file.path}")
 	private String ORDER_PATH;
 
+	@Value("${omise.secret.key}")
+	private String OMISE_SKEY;
+
 	@Autowired
 	private PhotoService photoService;
 
@@ -230,11 +233,11 @@ public class GuestController {
 		}
 
 		// make thumbnail
-		//asyncService.makeThumbnail(photos);
+		asyncService.makeThumbnail(photos);
 
 		// charge process
 		try {
-			Client client = new Client("skey_test_5crja3ps6nt8ihsag20");
+			Client client = new Client(OMISE_SKEY);
 			Charge charge = client.charges().create(new Charge.Create()
 					.amount(amount)
 					.currency("jpy")

@@ -40,7 +40,7 @@ public class AdminController {
 		model.addAttribute("balance", user.getBalance());
 
 		List<BankForm> trans = new ArrayList<BankForm>();
-		List<TransferEntity> entity = transferService.selectTransfer(false);
+		List<TransferEntity> entity = transferService.getRequest(false);
 		for (TransferEntity transfer : entity) {
 			BankForm form = new BankForm();
 			form.setTransno(transfer.getTransno());
@@ -57,8 +57,8 @@ public class AdminController {
 		return "/admin/home";
 	}
 
-	@PostMapping("/done")
-	public String done(@RequestParam("transno") String transno, @RequestParam("fee") int fee) {
+	@PostMapping("/transfer")
+	public String transfer(@RequestParam("transno") String transno, @RequestParam("fee") int fee) {
 		transferService.doneTransfer(transno, fee);
 		return "redirect:/admin/home";
 	}

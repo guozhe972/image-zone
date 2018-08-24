@@ -34,12 +34,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.cncsys.imgz.entity.AccountEntity;
 import com.cncsys.imgz.entity.FolderEntity;
 import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.entity.TransferEntity;
+import com.cncsys.imgz.helper.CodeParser;
 import com.cncsys.imgz.helper.FileHelper;
 import com.cncsys.imgz.helper.MailHelper;
 import com.cncsys.imgz.model.BankForm;
@@ -75,6 +77,9 @@ public class UserController {
 	@Value("${cost.transfer.fee}")
 	private int COST_TRANSFER;
 
+	@Value("${max.folder.count}")
+	private int FOLDER_MAX;
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -104,6 +109,9 @@ public class UserController {
 
 	@Autowired
 	private FolderValidator folderValidator;
+
+	@Autowired
+	private CodeParser codeParser;
 
 	@InitBinder("folderForm")
 	public void initFolderBinder(WebDataBinder binder) {
@@ -246,6 +254,30 @@ public class UserController {
 		return "redirect:/user/home";
 	}
 
+	@PostMapping("/create")
+	public String create(@RequestParam("foldernm") String foldernm, RedirectAttributes redirectAttributes,
+			Locale locale) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		if (foldernm == null || foldernm.isEmpty()) {
+			foldernm = messageSource.getMessage("label.folder.new", null, locale);
+		} else if (foldernm.length() > 50) {
+			foldernm = foldernm.substring(0, 50);
+		}
+
+		int count = folderService.getFolderCount(user.getUsername());
+		if (count < FOLDER_MAX) {
+			folderService.createFolder(user.getUsername(), foldernm);
+		} else {
+			List<String> errors = new ArrayList<String>();
+			errors.add(messageSource.getMessage("error.folder.create", null, locale));
+			redirectAttributes.addFlashAttribute("errors", errors);
+		}
+
+		return "redirect:/user/home";
+	}
+
 	@GetMapping("/folder/{seq}")
 	public String folder(@PathVariable("seq") int seq, Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -365,7 +397,30 @@ public class UserController {
 		param[2] = form.getPassword();
 		param[3] = form.getExpiredt().toString();
 		mailHelper.sendShareFolder(user.getEmail(), param);
-		return "redirect:/user/home";
+
+		FolderForm qrcode = new FolderForm();
+		qrcode.setUsername(user.getUsername());
+		qrcode.setSeq(form.getSeq());
+		qrcode.setGuest(folder.getGuest());
+		qrcode.setPassword(form.getPassword());
+		qrcode.setExpiredt(form.getExpiredt());
+		redirectAttributes.addFlashAttribute("qrcode", qrcode);
+		return "redirect:/user/qrcode";
+	}
+
+	@GetMapping("/qrcode")
+	public String qrcode(Model model, UriComponentsBuilder builder) {
+		if (!model.containsAttribute("qrcode")) {
+			return "/system/error";
+		}
+
+		FolderForm qrcode = (FolderForm) model.asMap().get("qrcode");
+		String qrcodeUrl = "/auth/login/" + qrcode.getUsername() + "/" + String.format("%02d", qrcode.getSeq()) + "/"
+				+ codeParser.encrypt(qrcode.getPassword());
+
+		model.addAttribute("qrcodeurl", builder.path(qrcodeUrl).build().toUriString());
+		model.addAttribute("loginurl", builder.path("/auth/signin").build().toUriString());
+		return "/user/qrcode";
 	}
 
 	@GetMapping("/sales/{seq}")
@@ -477,6 +532,30 @@ public class UserController {
 		infos.add(messageSource.getMessage("info.transfer.accept", new Object[] { transno }, locale));
 		redirectAttributes.addFlashAttribute("infos", infos);
 		return "redirect:/user/account";
+	}
+
+	@GetMapping("/history")
+	public String history(Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		List<BankForm> trans = new ArrayList<BankForm>();
+		List<TransferEntity> entity = transferService.getHistory(user.getUsername());
+		for (TransferEntity transfer : entity) {
+			BankForm form = new BankForm();
+			form.setTransno(transfer.getTransno());
+			form.setBank(transfer.getBank());
+			form.setBranch(transfer.getBranch());
+			form.setActype(transfer.getActype());
+			form.setAcnumber(transfer.getAcnumber());
+			form.setAcname(transfer.getAcname());
+			form.setAmount(transfer.getAmount());
+			form.setDone(transfer.isDone());
+			trans.add(form);
+		}
+
+		model.addAttribute("history", trans);
+		return "/user/history";
 	}
 
 	@GetMapping("/change")

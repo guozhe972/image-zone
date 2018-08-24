@@ -13,13 +13,17 @@ public interface FolderMapper {
 
 	FolderEntity selectFolder(@Param("username") String username, @Param("seq") int seq);
 
-	int insertFolder(@Param("username") String username, @Param("createdt") DateTime createdt);
+	int selectCount(@Param("username") String username);
+
+	int insertFolder(@Param("username") String username, @Param("name") String name,
+			@Param("createdt") DateTime createdt);
 
 	void updateGuest(@Param("username") String username, @Param("seq") int seq, @Param("guest") String guest);
 
 	int updateLocked(@Param("username") String username, @Param("seq") int seq, @Param("locked") boolean locked);
 
-	FolderEntity updateShared(@Param("username") String username, @Param("seq") int seq, @Param("shared") boolean shared);
+	FolderEntity updateShared(@Param("username") String username, @Param("seq") int seq,
+			@Param("shared") boolean shared);
 
 	String updateFolder(@Param("username") String username, @Param("seq") int seq, @Param("name") String name);
 }

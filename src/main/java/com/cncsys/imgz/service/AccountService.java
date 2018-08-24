@@ -70,7 +70,7 @@ public class AccountService {
 		if (accountMapper.insertAccount(account) > 0) {
 			LocalDate expiredt = LocalDate.now().plusDays(DEFAULT_EXPIRED);
 			for (int i = 0; i < FOLDER_COUNT; i++) {
-				int seq = folderMapper.insertFolder(username, sysnow);
+				int seq = folderMapper.insertFolder(username, "", sysnow);
 				String guest = username + "." + String.format("%02d", seq);
 				account = new AccountEntity();
 				account.setUsername(guest);

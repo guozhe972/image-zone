@@ -156,7 +156,8 @@
 	</div>
 
 	<script>
-		Omise.setPublicKey("pkey_test_5crja3prxerg79lsrbg");
+		Omise
+				.setPublicKey('[(${@applicationProperties.getProperty("omise.public.key")})]');
 	</script>
 </body>
 </html>

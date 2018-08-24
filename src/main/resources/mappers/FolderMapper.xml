@@ -13,7 +13,7 @@
 		account.username
 		where folder.username = #{username}
 		order by folder.seq
-		asc
+		desc
 	</select>
 
 	<select id="selectFolder" resultType="FolderEntity">
@@ -27,11 +27,17 @@
 		#{seq}
 	</select>
 
+	<select id="selectCount" resultType="int">
+		select count(1)
+		from folder
+		where username = #{username}
+	</select>
+
 	<select id="insertFolder" resultType="int">
 		insert into folder
 		(username, name, locked, shared, createdt)
 		values
-		(#{username}, '',
+		(#{username}, #{name},
 		false, false,
 		#{createdt})
 		returning

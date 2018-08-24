@@ -2,6 +2,7 @@ package com.cncsys.imgz.service;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cncsys.imgz.entity.AccountEntity;
+import com.cncsys.imgz.entity.AccountEntity.Authority;
 import com.cncsys.imgz.entity.FolderEntity;
 import com.cncsys.imgz.mapper.AccountMapper;
 import com.cncsys.imgz.mapper.FolderMapper;
@@ -43,6 +45,31 @@ public class FolderService {
 	public FolderEntity getUserFolder(String username, int seq) {
 		FolderEntity folder = folderMapper.selectFolder(username, seq);
 		return folder;
+	}
+
+	@Transactional(readOnly = true)
+	public int getFolderCount(String username) {
+		return folderMapper.selectCount(username);
+	}
+
+	@Transactional
+	public void createFolder(String username, String foldername) {
+		DateTime sysnow = DateTime.now();
+
+		int seq = folderMapper.insertFolder(username, foldername, sysnow);
+		String guest = username + "." + String.format("%02d", seq);
+
+		AccountEntity account = new AccountEntity();
+		account.setUsername(guest);
+		account.setPassword(passwordEncoder.encode(guest));
+		account.setEmail(null);
+		account.setAuthority(Authority.GUEST);
+		account.setCreatedt(sysnow);
+		account.setEnabled(false);
+		account.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED));
+		if (accountMapper.insertAccount(account) > 0) {
+			folderMapper.updateGuest(username, seq, guest);
+		}
 	}
 
 	@Transactional

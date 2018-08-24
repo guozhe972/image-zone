@@ -10,14 +10,6 @@
 label.custom-file-label::after {
 	content: "[(#{input.file.button})]";
 }
-
-a.text-folder {
-	color: #212529 !important;
-}
-
-a.text-folder:hover {
-	color: #18BC9C !important;
-}
 </style>
 <script>
 	function checkFolder(seq) {
@@ -54,6 +46,14 @@ a.text-folder:hover {
 			placement : 'top-end',
 			hideOnClick : true,
 			trigger : 'click'
+		});
+
+		tippy('.text-folder', {
+			animation : 'fade',
+			arrow : false,
+			placement : 'top-start',
+			hideOnClick : true,
+			trigger : 'mouseenter'
 		});
 
 		function resetFile(obj) {
@@ -188,7 +188,6 @@ a.text-folder:hover {
 		$('#mdlRename').on('shown.bs.modal', function() {
 			$('#name').focus();
 		});
-
 		$('#mdlRenameBtn').click(function() {
 			var seq = $('#seq').val();
 			$.ajax({
@@ -220,6 +219,31 @@ a.text-folder:hover {
 				$('#mdlClear').modal('hide');
 			}
 		});
+
+		$('#mdlCreate').on('shown.bs.modal', function() {
+			$('#foldernm').focus();
+		});
+		$('#mdlCreateBtn').click(function() {
+			$('#foldernm').removeClass('is-invalid');
+			$('#foldernm').next('.invalid-feedback').remove();
+
+			if ($('#foldernm').val().length == 0) {
+				$('#foldernm').addClass('is-invalid');
+				$('#foldernm').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.folder.name})]'
+				}));
+				return;
+			}
+
+			$('#mdlCreate').modal('hide');
+			$('#mdlWaiting').modal('show');
+			$('#fomCreate').submit();
+		});
+		$('#mdlCreate').on('hide.bs.modal', function(e) {
+			$('#foldernm').removeClass('is-invalid');
+			$('#foldernm').next('.invalid-feedback').remove();
+		});
 	});
 </script>
 </head>
@@ -240,11 +264,12 @@ a.text-folder:hover {
 					<input type="hidden" th:id="|seq*{seq}|" name="seq"
 						th:value="*{seq}" />
 					<div class="form-group mb-2 d-flex justify-content-between">
-						<div class="text-truncate w-100">
-							<a th:id="|lnkName*{seq}|" class="text-folder"
+						<div class="text-truncate" style="max-width: 300px;">
+							<a th:id="|lnkName*{seq}|" class="text-folder" tabindex="-1"
 								href="javascript:;"
 								th:onclick="|$('#name').val($(this).text());$('#seq').val(*{seq});|"
 								data-toggle="modal" data-target="#mdlRename"
+								th:title="*{#strings.isEmpty(name)}?|<small>#{default.folder.name}*{#numbers.formatInteger(seq,2)}</small>|:|<small>*{name}</small>|"
 								th:text="*{#strings.isEmpty(name)}?|#{default.folder.name}*{#numbers.formatInteger(seq,2)}|:*{name}"></a>
 						</div>
 						<div class="text-right" style="width: 180px;">
@@ -291,7 +316,19 @@ a.text-folder:hover {
 				</form>
 			</li>
 		</ul>
+		<div class="mw-content mx-auto py-3">
+			<button type="button" class="btn btn-primary btn-block"
+				th:disabled="${#lists.size(folders)}>=${@applicationProperties.getProperty('max.folder.count')}"
+				data-toggle="modal" data-target="#mdlCreate">[[#{label.user.create}]]</button>
+			<small class="form-text text-muted"
+				th:text="${#messages.msg('message.folder.create', #numbers.formatInteger(@applicationProperties.getProperty('max.folder.count'),1,'COMMA'))}"></small>
+		</div>
 	</div>
+
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 
 	<div id="mdlRename" class="modal fade" tabindex="-1" role="dialog"
 		data-backdrop="static" data-keyboard="false">
@@ -343,6 +380,35 @@ a.text-folder:hover {
 					<button id="mdlClearBtn" type="button" class="btn btn-primary">[[#{modal.button.yes}]]</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">[[#{modal.button.no}]]</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="mdlCreate" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">[[#{modal.create.header}]]</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="fomCreate" th:action="@{/user/create}" method="post"
+						novalidate autocomplete="off">
+						<div class="form-group mb-0">
+							<label for="foldernm">[[#{modal.create.label}]]</label> <input
+								type="text" id="foldernm" name="foldernm" class="form-control"
+								maxlength="50" />
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button id="mdlCreateBtn" type="button" class="btn btn-primary">[[#{modal.button.ok}]]</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
 				</div>
 			</div>
 		</div>

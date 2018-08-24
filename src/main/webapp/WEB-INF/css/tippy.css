@@ -10,7 +10,7 @@
 	max-width: 350px;
 	-webkit-perspective: 700px;
 	perspective: 700px;
-	z-index: 9999;
+	z-index: 1070;
 	outline: 0;
 	transition-timing-function: cubic-bezier(.165, .84, .44, 1);
 	pointer-events: none;

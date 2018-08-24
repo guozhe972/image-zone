@@ -65,6 +65,19 @@ public class AuthController {
 		return "/auth/signin";
 	}
 
+	@GetMapping("/login/{usernm}/{folder}/{token}")
+	public String login(@PathVariable("usernm") String usernm, @PathVariable("folder") String folder,
+			@PathVariable("token") String token, HttpServletRequest request) throws ServletException {
+		String passwd = codeParser.decrypt(token);
+		if (passwd == null) {
+			return "/system/none";
+		}
+
+		request.logout();
+		request.login(usernm + "." + folder, passwd);
+		return "redirect:/auth/signin";
+	}
+
 	@PostMapping("/forgot")
 	public ResponseEntity<String> forgot(@RequestParam("username") String username, UriComponentsBuilder builder,
 			Locale locale) {

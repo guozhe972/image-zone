@@ -26,6 +26,9 @@ public class TransferService {
 	@Value("${admin.username}")
 	private String ADMIN_NAME;
 
+	@Value("${default.history.months}")
+	private int HISTORY_MONTHS;
+
 	@Autowired
 	private TransferMapper transferMapper;
 
@@ -43,8 +46,15 @@ public class TransferService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<TransferEntity> selectTransfer(boolean done) {
+	public List<TransferEntity> getRequest(boolean done) {
 		List<TransferEntity> result = transferMapper.selectTransfer(done);
+		return result;
+	}
+
+	@Transactional(readOnly = true)
+	public List<TransferEntity> getHistory(String username) {
+		DateTime createdt = DateTime.now().minusMonths(HISTORY_MONTHS).withDayOfMonth(1).withTimeAtStartOfDay();
+		List<TransferEntity> result = transferMapper.selectByUser(username, createdt);
 		return result;
 	}
 

@@ -22,6 +22,7 @@ public class FolderForm {
 	};
 
 	private int seq;
+	private String username;
 	private String name;
 	private boolean shared;
 	private String guest;

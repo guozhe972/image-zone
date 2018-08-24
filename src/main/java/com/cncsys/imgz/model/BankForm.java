@@ -18,4 +18,5 @@ public class BankForm {
 	private String acnumber;
 	private String acname;
 	private int amount;
+	private boolean done;
 }

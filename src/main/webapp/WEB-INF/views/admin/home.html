@@ -3,24 +3,41 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>home</title>
+<title>[[#{title.admin}]]</title>
 <script>
-	var mdlDone = 0;
 	$(function() {
-		$('#mdlDone').on('shown.bs.modal', function() {
-			$('#money').trigger('focus');
+		$('#mdlTransfer').on('shown.bs.modal', function() {
+			$('#fee').trigger('focus');
 		});
-
-		$('#money').focus(function() {
+		$('#fee').focus(function() {
 			$(this).select();
 		});
 
-		$('#mdlDone').on('hide.bs.modal', function(e) {
-			if (mdlDone == 1) {
-				mdlDone = 0;
-				$('#mdlWaiting').modal('show');
-				$('#fomDone').submit();
-			}
+		$('#mdlTransferBtn').click(
+				function() {
+					$('.is-invalid').removeClass('is-invalid');
+					$('.invalid-feedback').remove();
+
+					var fee = $('#fee').val();
+					if (!/^[0-9]+$/.test(fee)
+							|| fee < Number($('#fee').prop('min'))
+							|| fee > Number($('#fee').prop('max'))) {
+						$('#grpMoney').addClass('is-invalid');
+						$('#grpMoney').after($('<div/>', {
+							'class' : 'invalid-feedback d-block',
+							text : '[(#{validation.transfer.fee})]'
+						}));
+						return;
+					}
+
+					$('#mdlTransfer').modal('hide');
+					$('#mdlWaiting').modal('show');
+					$('#fomTransfer').submit();
+				});
+
+		$('#mdlTransfer').on('hide.bs.modal', function(e) {
+			$('.is-invalid').removeClass('is-invalid');
+			$('.invalid-feedback').remove();
 		});
 	});
 </script>
@@ -33,69 +50,72 @@
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main px-0">
 		<div class="mw-content mx-auto mt-3 d-flex justify-content-between">
-			<h2 class="mb-0 ml-3">利益</h2>
+			<h2 class="mb-0 ml-3">[[#{header.profit}]]</h2>
 			<h2 class="mb-0 mr-3"
-				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}円|"></h2>
+				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}#{money.unit}|"></h2>
 		</div>
 		<ul class="list-group mw-content mx-auto py-3">
 			<li
 				class="list-group-item rounded-0 border-left-0 border-right-0 px-0 py-2"
 				th:each="form,stat : ${transfer}" th:object="${form}">
 				<div class="float-left px-3">
+					<div th:text="*{transno}"></div>
 					<div th:text="*{bank}"></div>
-					<span th:text="*{branch}"></span><br>
+					<div th:text="*{branch}"></div>
 					<th:block th:switch="*{actype}">
-						<span th:case="1"> 普通&nbsp;&nbsp;[(*{acnumber})]</span>
-						<span th:case="2"> 当座&nbsp;&nbsp;[(*{acnumber})]</span>
+						<div th:case="1" th:text="|#{bank.account.type1}  *{acnumber}|"></div>
+						<div th:case="2" th:text="|#{bank.account.type2}  *{acnumber}|"></div>
 					</th:block>
-					<br> <span th:text="*{acname}"></span>
+					<div th:text="*{acname}"></div>
 				</div>
 				<div class="float-right pr-3 text-right">
 					<p class="h5"
-						th:text="|*{#numbers.formatInteger(amount,1,'COMMA')}円|"></p>
+						th:text="|*{#numbers.formatInteger(amount,1,'COMMA')}#{money.unit}|"></p>
 					<button type="button" class="btn btn-info" data-toggle="modal"
-						data-target="#mdlDone"
-						th:onclick="|$('#transno').val('*{transno}');|">振込完了</button>
+						data-target="#mdlTransfer"
+						th:onclick="|$('#transno').val('*{transno}');|">[[#{label.transfer.button}]]</button>
 				</div>
 			</li>
 		</ul>
 	</div>
 
-	<form id="fomDone" th:action="@{/admin/done}" method="post">
-		<input type="hidden" id="transno" name="transno" /> <input
-			type="hidden" id="fee" name="fee" />
-	</form>
-	<div id="mdlDone" class="modal fade" tabindex="-1" role="dialog"
+	<div id="mdlTransfer" class="modal fade" tabindex="-1" role="dialog"
 		data-backdrop="static" data-keyboard="false">
 		<div class="modal-dialog modal-sm" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">振込</h5>
+					<h5 class="modal-title">[[#{modal.transfer.header}]]</h5>
 					<button type="button" class="close" data-dismiss="modal">
 						<span>&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
-					<div class="input-group">
-						<div class="input-group-prepend">
-							<span class="input-group-text">手数料</span>
+					<form id="fomTransfer" th:action="@{/admin/transfer}" method="post"
+						novalidate autocomplete="off">
+						<input type="hidden" id="transno" name="transno" />
+						<div class="form-group mb-0">
+							<div id="grpMoney" class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text">[[#{label.transfer.fee}]]</span>
+								</div>
+								<input type="number" id="fee" name="fee"
+									class="form-control text-right num-only" min="0" max="9999"
+									pattern="[0-9]+" maxlength="4" required />
+								<div class="input-group-append">
+									<span class="input-group-text">[[#{money.unit}]]</span>
+								</div>
+							</div>
 						</div>
-						<input type="number" id="money"
-							class="form-control text-right num-only" value="0" min="0"
-							max="1000" pattern="[0-9]+" maxlength="4" />
-						<div class="input-group-append">
-							<span class="input-group-text">円</span>
-						</div>
-					</div>
+					</form>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary" data-dismiss="modal"
-						onclick="$('#fee').val($('#money').val());mdlDone=1;">はい</button>
+					<button id="mdlTransferBtn" type="button" class="btn btn-primary">[[#{modal.button.ok}]]</button>
 					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">いいえ</button>
+						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
 				</div>
 			</div>
 		</div>
 	</div>
+
 </body>
 </html>

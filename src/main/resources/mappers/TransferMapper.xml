@@ -20,7 +20,7 @@
 		bank,
 		branch, actype, acnumber, acname, amount, done, createdt
 		from transfer
-		where username = #{username}
+		where username = #{username} and createdt >= #{createdt}
 		order by createdt desc
 	</select>
 
