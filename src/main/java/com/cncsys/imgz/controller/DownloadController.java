@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -32,8 +29,8 @@ public class DownloadController {
 	private MessageSource messageSource;
 
 	@GetMapping("/download/{order}/{token}")
-	public String download(@PathVariable("order") String order, @PathVariable("token") String token, Model model,
-			Locale locale, HttpServletRequest request) throws ServletException {
+	public String download(@PathVariable("order") String order, @PathVariable("token") String token,
+			Model model, Locale locale) {
 		String email = codeParser.decrypt(token);
 		if (email == null) {
 			return "/system/none";
@@ -58,8 +55,6 @@ public class DownloadController {
 				new Object[] { entity.get(0).getExpiredt().toString() },
 				locale));
 		model.addAttribute("errors", errors);
-
-		request.logout();
 		return "/system/download";
 	}
 }

@@ -19,10 +19,11 @@ CREATE TABLE folder
 (
     username varchar(20) NOT NULL,
     seq int NOT NULL,
-    name varchar(100),
+    name varchar(100) NOT NULL,
     locked boolean NOT NULL,
     shared boolean NOT NULL,
     guest varchar(20),
+    cipher varchar (20),
     createdt timestamp NOT NULL,
     CONSTRAINT folder_pkey PRIMARY KEY (username, seq)
 );

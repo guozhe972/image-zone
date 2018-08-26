@@ -51,6 +51,7 @@ label.custom-file-label::after {
 		tippy('.text-folder', {
 			animation : 'fade',
 			arrow : false,
+			dynamicTitle : true,
 			placement : 'top-start',
 			hideOnClick : true,
 			trigger : 'mouseenter'
@@ -188,27 +189,31 @@ label.custom-file-label::after {
 		$('#mdlRename').on('shown.bs.modal', function() {
 			$('#name').focus();
 		});
-		$('#mdlRenameBtn').click(function() {
-			var seq = $('#seq').val();
-			$.ajax({
-				url : '[(@{/user/rename})]',
-				method : 'POST',
-				cache : false,
-				data : $('#fomRename').serialize(),
-				beforeSend : function() {
-					$('#mdlRename').modal('hide');
-					$('#mdlWaiting').modal('show');
-				}
-			}).done(function(data, textStatus, jqXHR) {
-				$('#lnkName' + seq).text(data);
-			}).fail(function(jqXHR, textStatus, errorThrown) {
-				if (textStatus == 'error') {
-					location.href = '[(@{/system/error})]';
-				}
-			}).always(function() {
-				$('#mdlWaiting').modal('hide');
-			});
-		});
+		$('#mdlRenameBtn').click(
+				function() {
+					var seq = $('#seq').val();
+					$.ajax({
+						url : '[(@{/user/rename})]',
+						method : 'POST',
+						cache : false,
+						data : $('#fomRename').serialize(),
+						beforeSend : function() {
+							$('#mdlRename').modal('hide');
+							$('#mdlWaiting').modal('show');
+						}
+					}).done(
+							function(data, textStatus, jqXHR) {
+								$('#lnkName' + seq).text(data);
+								$('#lnkName' + seq).get(0).title = '<small>'
+										+ data + '</small>';
+							}).fail(function(jqXHR, textStatus, errorThrown) {
+						if (textStatus == 'error') {
+							location.href = '[(@{/system/error})]';
+						}
+					}).always(function() {
+						$('#mdlWaiting').modal('hide');
+					});
+				});
 
 		$('#mdlClearBtn').click(function() {
 			if (checkFolder($('#folder').val())) {

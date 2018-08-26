@@ -4,36 +4,11 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>[[#{title.user}]]</title>
-<script th:src="@{/js/qrcode.js}"></script>
 <style>
 html {
 	height: 100%;
 }
 </style>
-<script>
-	function createQRcdoe(img, txt) {
-		var qrcode = new QRCode(-1, QRErrorCorrectLevel.H);
-		qrcode.addData(txt);
-		qrcode.make();
-
-		var canvas = document.createElement('canvas');
-		canvas.width = img.width;
-		canvas.height = img.height;
-		var ctx = canvas.getContext('2d');
-		var tileW = canvas.width / qrcode.getModuleCount();
-		var tileH = canvas.height / qrcode.getModuleCount();
-		for (var row = 0; row < qrcode.getModuleCount(); row++) {
-			for (var col = 0; col < qrcode.getModuleCount(); col++) {
-				ctx.fillStyle = qrcode.isDark(row, col) ? '#000000' : '#ffffff';
-				var w = (Math.ceil((col + 1) * tileW) - Math.floor(col * tileW));
-				var h = (Math.ceil((row + 1) * tileW) - Math.floor(row * tileW));
-				ctx.fillRect(Math.round(col * tileW), Math.round(row * tileH),
-						w, h);
-			}
-		}
-		img.src = canvas.toDataURL("image/png");
-	}
-</script>
 </head>
 <body layout:fragment="body"
 	class="pt-header pb-footer d-flex align-items-center">
@@ -42,31 +17,34 @@ html {
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main my-auto">
+	<div class="container bg-main my-auto pb-5">
 		<div class="mx-auto">
+			<h4
+				th:text="${#strings.isEmpty(qrcode.name)}?|#{default.folder.name}${#numbers.formatInteger(qrcode.seq,2)}|:${qrcode.name}"></h4>
+			<hr>
 			<div>
-				<img id="qrcode" width="120" height="120" alt="QRcdoe" />
+				<img id="qrcode" th:src="|data:image/png;base64,${qrcodeimg}|"
+					alt="QRcdoe" />
 			</div>
 			<div>
-				url:<span th:text="${loginurl}"></span>
+				<span th:text="${qrcodeurl}"></span>
 			</div>
 			<div>
-				username:<span th:text="${qrcode.guest}"></span>
+				[[#{label.login.url}]]<span th:text="${loginurl}"></span>
 			</div>
 			<div>
-				password:<span th:text="${qrcode.guest}"></span>
+				[[#{label.signup.username}]]<span th:text="${qrcode.guest}"></span>
 			</div>
 			<div>
-				password:<span th:text="${qrcode.expiredt}"></span>
+				[[#{label.signup.password}]]<span th:text="${qrcode.password}"></span>
 			</div>
-			<div>
-				<a class="btn btn-primary" th:href="@{/user/home}" role="button">Back
-					to Top</a>
+			<div th:if="${qrcode.plansdt}">
+				[[#{label.share.plansdt}]]<span th:text="${qrcode.plansdt}"></span>
+			</div>
+			<div th:if="${qrcode.expiredt}">
+				[[#{label.share.expiredt}]]<span th:text="${qrcode.expiredt}"></span>
 			</div>
 		</div>
 	</div>
-	<script>
-		createQRcdoe($('#qrcode').get(0), '[(${qrcodeurl})]');
-	</script>
 </body>
 </html>

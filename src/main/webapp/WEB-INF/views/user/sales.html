@@ -28,7 +28,7 @@
 				th:each="form,stat : ${orders}" th:object="${form}">
 				<div class="bg-light text-center float-left border rounded ml-2"
 					style="width: 120px; height: 120px; line-height: 112px;">
-					<img class="img-fluid" style="max-height: 100%;"
+					<img class="img-fluid mh-100"
 						th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 						alt="thumbnail">
 				</div>

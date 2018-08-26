@@ -16,22 +16,37 @@ public class CodeParser {
 	@Value("${encrypt.salt}")
 	private String ENCRYPT_SALT;
 
-	private TextEncryptor txtEncryptor;
+	private TextEncryptor deluxEncryptor;
+	private TextEncryptor queryEncryptor;
 
 	@PostConstruct
 	private void init() {
-		//txtEncryptor = Encryptors.text(ENCRYPT_PASSWORD, ENCRYPT_SALT);
-		txtEncryptor = Encryptors.delux(ENCRYPT_PASSWORD, ENCRYPT_SALT);
+		deluxEncryptor = Encryptors.delux(ENCRYPT_PASSWORD, ENCRYPT_SALT);
+		queryEncryptor = Encryptors.queryableText(ENCRYPT_PASSWORD, ENCRYPT_SALT);
 	}
 
-	public String encrypt(String code) {
-		return txtEncryptor.encrypt(code);
+	public String encrypt(String plainText) {
+		return deluxEncryptor.encrypt(plainText);
 	}
 
-	public String decrypt(String encode) {
+	public String decrypt(String cipherText) {
 		String rtn = null;
 		try {
-			rtn = txtEncryptor.decrypt(encode);
+			rtn = deluxEncryptor.decrypt(cipherText);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return rtn;
+	}
+
+	public String queryEncrypt(String plainText) {
+		return queryEncryptor.encrypt(plainText);
+	}
+
+	public String queryDecrypt(String cipherText) {
+		String rtn = null;
+		try {
+			rtn = queryEncryptor.decrypt(cipherText);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -33,7 +33,7 @@
 			onclick="$('#navMenu').toggleClass('open');">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
+		<a class="navbar-brand h1 mb-0" th:href="@{/admin/home}">[[#{site.brand}]]</a>
 		<div class="navbar-collapse offcanvas-collapse" id="navMenu">
 			<ul class="navbar-nav">
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a
@@ -54,7 +54,7 @@
 			onclick="$('#navMenu').toggleClass('open');">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
+		<a class="navbar-brand h1 mb-0" th:href="@{/user/home}">[[#{site.brand}]]</a>
 		<div class="navbar-collapse offcanvas-collapse" id="navMenu">
 			<ul class="navbar-nav">
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a
@@ -83,7 +83,7 @@
 			onclick="$('#navMenu').toggleClass('open');">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
+		<a class="navbar-brand h1 mb-0" th:href="@{/guest/home}">[[#{site.brand}]]</a>
 		<div class="navbar-collapse offcanvas-collapse" id="navMenu">
 			<ul class="navbar-nav">
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a

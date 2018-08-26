@@ -1,7 +1,4 @@
 $(function() {
-	//$('body').append(
-	//		'<button type="button" id="toTop" class="btn btn-primary rounded-circle nofocus">'
-	//				+ '<i class="fas fa-angle-up fa-2x"></i>' + '</button>');
 	$(window).scroll(function() {
 		if ($(this).scrollTop() > 100) {
 			$('#toTop').fadeIn();
@@ -65,4 +62,13 @@ function showAlertWarn(arrMsg) {
 		$('#altWarn').fadeIn(150);
 	else
 		$('#altWarn').fadeOut(0);
+}
+
+function createPassword(len) {
+	var password = '';
+	var string = '23456789abcdefghijkmnoMNPQRSTUVWXYZpqrstuvwxyzABCDEFGHIJKL';
+	for (var i = 0; i < len; i++) {
+		password += string.charAt(Math.floor(Math.random() * string.length));
+	}
+	return password;
 }

@@ -1,14 +1,37 @@
 package com.cncsys.imgz.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.cncsys.imgz.helper.CodeParser;
 
 @Controller
 public class WelcomeController {
+	//private static final Logger logger = LoggerFactory.getLogger(WelcomeController.class);
+
+	@Autowired
+	private CodeParser codeParser;
 
 	@GetMapping("/")
 	public String welcome() {
 		return "/index";
+	}
+
+	@GetMapping("/login/{usernm}/{folder}/{token}")
+	public String login(@PathVariable("usernm") String usernm, @PathVariable("folder") String folder,
+			@PathVariable("token") String token, Model model) {
+
+		String passwd = codeParser.queryDecrypt(token);
+		if (passwd == null) {
+			return "/system/none";
+		}
+
+		model.addAttribute("username", usernm + "." + folder);
+		model.addAttribute("password", passwd);
+		return "/auth/login";
 	}
 
 	@GetMapping("/about/site")

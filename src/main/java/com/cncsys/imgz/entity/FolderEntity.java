@@ -14,6 +14,7 @@ public class FolderEntity {
 	private boolean locked;
 	private boolean shared;
 	private String guest;
+	private String cipher;
 	private DateTime createdt;
 	private LocalDate expiredt;
 }

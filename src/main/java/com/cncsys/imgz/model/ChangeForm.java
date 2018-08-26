@@ -12,4 +12,5 @@ public class ChangeForm {
 	private String email;
 	private String password;
 	private String confirm;
+	private String token;
 }

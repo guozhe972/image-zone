@@ -8,8 +8,9 @@
 		select folder.username,
 		folder.seq, folder.name,
 		folder.locked, folder.shared, folder.guest,
-		account.expiredt
-		from folder left join account on folder.guest =
+		folder.cipher, account.expiredt
+		from folder left join account on
+		folder.guest =
 		account.username
 		where folder.username = #{username}
 		order by folder.seq
@@ -20,10 +21,12 @@
 		select folder.username,
 		folder.seq, folder.name,
 		folder.locked, folder.shared, folder.guest,
-		account.expiredt
-		from folder left join account on folder.guest =
+		folder.cipher, account.expiredt
+		from folder left join account on
+		folder.guest =
 		account.username
-		where folder.username = #{username} and folder.seq =
+		where folder.username = #{username} and
+		folder.seq =
 		#{seq}
 	</select>
 
@@ -56,13 +59,13 @@
 		#{username} and seq = #{seq}
 	</update>
 
-	<select id="updateShared" resultType="FolderEntity">
+	<update id="updateShared">
 		update folder set shared =
-		#{shared}
-		where username = #{username} and seq = #{seq}
-		returning
-		username, seq, name, locked, shared, guest
-	</select>
+		#{shared}, cipher =
+		#{cipher}
+		where username = #{username} and seq =
+		#{seq}
+	</update>
 
 	<select id="updateFolder" resultType="String">
 		update folder set name =

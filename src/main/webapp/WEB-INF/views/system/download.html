@@ -5,6 +5,11 @@
 <head>
 <title>[[#{title.download}]]</title>
 <script th:src="@{/js/jquery.lazyload.min.js}"></script>
+<style>
+div.alert {
+	max-width: 100% !important;
+}
+</style>
 <script>
 	$(function() {
 		$('img.lazyload').lazyload();
@@ -23,7 +28,7 @@
 				<div class="card">
 					<div class="card-body p-0 text-center"
 						style="height: 200px; line-height: 194px;">
-						<img class="lazyload img-fluid" style="max-height: 100%;"
+						<img class="lazyload img-fluid mh-100"
 							th:src="@{/images/loading.gif}"
 							th:data-original="@{|/order/*{orderno}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">

@@ -7,6 +7,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,7 @@ import com.cncsys.imgz.model.BankForm;
 import com.cncsys.imgz.model.ChangeForm;
 import com.cncsys.imgz.model.ChangeForm.Input;
 import com.cncsys.imgz.model.FolderForm;
+import com.cncsys.imgz.model.FolderForm.Plans;
 import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
@@ -60,6 +63,10 @@ import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
 import com.cncsys.imgz.service.TransferService;
 import com.cncsys.imgz.service.UploadService;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 @Controller
 @RequestMapping("/user")
@@ -79,6 +86,12 @@ public class UserController {
 
 	@Value("${max.folder.count}")
 	private int FOLDER_MAX;
+
+	@Value("${qrcode.size.width}")
+	private int QRCODE_WIDTH;
+
+	@Value("${qrcode.size.height}")
+	private int QRCODE_HEIGHT;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -279,7 +292,7 @@ public class UserController {
 	}
 
 	@GetMapping("/folder/{seq}")
-	public String folder(@PathVariable("seq") int seq, Model model) {
+	public String photo(@PathVariable("seq") int seq, Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
@@ -350,31 +363,77 @@ public class UserController {
 	}
 
 	@GetMapping("/share/{seq}")
-	public String shareGet(@PathVariable("seq") int seq, Model model) {
+	public String folder(@PathVariable("seq") int seq, Model model, UriComponentsBuilder builder, Locale locale) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
-		model.addAttribute("mindt", LocalDate.now());
-		model.addAttribute("maxdt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
-		if (!model.containsAttribute("folderForm")) {
-			FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
-			FolderForm form = new FolderForm();
-			form.setSeq(folder.getSeq());
-			form.setName(folder.getName());
-			form.setGuest(folder.getGuest());
-			form.setPassword("");
-			form.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED / 2));
-			model.addAttribute("folderForm", form);
-		}
+		FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
+		if (folder.isShared()) {
+			FolderForm qrcode = new FolderForm();
+			qrcode.setUsername(folder.getUsername());
+			qrcode.setSeq(folder.getSeq());
+			qrcode.setName(folder.getName());
+			qrcode.setGuest(folder.getGuest());
+			qrcode.setPassword(folder.getCipher());
+			qrcode.setExpiredt(folder.getExpiredt());
+			model.addAttribute("qrcode", qrcode);
 
-		return "/user/share";
+			UriComponentsBuilder ucbLogin = builder.cloneBuilder();
+			model.addAttribute("loginurl", ucbLogin.path("/auth/signin").build().toUriString());
+
+			String qrcodeurl = builder
+					.path("/login/" + qrcode.getUsername() + "/" + String.format("%02d", qrcode.getSeq()) + "/"
+							+ codeParser.queryEncrypt(qrcode.getPassword()))
+					.build().toUriString();
+			String qrcodeimg = null;
+			try (ByteArrayOutputStream bytStream = new ByteArrayOutputStream();) {
+				QRCodeWriter qrCodeWriter = new QRCodeWriter();
+				BitMatrix bitMatrix = qrCodeWriter.encode(qrcodeurl, BarcodeFormat.QR_CODE, QRCODE_WIDTH,
+						QRCODE_HEIGHT);
+				MatrixToImageWriter.writeToStream(bitMatrix, "png", bytStream);
+				qrcodeimg = Base64.encodeBase64String(bytStream.toByteArray());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			model.addAttribute("qrcodeimg", qrcodeimg);
+			model.addAttribute("qrcodeurl", qrcodeurl);
+			return "/user/qrcode";
+		} else {
+			if (!model.containsAttribute("folderForm")) {
+				FolderForm form = new FolderForm();
+				form.setSeq(folder.getSeq());
+				form.setName(folder.getName());
+				form.setGuest(folder.getGuest());
+				form.setPassword("");
+				form.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED / 2));
+				model.addAttribute("folderForm", form);
+			}
+
+			model.addAttribute("mindt", LocalDate.now());
+			model.addAttribute("maxdt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
+			return "/user/share";
+		}
 	}
 
 	@PostMapping("/share")
-	public String sharePost(@ModelAttribute @Validated(Share.class) FolderForm form,
+	public String share(@ModelAttribute @Validated(Share.class) FolderForm form,
 			BindingResult result, RedirectAttributes redirectAttributes, Locale locale) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		FolderEntity folder = folderService.getUserFolder(user.getUsername(), form.getSeq());
+		String folderName = folder.getName();
+		if (folderName == null || folderName.isEmpty()) {
+			folderName = messageSource.getMessage("default.folder.name", null, locale)
+					+ String.format("%02d", form.getSeq());
+		}
+
+		if (folder.isShared()) {
+			List<String> errors = new ArrayList<String>();
+			errors.add(messageSource.getMessage("error.folder.shared", new Object[] { folderName }, locale));
+			redirectAttributes.addFlashAttribute("errors", errors);
+			return "redirect:/user/home";
+		}
 
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("folderForm", form);
@@ -382,45 +441,16 @@ public class UserController {
 			return "redirect:/user/share/" + String.valueOf(form.getSeq());
 		}
 
-		FolderEntity folder = folderService.shareFolder(user.getUsername(), form.getSeq(),
-				form.getPassword(), form.getExpiredt());
-
-		String folderName = folder.getName();
-		if (folderName == null || folderName.isEmpty()) {
-			folderName = messageSource.getMessage("default.folder.name", null, locale)
-					+ String.format("%02d", folder.getSeq());
-		}
+		folderService.shareFolder(user.getUsername(), form.getSeq(), form.getPassword(), form.getExpiredt());
 
 		String[] param = new String[4];
 		param[0] = folderName;
-		param[1] = folder.getGuest();
+		param[1] = user.getUsername() + "." + String.format("%02d", form.getSeq());
 		param[2] = form.getPassword();
 		param[3] = form.getExpiredt().toString();
 		mailHelper.sendShareFolder(user.getEmail(), param);
 
-		FolderForm qrcode = new FolderForm();
-		qrcode.setUsername(user.getUsername());
-		qrcode.setSeq(form.getSeq());
-		qrcode.setGuest(folder.getGuest());
-		qrcode.setPassword(form.getPassword());
-		qrcode.setExpiredt(form.getExpiredt());
-		redirectAttributes.addFlashAttribute("qrcode", qrcode);
-		return "redirect:/user/qrcode";
-	}
-
-	@GetMapping("/qrcode")
-	public String qrcode(Model model, UriComponentsBuilder builder) {
-		if (!model.containsAttribute("qrcode")) {
-			return "/system/error";
-		}
-
-		FolderForm qrcode = (FolderForm) model.asMap().get("qrcode");
-		String qrcodeUrl = "/auth/login/" + qrcode.getUsername() + "/" + String.format("%02d", qrcode.getSeq()) + "/"
-				+ codeParser.encrypt(qrcode.getPassword());
-
-		model.addAttribute("qrcodeurl", builder.path(qrcodeUrl).build().toUriString());
-		model.addAttribute("loginurl", builder.path("/auth/signin").build().toUriString());
-		return "/user/qrcode";
+		return "redirect:/user/share/" + String.valueOf(form.getSeq());
 	}
 
 	@GetMapping("/sales/{seq}")
@@ -539,6 +569,10 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
+		AccountEntity account = accountService.getAccountInfo(user.getUsername());
+		user.setBalance(account.getBalance());
+		model.addAttribute("balance", user.getBalance());
+
 		List<BankForm> trans = new ArrayList<BankForm>();
 		List<TransferEntity> entity = transferService.getHistory(user.getUsername());
 		for (TransferEntity transfer : entity) {
@@ -586,9 +620,57 @@ public class UserController {
 
 		String email = accountService.changePassword(user.getUsername(), form.getPassword());
 		String[] param = new String[2];
-		param[0] = form.getUsername();
+		param[0] = user.getUsername();
 		param[1] = form.getPassword();
 		mailHelper.sendChangeSuccess(email, param);
 		return "redirect:/user/change?info";
+	}
+
+	@GetMapping("/plans")
+	public String plans(Model model) {
+		return "/user/plans";
+	}
+
+	@PostMapping("/generate")
+	public String generate(@ModelAttribute @Validated(Plans.class) FolderForm form,
+			BindingResult result, RedirectAttributes redirectAttributes, Locale locale) {
+
+		if (result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("folderForm", form);
+			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "folderForm", result);
+			return "redirect:/user/plans";
+		}
+
+		FolderForm qrcode = new FolderForm();
+		redirectAttributes.addFlashAttribute("qrcode", qrcode);
+		return "redirect:/user/qrcode";
+	}
+
+	@GetMapping("/qrcode")
+	public String qrcode(Model model, UriComponentsBuilder builder) {
+		if (!model.containsAttribute("qrcode")) {
+			return "redirect:/user/plans";
+		}
+
+		UriComponentsBuilder ucbLogin = builder.cloneBuilder();
+		model.addAttribute("loginurl", ucbLogin.path("/auth/signin").build().toUriString());
+
+		FolderForm qrcode = (FolderForm) model.asMap().get("qrcode");
+		String qrcodeurl = builder
+				.path("/login/" + qrcode.getUsername() + "/" + String.format("%02d", qrcode.getSeq()) + "/"
+						+ codeParser.queryEncrypt(qrcode.getPassword()))
+				.build().toUriString();
+		String qrcodeimg = null;
+		try (ByteArrayOutputStream bytStream = new ByteArrayOutputStream();) {
+			QRCodeWriter qrCodeWriter = new QRCodeWriter();
+			BitMatrix bitMatrix = qrCodeWriter.encode(qrcodeurl, BarcodeFormat.QR_CODE, QRCODE_WIDTH, QRCODE_HEIGHT);
+			MatrixToImageWriter.writeToStream(bitMatrix, "png", bytStream);
+			qrcodeimg = Base64.encodeBase64String(bytStream.toByteArray());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		model.addAttribute("qrcodeimg", qrcodeimg);
+		model.addAttribute("qrcodeurl", qrcodeurl);
+		return "/user/qrcode";
 	}
 }

@@ -124,8 +124,8 @@ button[id^="btnPrice"]:disabled {
 	<div th:unless="${shared}" class="d-none-xs"
 		style="width: 100%; height: 55px;">
 		<div
-			class="py-2 w-100 bg-main border-bottom d-flex justify-content-between"
-			style="position: fixed; top: 56px; z-index: 999;">
+			class="py-2 w-100 bg-main border-bottom d-flex justify-content-between fixed-top"
+			style="top: 56px;">
 			<button type="button" class="btnBulk btn btn-success ml-3"
 				th:disabled="${#lists.isEmpty(photos)}"
 				th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|"
@@ -145,7 +145,7 @@ button[id^="btnPrice"]:disabled {
 				<div class="card">
 					<div class="card-body p-0 text-center"
 						style="height: 200px; line-height: 194px;">
-						<img class="lazyload img-fluid" style="max-height: 100%;"
+						<img class="lazyload img-fluid mh-100"
 							th:src="@{/images/loading.gif}"
 							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
@@ -175,8 +175,7 @@ button[id^="btnPrice"]:disabled {
 
 	<div th:unless="${shared}" class="d-none-sm"
 		style="width: 100%; height: 38px;">
-		<div class="w-100 btn-group"
-			style="position: fixed; bottom: 0; z-index: 999;">
+		<div class="w-100 btn-group fixed-bottom">
 			<button type="button"
 				class="btnBulk btn btn-success w-100 rounded-0 nofocus"
 				th:disabled="${#lists.isEmpty(photos)}"

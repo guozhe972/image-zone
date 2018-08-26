@@ -21,6 +21,9 @@ public class FolderForm {
 	public static interface Share {
 	};
 
+	public static interface Plans {
+	};
+
 	private int seq;
 	private String username;
 	private String name;
@@ -31,4 +34,7 @@ public class FolderForm {
 	@JsonFormat(shape = Shape.STRING)
 	@DateTimeFormat(iso = ISO.DATE)
 	private LocalDate expiredt;
+	@JsonFormat(shape = Shape.STRING)
+	@DateTimeFormat(iso = ISO.DATE)
+	private LocalDate plansdt;
 }

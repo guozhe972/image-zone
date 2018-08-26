@@ -44,7 +44,13 @@ public class AccountService {
 
 	@Transactional(readOnly = true)
 	public AccountEntity getForgotAccount(String username, String password) {
-		return accountMapper.selectByReset(username, password);
+		AccountEntity account;
+		if (password == null || password.isEmpty()) {
+			account = null;
+		} else {
+			account = accountMapper.selectByReset(username, password);
+		}
+		return account;
 	}
 
 	@Transactional(readOnly = true)

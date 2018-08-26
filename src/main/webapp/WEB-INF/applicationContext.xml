@@ -160,6 +160,8 @@
 			access="permitAll" />
 		<sec:intercept-url pattern="/auth/**"
 			access="permitAll" />
+		<sec:intercept-url pattern="/login/**"
+			access="permitAll" />
 		<sec:intercept-url pattern="/download/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/order/**"
@@ -180,7 +182,8 @@
 		<sec:logout logout-url="/logout" logout-success-url="/"
 			invalidate-session="true" />
 		<sec:anonymous granted-authority="NONE" />
-		<sec:session-management>
+		<sec:session-management
+			session-fixation-protection="newSession">
 			<sec:concurrency-control max-sessions="-1" />
 		</sec:session-management>
 	</sec:http>
@@ -198,7 +201,7 @@
 		<mvc:interceptor>
 			<mvc:mapping path="/" />
 			<mvc:mapping path="/about/*" />
-			<mvc:mapping path="/auth/*" />
+			<mvc:mapping path="/auth/**" />
 			<bean class="com.cncsys.imgz.handler.LoggedInUserHandler" />
 		</mvc:interceptor>
 	</mvc:interceptors>

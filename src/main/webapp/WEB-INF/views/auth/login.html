@@ -1,0 +1,50 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head>
+<title>[[#{title.main}]]</title>
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="icon" th:href="@{/images/favicon.ico}" type="image/x-icon">
+<style>
+html {
+	height: 100%;
+}
+
+body {
+	min-height: 100vh;
+	height: 100%;
+	background-color: #ffffff;
+	margin: 0;
+}
+
+.d-flex {
+	display: -webkit-box !important;
+	display: -ms-flexbox !important;
+	display: flex !important;
+}
+
+.align-items-center {
+	-webkit-box-align: center !important;
+	-ms-flex-align: center !important;
+	align-items: center !important;
+}
+
+.m-auto {
+	margin: auto !important;
+}
+</style>
+</head>
+<body class="d-flex align-items-center">
+	<div class="m-auto">
+		<img th:src="@{/images/loading.gif}" alt="Loading" />
+		<form name="fomLogin" th:action="@{/login}" method="post">
+			<input type="hidden" name="usernm" th:value="${username}" /> <input
+				type="hidden" name="passwd" th:value="${password}" />
+		</form>
+	</div>
+	<script>
+		document.fomLogin.submit();
+	</script>
+</body>
+</html>

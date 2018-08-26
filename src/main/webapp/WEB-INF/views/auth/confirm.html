@@ -54,15 +54,14 @@ html {
 			<div class="form-group row">
 				<label for="username" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.username}]]</label>
 				<div class="col-sm-8">
-					<input type="text" th:field="*{username}" class="form-control"
-						readonly />
+					<span id="username" class="form-control readonly"
+						th:text="*{username}"></span>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="email" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.email}]]</label>
 				<div class="col-sm-8">
-					<input type="email" th:field="*{email}" class="form-control"
-						readonly />
+					<span id="email" class="form-control readonly" th:text="*{email}"></span>
 				</div>
 			</div>
 			<div class="form-group row">

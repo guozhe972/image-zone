@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,9 +22,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -37,7 +35,6 @@ import com.cncsys.imgz.service.AccountService;
 
 @Controller
 @RequestMapping("/auth")
-@SessionAttributes({ "usernm", "token" })
 public class AuthController {
 
 	@Autowired
@@ -65,19 +62,6 @@ public class AuthController {
 		return "/auth/signin";
 	}
 
-	@GetMapping("/login/{usernm}/{folder}/{token}")
-	public String login(@PathVariable("usernm") String usernm, @PathVariable("folder") String folder,
-			@PathVariable("token") String token, HttpServletRequest request) throws ServletException {
-		String passwd = codeParser.decrypt(token);
-		if (passwd == null) {
-			return "/system/none";
-		}
-
-		request.logout();
-		request.login(usernm + "." + folder, passwd);
-		return "redirect:/auth/signin";
-	}
-
 	@PostMapping("/forgot")
 	public ResponseEntity<String> forgot(@RequestParam("username") String username, UriComponentsBuilder builder,
 			Locale locale) {
@@ -98,42 +82,39 @@ public class AuthController {
 				.body(messageSource.getMessage("info.forgot.send", new Object[] { username }, locale));
 	}
 
-	@GetMapping("/reset/{usernm}/{token}")
-	public String reset(@PathVariable("usernm") String usernm, @PathVariable("token") String token, Model model) {
-		String passwd = codeParser.decrypt(token);
-		if (passwd == null) {
-			return "/system/none";
-		}
+	@GetMapping("/reset/{usernm}/{passwd}")
+	public String reset(@PathVariable("usernm") String usernm, @PathVariable("passwd") String passwd,
+			Model model) {
 
-		AccountEntity account = accountService.getForgotAccount(usernm, passwd);
+		AccountEntity account = accountService.getForgotAccount(usernm, codeParser.decrypt(passwd));
 		if (account == null) {
 			return "/system/none";
 		} else {
 			if (!model.containsAttribute("changeForm")) {
 				ChangeForm form = new ChangeForm();
 				form.setUsername(usernm);
+				form.setToken(codeParser.encrypt(usernm));
 				model.addAttribute("changeForm", form);
 			}
 		}
-		model.addAttribute("usernm", usernm);
-		model.addAttribute("token", token);
+
 		return "/auth/reset";
 	}
 
 	@PostMapping("/change")
-	public String change(@SessionAttribute("usernm") String usernm, @SessionAttribute("token") String token,
-			@ModelAttribute @Validated(Input.class) ChangeForm form, BindingResult result,
-			RedirectAttributes redirectAttributes, SessionStatus sessionStatus, HttpServletRequest request)
+	public String change(@ModelAttribute @Validated(Input.class) ChangeForm form, BindingResult result,
+			RedirectAttributes redirectAttributes, HttpServletRequest request)
 			throws ServletException {
 
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("changeForm", form);
 			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "changeForm", result);
-			return "redirect:/auth/reset/" + usernm + "/" + token;
+			return "redirect:" + request.getHeader("Referer");
 		}
 
+		String usernm = codeParser.decrypt(form.getToken());
 		if (usernm == null || usernm.isEmpty() || !usernm.equals(form.getUsername())) {
-			return "redirect:/system/error";
+			throw new UsernameNotFoundException("Username not found");
 		}
 
 		String email = accountService.changePassword(form.getUsername(), form.getPassword());
@@ -144,7 +125,6 @@ public class AuthController {
 		param[0] = form.getUsername();
 		param[1] = form.getPassword();
 		mailHelper.sendChangeSuccess(email, param);
-		sessionStatus.setComplete();
 		return "redirect:/auth/signin";
 	}
 }

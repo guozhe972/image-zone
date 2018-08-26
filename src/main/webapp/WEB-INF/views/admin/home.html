@@ -20,8 +20,8 @@
 
 					var fee = $('#fee').val();
 					if (!/^[0-9]+$/.test(fee)
-							|| fee < Number($('#fee').prop('min'))
-							|| fee > Number($('#fee').prop('max'))) {
+							|| fee < Number($('#fee').attr('min'))
+							|| fee > Number($('#fee').attr('max'))) {
 						$('#grpMoney').addClass('is-invalid');
 						$('#grpMoney').after($('<div/>', {
 							'class' : 'invalid-feedback d-block',
@@ -99,8 +99,8 @@
 									<span class="input-group-text">[[#{label.transfer.fee}]]</span>
 								</div>
 								<input type="number" id="fee" name="fee"
-									class="form-control text-right num-only" min="0" max="9999"
-									pattern="[0-9]+" maxlength="4" required />
+									class="form-control text-right num-only" min="0" max="999"
+									pattern="[0-9]+" maxlength="3" required />
 								<div class="input-group-append">
 									<span class="input-group-text">[[#{money.unit}]]</span>
 								</div>
