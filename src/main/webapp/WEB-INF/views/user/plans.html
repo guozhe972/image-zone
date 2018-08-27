@@ -31,7 +31,7 @@ html {
 			}
 		});
 
-		$('#grpDate').flatpickr({
+		$('#grpExpiredt').flatpickr({
 			locale : '[(${#locale.language})]',
 			dateFormat : 'Y-m-d',
 			allowInput : false,
@@ -81,7 +81,7 @@ html {
 			var expiredt = $('#expiredt').val();
 			if (expiredt.length == 0 || !checkDateFormat(expiredt)) {
 				$('#expiredt').addClass('is-invalid');
-				$('#grpDate').after($('<div/>', {
+				$('#grpExpiredt').after($('<div/>', {
 					'class' : 'invalid-feedback d-block',
 					text : '[(#{typeMismatch.org.joda.time.LocalDate})]'
 				}));
@@ -93,7 +93,7 @@ html {
 				if (seldt.getTime() < mindt.getTime()
 						|| maxdt.getTime() < seldt.getTime()) {
 					$('#expiredt').addClass('is-invalid');
-					$('#grpDate')
+					$('#grpExpiredt')
 							.after(
 									$(
 											'<div/>',
@@ -129,17 +129,18 @@ html {
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main my-auto">
-		<form id="fomShare" class="mw-content mx-auto pt-3" novalidate
-			th:action="@{/user/share}" th:object="${folderForm}" method="post"
+		<form id="fomPlans" class="mw-content mx-auto pt-3" novalidate
+			th:action="@{/user/generate}" th:object="${folderForm}" method="post"
 			autocomplete="off">
-			<input type="hidden" th:field="*{seq}" />
-			<h4
-				th:text="*{#strings.isEmpty(name)}?|#{default.folder.name}*{#numbers.formatInteger(seq,2)}|:*{name}"></h4>
+			<h4>[[#{header.plans}]]</h4>
 			<hr>
 			<div class="form-group row">
-				<label for="guest" class="col-sm-4 col-form-label text-sm-right">[[#{label.share.username}]]</label>
+				<label for="seq" class="col-sm-4 col-form-label text-sm-right">[[#{label.plans.folder}]]</label>
 				<div class="col-sm-8">
-					<span id="guest" class="form-control readonly" th:text="*{guest}"></span>
+					<select class="custom-select" th:field="*{seq}">
+						<option th:each="folder : ${folders}" th:value="${folder.key}"
+							th:text="${folder.value}"></option>
+					</select>
 				</div>
 			</div>
 			<div class="form-group row">
@@ -160,12 +161,33 @@ html {
 				</div>
 			</div>
 			<div class="form-group row">
+				<label for="plansdt" class="col-sm-4 col-form-label text-sm-right">[[#{label.plans.plansdt}]]</label>
+				<div class="col-sm-8">
+					<div id="grpPlansdt" class="input-group">
+						<input type="date" th:field="*{plansdt}"
+							class="form-control rounded-left" th:errorclass="is-invalid"
+							th:min="${minPlansdt}" th:max="${maxPlansdt}"
+							pattern="[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}" maxlength="10"
+							data-input required />
+						<div class="input-group-append">
+							<button type="button" class="btn btn-info rounded-right"
+								data-toggle>
+								<i class="fas fa-calendar-alt"></i>
+							</button>
+						</div>
+					</div>
+					<div class="invalid-feedback d-block"
+						th:if="${#fields.hasErrors('plansdt')}" th:errors="*{plansdt}">plansdt
+						error</div>
+				</div>
+			</div>
+			<div class="form-group row">
 				<label for="expiredt" class="col-sm-4 col-form-label text-sm-right">[[#{label.share.expiredt}]]</label>
 				<div class="col-sm-8">
-					<div id="grpDate" class="input-group">
+					<div id="grpExpiredt" class="input-group">
 						<input type="date" th:field="*{expiredt}"
 							class="form-control rounded-left" th:errorclass="is-invalid"
-							th:min="${mindt}" th:max="${maxdt}"
+							th:min="${minExpiredt}" th:max="${maxExpiredt}"
 							pattern="[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}" maxlength="10"
 							data-input required />
 						<div class="input-group-append">

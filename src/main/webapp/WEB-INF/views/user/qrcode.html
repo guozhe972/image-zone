@@ -30,16 +30,16 @@ html {
 				<span th:text="${qrcodeurl}"></span>
 			</div>
 			<div>
-				[[#{label.login.url}]]<span th:text="${loginurl}"></span>
+				[[#{label.qrcode.url}]]<span th:text="${loginurl}"></span>
 			</div>
 			<div>
-				[[#{label.signup.username}]]<span th:text="${qrcode.guest}"></span>
+				[[#{label.share.username}]]<span th:text="${qrcode.guest}"></span>
 			</div>
 			<div>
-				[[#{label.signup.password}]]<span th:text="${qrcode.password}"></span>
+				[[#{label.share.password}]]<span th:text="${qrcode.password}"></span>
 			</div>
 			<div th:if="${qrcode.plansdt}">
-				[[#{label.share.plansdt}]]<span th:text="${qrcode.plansdt}"></span>
+				[[#{label.plans.plansdt}]]<span th:text="${qrcode.plansdt}"></span>
 			</div>
 			<div th:if="${qrcode.expiredt}">
 				[[#{label.share.expiredt}]]<span th:text="${qrcode.expiredt}"></span>

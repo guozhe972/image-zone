@@ -2,6 +2,7 @@ package com.cncsys.imgz.controller;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -627,7 +628,41 @@ public class UserController {
 	}
 
 	@GetMapping("/plans")
-	public String plans(Model model) {
+	public String plans(Model model, Locale locale) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		if (!model.containsAttribute("folderForm")) {
+			FolderForm form = new FolderForm();
+			form.setSeq(0);
+			form.setPassword("");
+			form.setPlansdt(LocalDate.now());
+			form.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED / 2));
+			model.addAttribute("folderForm", form);
+			model.addAttribute("minExpiredt", LocalDate.now());
+			model.addAttribute("maxExpiredt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
+		} else {
+			FolderForm form = (FolderForm) model.asMap().get("folderForm");
+			model.addAttribute("minExpiredt", form.getPlansdt());
+			model.addAttribute("maxExpiredt", form.getPlansdt().plusDays(DEFAULT_EXPIRED));
+		}
+
+		model.addAttribute("minPlansdt", LocalDate.now());
+		model.addAttribute("maxPlansdt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
+
+		Map<Integer, String> folders = new HashMap<Integer, String>();
+		folders.put(0, messageSource.getMessage("select.content", null, locale));
+		List<FolderEntity> entity = folderService.getUserFolders(user.getUsername());
+		for (FolderEntity folder : entity) {
+			String folderName = folder.getName();
+			if (folderName == null || folderName.isEmpty()) {
+				folderName = messageSource.getMessage("default.folder.name", null, locale)
+						+ String.format("%02d", folder.getSeq());
+			}
+			folders.put(folder.getSeq(), folderName);
+		}
+		model.addAttribute("folders", folders);
+
 		return "/user/plans";
 	}
 
