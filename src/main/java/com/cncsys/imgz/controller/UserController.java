@@ -2,7 +2,7 @@ package com.cncsys.imgz.controller;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -650,7 +650,7 @@ public class UserController {
 		model.addAttribute("minPlansdt", LocalDate.now());
 		model.addAttribute("maxPlansdt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
 
-		Map<Integer, String> folders = new HashMap<Integer, String>();
+		Map<Integer, String> folders = new LinkedHashMap<Integer, String>();
 		folders.put(0, messageSource.getMessage("select.content", null, locale));
 		List<FolderEntity> entity = folderService.getUserFolders(user.getUsername());
 		for (FolderEntity folder : entity) {
@@ -669,6 +669,8 @@ public class UserController {
 	@PostMapping("/generate")
 	public String generate(@ModelAttribute @Validated(Plans.class) FolderForm form,
 			BindingResult result, RedirectAttributes redirectAttributes, Locale locale) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
 
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("folderForm", form);
@@ -677,6 +679,13 @@ public class UserController {
 		}
 
 		FolderForm qrcode = new FolderForm();
+		qrcode.setUsername(user.getUsername());
+		qrcode.setSeq(form.getSeq());
+		qrcode.setName(form.getName());
+		qrcode.setGuest(user.getUsername() + "." + String.format("%02d", form.getSeq()));
+		qrcode.setPassword(form.getPassword());
+		qrcode.setPlansdt(form.getPlansdt());
+		qrcode.setExpiredt(form.getExpiredt());
 		redirectAttributes.addFlashAttribute("qrcode", qrcode);
 		return "redirect:/user/qrcode";
 	}
