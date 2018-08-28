@@ -650,14 +650,14 @@ public class UserController {
 		model.addAttribute("minPlansdt", LocalDate.now());
 		model.addAttribute("maxPlansdt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
 
+		String prefix = messageSource.getMessage("default.folder.name", null, locale);
 		Map<Integer, String> folders = new LinkedHashMap<Integer, String>();
 		folders.put(0, messageSource.getMessage("select.content", null, locale));
 		List<FolderEntity> entity = folderService.getUserFolders(user.getUsername());
 		for (FolderEntity folder : entity) {
 			String folderName = folder.getName();
 			if (folderName == null || folderName.isEmpty()) {
-				folderName = messageSource.getMessage("default.folder.name", null, locale)
-						+ String.format("%02d", folder.getSeq());
+				folderName = prefix + String.format("%02d", folder.getSeq());
 			}
 			folders.put(folder.getSeq(), folderName);
 		}
@@ -668,7 +668,7 @@ public class UserController {
 
 	@PostMapping("/generate")
 	public String generate(@ModelAttribute @Validated(Plans.class) FolderForm form,
-			BindingResult result, RedirectAttributes redirectAttributes, Locale locale) {
+			BindingResult result, RedirectAttributes redirectAttributes) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 

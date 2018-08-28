@@ -72,3 +72,21 @@ function createPassword(len) {
 	}
 	return password;
 }
+
+function checkDateFormat(text) {
+	var isValid = false;
+	if (/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/.test(text)) {
+		var year = Number(text.split('-')[0]);
+		var month = Number(text.split('-')[1]);
+		var day = Number(text.split('-')[2]);
+		if (year >= 1970) {
+			var date = new Date(text);
+			if (date.getFullYear() == year
+					&& date.getMonth() + 1 == month
+					&& date.getDate() == day) {
+				isValid = true;
+			}
+		}
+	}
+	return isValid;
+}

@@ -5,6 +5,7 @@
 <head>
 <title>[[#{title.user}]]</title>
 <link rel="stylesheet" th:href="@{/css/flatpickr.css}">
+<script th:src="@{/js/moment.min.js}"></script>
 <script th:src="@{/js/flatpickr.min.js}"></script>
 <script th:if="${#locale.language}=='ja'"
 	th:src="@{/js/flatpickr.ja.js}"></script>
@@ -21,6 +22,10 @@ html {
 </style>
 <script>
 	$(function() {
+		$('#seq').change(function() {
+			$('#name').val($('#seq option:selected').text());
+		});
+
 		$('#btnAuto').click(function() {
 			var password = '';
 			while (password = createPassword(8)) {
@@ -44,45 +49,58 @@ html {
 			wrap : true
 		});
 
-		var fpPlansdt = flatpickr('#grpPlansdt', {
-			locale : '[(${#locale.language})]',
-			dateFormat : 'Y-m-d',
-			allowInput : false,
-			disableMobile : false,
-			prevArrow : '<i class="fas fa-chevron-left"></i>',
-			nextArrow : '<i class="fas fa-chevron-right"></i>',
-			minDate : '[(${minPlansdt})]',
-			maxDate : '[(${maxPlansdt})]',
-			defaultDate : '[(${folderForm.plansdt})]',
-			wrap : true,
-			onChange : function(selectedDates, dateStr, instance) {
-				fpExpiredt.set('minDate', dateStr);
-				fpExpiredt.setDate('2018-09-10', true);
-			}
-		});
+		flatpickr(
+				'#grpPlansdt',
+				{
+					locale : '[(${#locale.language})]',
+					dateFormat : 'Y-m-d',
+					allowInput : false,
+					disableMobile : false,
+					prevArrow : '<i class="fas fa-chevron-left"></i>',
+					nextArrow : '<i class="fas fa-chevron-right"></i>',
+					minDate : '[(${minPlansdt})]',
+					maxDate : '[(${maxPlansdt})]',
+					defaultDate : '[(${folderForm.plansdt})]',
+					wrap : true,
+					onChange : function(selectedDates, dateStr, instance) {
+						var seldt = moment($('#expiredt').val());
+						var mindt = dateStr;
+						var maxdt = moment(dateStr)
+								.add(
+										Number('[(${@applicationProperties.getProperty("default.expired.days")})]'),
+										'd').format('YYYY-MM-DD');
 
-		function checkDateFormat(text) {
-			var isValid = false;
-			if (/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/.test(text)) {
-				var year = Number(text.split('-')[0]);
-				var month = Number(text.split('-')[1]);
-				var day = Number(text.split('-')[2]);
-				if (year >= 1970) {
-					var date = new Date(text);
-					if (date.getFullYear() == year
-							&& date.getMonth() + 1 == month
-							&& date.getDate() == day) {
-						isValid = true;
+						fpExpiredt.set('minDate', mindt);
+						$('#expiredt').attr('min', mindt);
+						$('#expiredt').next('.flatpickr-mobile').attr('min',
+								mindt);
+						fpExpiredt.set('maxDate', maxdt);
+						$('#expiredt').attr('max', maxdt);
+						$('#expiredt').next('.flatpickr-mobile').attr('max',
+								maxdt);
+
+						if (seldt.isBefore(mindt)) {
+							fpExpiredt.setDate(mindt, true);
+						} else if (seldt.isAfter(maxdt)) {
+							fpExpiredt.setDate(maxdt, true);
+						}
 					}
-				}
-			}
-			return isValid;
-		}
+				});
 
 		function isValidForm() {
 			var isValid = true;
 			$('.is-invalid').removeClass('is-invalid');
 			$('.invalid-feedback').remove();
+
+			var seq = $('#seq').val();
+			if (seq == '0') {
+				$('#seq').addClass('is-invalid');
+				$('#seq').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.plans.seq})]'
+				}));
+				isValid = false;
+			}
 
 			var password = $('#password').val();
 			if (password.length < 4 || 16 < password.length
@@ -98,25 +116,27 @@ html {
 			var plansdt = $('#plansdt').val();
 			if (plansdt.length == 0 || !checkDateFormat(plansdt)) {
 				$('#plansdt').addClass('is-invalid');
+				$('#plansdt').next('.flatpickr-mobile').addClass('is-invalid');
 				$('#grpPlansdt').after($('<div/>', {
 					'class' : 'invalid-feedback d-block',
 					text : '[(#{typeMismatch.org.joda.time.LocalDate})]'
 				}));
 				isValid = false;
 			} else {
-				var seldt = new Date($('#plansdt').val());
-				var mindt = new Date('[(${minPlansdt})]');
-				var maxdt = new Date('[(${maxPlansdt})]');
-				if (seldt.getTime() < mindt.getTime()
-						|| maxdt.getTime() < seldt.getTime()) {
+				var seldt = moment($('#plansdt').val());
+				var mindt = $('#plansdt').attr('min');
+				var maxdt = $('#plansdt').attr('max');
+				if (seldt.isBefore(mindt) || seldt.isAfter(maxdt)) {
 					$('#plansdt').addClass('is-invalid');
+					$('#plansdt').next('.flatpickr-mobile').addClass(
+							'is-invalid');
 					$('#grpPlansdt')
 							.after(
 									$(
 											'<div/>',
 											{
 												'class' : 'invalid-feedback d-block',
-												text : '[(${#messages.msg("validation.plans.plansdt", minPlansdt, maxPlansdt)})]'
+												text : '[(${#messages.msg("validation.plans.plansdt", @applicationProperties.getProperty("default.expired.days"))})]'
 											}));
 					isValid = false;
 				}
@@ -125,25 +145,27 @@ html {
 			var expiredt = $('#expiredt').val();
 			if (expiredt.length == 0 || !checkDateFormat(expiredt)) {
 				$('#expiredt').addClass('is-invalid');
+				$('#expiredt').next('.flatpickr-mobile').addClass('is-invalid');
 				$('#grpExpiredt').after($('<div/>', {
 					'class' : 'invalid-feedback d-block',
 					text : '[(#{typeMismatch.org.joda.time.LocalDate})]'
 				}));
 				isValid = false;
 			} else {
-				var seldt = new Date($('#expiredt').val());
-				var mindt = new Date('[(${minExpiredt})]');
-				var maxdt = new Date('[(${maxExpiredt})]');
-				if (seldt.getTime() < mindt.getTime()
-						|| maxdt.getTime() < seldt.getTime()) {
+				var seldt = moment($('#expiredt').val());
+				var mindt = $('#expiredt').attr('min');
+				var maxdt = $('#expiredt').attr('max');
+				if (seldt.isBefore(mindt) || seldt.isAfter(maxdt)) {
 					$('#expiredt').addClass('is-invalid');
+					$('#expiredt').next('.flatpickr-mobile').addClass(
+							'is-invalid');
 					$('#grpExpiredt')
 							.after(
 									$(
 											'<div/>',
 											{
 												'class' : 'invalid-feedback d-block',
-												text : '[(${#messages.msg("validation.plans.expiredt", minExpiredt, maxExpiredt)})]'
+												text : '[(${#messages.msg("validation.plans.expiredt", @applicationProperties.getProperty("default.expired.days"))})]'
 											}));
 					isValid = false;
 				}
@@ -174,15 +196,20 @@ html {
 		<form id="fomPlans" class="mw-content mx-auto pt-3" novalidate
 			th:action="@{/user/generate}" th:object="${folderForm}" method="post"
 			autocomplete="off">
+			<input type="hidden" id="name" name="name" />
 			<h4>[[#{header.plans}]]</h4>
 			<hr>
 			<div class="form-group row">
 				<label for="seq" class="col-sm-4 col-form-label text-sm-right">[[#{label.plans.folder}]]</label>
 				<div class="col-sm-8">
-					<select class="custom-select" th:field="*{seq}" autofocus required>
+					<select class="custom-select" th:errorclass="is-invalid"
+						th:field="*{seq}" autofocus required>
 						<option th:each="folder : ${folders}" th:value="${folder.key}"
 							th:text="${folder.value}"></option>
 					</select>
+					<div class="invalid-feedback d-block"
+						th:if="${#fields.hasErrors('seq')}" th:errors="*{seq}">folder
+						error</div>
 				</div>
 			</div>
 			<div class="form-group row">

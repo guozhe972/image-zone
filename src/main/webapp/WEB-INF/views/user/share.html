@@ -5,6 +5,7 @@
 <head>
 <title>[[#{title.user}]]</title>
 <link rel="stylesheet" th:href="@{/css/flatpickr.css}">
+<script th:src="@{/js/moment.min.js}"></script>
 <script th:src="@{/js/flatpickr.min.js}"></script>
 <script th:if="${#locale.language}=='ja'"
 	th:src="@{/js/flatpickr.ja.js}"></script>
@@ -31,7 +32,7 @@ html {
 			}
 		});
 
-		$('#grpExpiredt').flatpickr({
+		flatpickr('#grpExpiredt', {
 			locale : '[(${#locale.language})]',
 			dateFormat : 'Y-m-d',
 			allowInput : false,
@@ -43,24 +44,6 @@ html {
 			defaultDate : '[(${folderForm.expiredt})]',
 			wrap : true
 		});
-
-		function checkDateFormat(text) {
-			var isValid = false;
-			if (/^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}$/.test(text)) {
-				var year = Number(text.split('-')[0]);
-				var month = Number(text.split('-')[1]);
-				var day = Number(text.split('-')[2]);
-				if (year >= 1970) {
-					var date = new Date(text);
-					if (date.getFullYear() == year
-							&& date.getMonth() + 1 == month
-							&& date.getDate() == day) {
-						isValid = true;
-					}
-				}
-			}
-			return isValid;
-		}
 
 		function isValidForm() {
 			var isValid = true;
@@ -87,11 +70,10 @@ html {
 				}));
 				isValid = false;
 			} else {
-				var seldt = new Date($('#expiredt').val());
-				var mindt = new Date('[(${mindt})]');
-				var maxdt = new Date('[(${maxdt})]');
-				if (seldt.getTime() < mindt.getTime()
-						|| maxdt.getTime() < seldt.getTime()) {
+				var seldt = moment($('#expiredt').val());
+				var mindt = $('#expiredt').attr('min');
+				var maxdt = $('#expiredt').attr('max');
+				if (seldt.isBefore(mindt) || seldt.isAfter(maxdt)) {
 					$('#expiredt').addClass('is-invalid');
 					$('#grpExpiredt')
 							.after(
@@ -99,7 +81,7 @@ html {
 											'<div/>',
 											{
 												'class' : 'invalid-feedback d-block',
-												text : '[(${#messages.msg("validation.share.expiredt", mindt, maxdt)})]'
+												text : '[(${#messages.msg("validation.share.expiredt", @applicationProperties.getProperty("default.expired.days"))})]'
 											}));
 					isValid = false;
 				}

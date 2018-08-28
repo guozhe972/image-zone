@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.util.ArrayUtils;
 
 import com.cncsys.imgz.model.FolderForm;
+import com.cncsys.imgz.model.FolderForm.Plans;
 import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
 
@@ -71,7 +72,47 @@ public class FolderValidator implements SmartValidator {
 				LocalDate maxdt = LocalDate.now().plusDays(DEFAULT_EXPIRED);
 				if (mindt.isAfter(expiredt) || maxdt.isBefore(expiredt)) {
 					errors.rejectValue("expiredt", "validation.share.expiredt",
-							new Object[] { mindt, maxdt }, null);
+							new Object[] { DEFAULT_EXPIRED }, null);
+				}
+			}
+		} else if (ArrayUtils.contains(validationHints, Plans.class)) {
+			if (form.getSeq() <= 0) {
+				errors.rejectValue("seq", "validation.plans.seq");
+			}
+
+			String password = form.getPassword();
+			if (password == null || password.isEmpty() || password.length() < 4 || password.length() > 16
+					|| !password.matches("^[a-zA-Z0-9]+$")) {
+				errors.rejectValue("password", "validation.share.password");
+			}
+
+			LocalDate plansdt = form.getPlansdt();
+			if (!errors.hasFieldErrors("plansdt")) {
+				if (plansdt == null || plansdt.getYear() < 1970) {
+					errors.rejectValue("plansdt", "typeMismatch.org.joda.time.LocalDate");
+					return;
+				}
+
+				LocalDate mindt = LocalDate.now();
+				LocalDate maxdt = LocalDate.now().plusDays(DEFAULT_EXPIRED);
+				if (mindt.isAfter(plansdt) || maxdt.isBefore(plansdt)) {
+					errors.rejectValue("plansdt", "validation.plans.plansdt",
+							new Object[] { DEFAULT_EXPIRED }, null);
+				}
+			}
+
+			LocalDate expiredt = form.getExpiredt();
+			if (!errors.hasFieldErrors("expiredt")) {
+				if (expiredt == null || expiredt.getYear() < 1970) {
+					errors.rejectValue("expiredt", "typeMismatch.org.joda.time.LocalDate");
+					return;
+				}
+
+				LocalDate mindt = plansdt;
+				LocalDate maxdt = plansdt.plusDays(DEFAULT_EXPIRED);
+				if (mindt.isAfter(expiredt) || maxdt.isBefore(expiredt)) {
+					errors.rejectValue("expiredt", "validation.plans.expiredt",
+							new Object[] { DEFAULT_EXPIRED }, null);
 				}
 			}
 		}
