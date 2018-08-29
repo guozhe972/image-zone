@@ -42,8 +42,6 @@ public class BankValidator implements SmartValidator {
 		String acnumber = form.getAcnumber().trim();
 		if (acnumber == null || acnumber.isEmpty()) {
 			errors.rejectValue("acnumber", "validation.bank.acnumber");
-		} else if (!acnumber.matches("^[0-9]+$")) {
-			errors.rejectValue("acnumber", "validation.bank.errnum");
 		}
 
 		String acname = form.getAcname().trim();

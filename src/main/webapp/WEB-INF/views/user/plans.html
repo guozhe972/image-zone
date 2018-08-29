@@ -92,8 +92,7 @@ html {
 			$('.is-invalid').removeClass('is-invalid');
 			$('.invalid-feedback').remove();
 
-			var seq = $('#seq').val();
-			if (seq == '0') {
+			if ($('#seq').val() == '0') {
 				$('#seq').addClass('is-invalid');
 				$('#seq').after($('<div/>', {
 					'class' : 'invalid-feedback',
@@ -213,7 +212,7 @@ html {
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="password" class="col-sm-4 col-form-label text-sm-right">[[#{label.share.password}]]</label>
+				<label for="grpPass" class="col-sm-4 col-form-label text-sm-right">[[#{label.share.password}]]</label>
 				<div class="col-sm-8">
 					<div id="grpPass" class="input-group">
 						<input type="text" th:field="*{password}"
@@ -230,7 +229,8 @@ html {
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="plansdt" class="col-sm-4 col-form-label text-sm-right">[[#{label.plans.plansdt}]]</label>
+				<label for="grpPlansdt"
+					class="col-sm-4 col-form-label text-sm-right">[[#{label.plans.plansdt}]]</label>
 				<div class="col-sm-8">
 					<div id="grpPlansdt" class="input-group">
 						<input type="date" th:field="*{plansdt}"
@@ -251,7 +251,8 @@ html {
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="expiredt" class="col-sm-4 col-form-label text-sm-right">[[#{label.share.expiredt}]]</label>
+				<label for="grpExpiredt"
+					class="col-sm-4 col-form-label text-sm-right">[[#{label.share.expiredt}]]</label>
 				<div class="col-sm-8">
 					<div id="grpExpiredt" class="input-group">
 						<input type="date" th:field="*{expiredt}"

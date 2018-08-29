@@ -42,18 +42,6 @@ html {
 			}
 		}
 
-		function checkStrength(password) {
-			var strength = 0;
-			if (password.length >= 8 && password.length <= 16
-					&& /^[\u0020-\u007e]+$/.test(password)) {
-				if (/[a-zA-Z]+/.test(password))
-					strength++;
-				if (/[0-9]+/.test(password))
-					strength++;
-			}
-			return strength;
-		}
-
 		$('#confirm').on('input', function() {
 			confirmPassword($('#password').val(), $(this).val());
 		});

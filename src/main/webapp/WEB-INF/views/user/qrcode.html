@@ -29,29 +29,29 @@ html {
 						alt="QRcdoe" />
 				</div>
 				<div class="col-sm-8">
-					<div class="form-group mb-2">
+					<div class="form-group mb-3">
 						<label for="login" class="mb-0">[[#{label.qrcode.url}]]</label> <span
 							id="login" class="form-control-plaintext py-0"
 							th:text="${loginurl}"></span>
 					</div>
 					<div class="form-group row mb-0">
-						<label for="username" class="col-6 col-form-label py-0">[[#{label.share.username}]]</label><span
-							id="username" class="col-6 form-control-plaintext py-0"
+						<label for="username" class="col-5 col-form-label py-0">[[#{label.share.username}]]</label><span
+							id="username" class="col-7 form-control-plaintext py-0"
 							th:text="${qrcode.guest}"></span>
 					</div>
 					<div class="form-group row mb-0">
-						<label for="password" class="col-6 col-form-label py-0">[[#{label.share.password}]]</label><span
-							id="password" class="col-6 form-control-plaintext py-0"
+						<label for="password" class="col-5 col-form-label py-0">[[#{label.share.password}]]</label><span
+							id="password" class="col-7 form-control-plaintext py-0"
 							th:text="${qrcode.password}"></span>
 					</div>
 					<div th:if="${qrcode.plansdt}" class="form-group row mb-0">
-						<label for="plansdt" class="col-6 col-form-label py-0">[[#{label.plans.plansdt}]]</label><span
-							id="plansdt" class="col-6 form-control-plaintext py-0"
+						<label for="plansdt" class="col-5 col-form-label py-0">[[#{label.plans.plansdt}]]</label><span
+							id="plansdt" class="col-7 form-control-plaintext py-0"
 							th:text="${qrcode.plansdt}"></span>
 					</div>
 					<div class="form-group row mb-0">
-						<label for="expiredt" class="col-6 col-form-label py-0">[[#{label.share.expiredt}]]</label><span
-							id="expiredt" class="col-6 form-control-plaintext py-0"
+						<label for="expiredt" class="col-5 col-form-label py-0">[[#{label.share.expiredt}]]</label><span
+							id="expiredt" class="col-7 form-control-plaintext py-0"
 							th:text="${qrcode.expiredt}"></span>
 					</div>
 				</div>

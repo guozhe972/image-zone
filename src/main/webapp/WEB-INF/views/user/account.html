@@ -19,8 +19,7 @@
 			$('.is-invalid').removeClass('is-invalid');
 			$('.invalid-feedback').remove();
 
-			if ($('#bank').val().trim().length == 0) {
-				$('#bank').val('');
+			if ($('#bank').val().length == 0) {
 				$('#bank').addClass('is-invalid');
 				$('#bank').after($('<div/>', {
 					'class' : 'invalid-feedback',
@@ -29,8 +28,7 @@
 				isValid = false;
 			}
 
-			if ($('#branch').val().trim().length == 0) {
-				$('#branch').val('');
+			if ($('#branch').val().length == 0) {
 				$('#branch').addClass('is-invalid');
 				$('#branch').after($('<div/>', {
 					'class' : 'invalid-feedback',
@@ -49,26 +47,16 @@
 				isValid = false;
 			}
 
-			var acnumber = $('#acnumber').val();
-			if (acnumber.trim().length == 0) {
-				$('#acnumber').val('');
+			if ($('#acnumber').val().length == 0) {
 				$('#acnumber').addClass('is-invalid');
 				$('#acnumber').after($('<div/>', {
 					'class' : 'invalid-feedback',
 					text : '[(#{validation.bank.acnumber})]'
 				}));
 				isValid = false;
-			} else if (!/^[0-9]+$/.test(acnumber)) {
-				$('#acnumber').addClass('is-invalid');
-				$('#acnumber').after($('<div/>', {
-					'class' : 'invalid-feedback',
-					text : '[(#{validation.bank.errnum})]'
-				}));
-				isValid = false;
 			}
 
-			if ($('#acname').val().trim().length == 0) {
-				$('#acname').val('');
+			if ($('#acname').val().length == 0) {
 				$('#acname').addClass('is-invalid');
 				$('#acname').after($('<div/>', {
 					'class' : 'invalid-feedback',
@@ -132,9 +120,9 @@
 				</div>
 			</div>
 			<div class="form-group row">
-				<label for="actype" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.actype}]]</label>
+				<label for="grpType" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.actype}]]</label>
 				<div class="col-sm-8">
-					<div id="grpType" class="form-control border-transparent">
+					<div id="grpType" class="form-control-plaintext">
 						<div class="custom-control custom-radio custom-control-inline">
 							<input type="radio" id="actype1" name="actype" value="1"
 								class="custom-control-input" th:errorclass="is-invalid"
@@ -156,7 +144,7 @@
 			<div class="form-group row">
 				<label for="acnumber" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.acnumber}]]</label>
 				<div class="col-sm-8">
-					<input type="number" th:field="*{acnumber}"
+					<input type="number" th:field="*{acnumber}" min="0"
 						class="form-control num-only" th:errorclass="is-invalid"
 						pattern="[0-9]+" maxlength="10" required />
 					<div class="invalid-feedback"

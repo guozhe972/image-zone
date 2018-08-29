@@ -1,11 +1,13 @@
 package com.cncsys.imgz.controller;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.joda.time.DateTime;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -96,6 +99,9 @@ public class GuestController {
 	@Autowired
 	private FileHelper fileHelper;
 
+	@Autowired
+	private MessageSource messageSource;
+
 	@GetMapping("/home")
 	public String home(Model model) {
 		@SuppressWarnings("unchecked")
@@ -129,7 +135,6 @@ public class GuestController {
 	public ResponseEntity<String> cartAdd(@ModelAttribute PhotoForm photo, Model model) {
 		@SuppressWarnings("unchecked")
 		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
-
 		if (!cart.contains(photo)) {
 			cart.add(photo);
 		}
@@ -151,7 +156,6 @@ public class GuestController {
 	public ResponseEntity<String> cartDel(@ModelAttribute PhotoForm photo, Model model) {
 		@SuppressWarnings("unchecked")
 		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
-
 		if (cart.contains(photo)) {
 			cart.remove(photo);
 		}
@@ -159,7 +163,18 @@ public class GuestController {
 	}
 
 	@GetMapping("/pay")
-	public String pay(@ModelAttribute PayForm form, Model model) {
+	public String pay(Model model) {
+		@SuppressWarnings("unchecked")
+		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
+		if (cart.isEmpty()) {
+			return "redirect:/guest/home";
+		}
+
+		if (!model.containsAttribute("payForm")) {
+			PayForm form = new PayForm();
+			model.addAttribute("payForm", form);
+		}
+
 		int[] years = new int[10];
 		int year = LocalDate.now().getYear();
 		for (int i = 0; i < years.length; i++) {
@@ -169,8 +184,8 @@ public class GuestController {
 		return "/guest/pay";
 	}
 
-	@PostMapping(path = "/confirm", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
-	public @ResponseBody String confirm(@RequestBody Map<String, Object> json) {
+	@PostMapping(path = "/mail", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+	public @ResponseBody String mail(@RequestBody Map<String, Object> json) {
 		String email = json.get("email").toString();
 		mailHelper.sendMailReceive(email);
 		return "ok";
@@ -178,59 +193,83 @@ public class GuestController {
 
 	@PostMapping("/pay")
 	public String order(@ModelAttribute PayForm form, BindingResult result, Model model,
-			RedirectAttributes redirectAttributes, SessionStatus sessionStatus, UriComponentsBuilder builder) {
+			RedirectAttributes redirectAttributes, SessionStatus sessionStatus, UriComponentsBuilder builder,
+			Locale locale) {
 		@SuppressWarnings("unchecked")
 		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
 		if (cart.isEmpty()) {
-			return "redirect:/guest/done";
+			return "redirect:/guest/home";
 		}
+
+		String email = form.getEmail();
+		//if (email == null || email.isEmpty() || !email.matches(
+		//		"^(([0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*)|(\"[^\"]*\"))@[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*$")) {
+		//	result.rejectValue("email", "validation.signup.email");
+		//}
+
+		if (result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("payForm", form);
+			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "payForm", result);
+			return "redirect:/guest/pay";
+		}
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+		String[] guest = user.getUsername().split("\\.");
+		String username = guest[0];
+		int folder = Integer.parseInt(guest[1]);
 
 		// order info
 		String orderno = orderService.createNumber();
-		String email = form.getEmail();
-		if (email == null)
+		if (email == null || email.isEmpty()) {
 			email = orderno;
+		}
 		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
-		String username = cart.get(0).getUsername();
 		List<String> photos = new ArrayList<String>();
 		int amount = 0;
 
 		// copy photos to order folder.
-		try {
-			fileHelper.createDirectory(ORDER_PATH + "/" + orderno);
-			for (PhotoForm photo : cart) {
-				PhotoEntity entity = photoService.getPhoto(photo.getUsername(), photo.getFolder(),
-						photo.getThumbnail());
-
-				Path src = Paths.get(ORIGINAL_PATH + "/" + entity.getUsername() + "/" +
-						String.valueOf(entity.getFolder()) + "/" + entity.getOriginal());
-				String destFile = ORDER_PATH + "/" + orderno + "/" + entity.getOriginal();
-				Path dest = Paths.get(destFile);
-				Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
-				photos.add(destFile);
-				amount = amount + entity.getPrice();
-
-				OrderEntity order = new OrderEntity();
-				order.setOrderno(orderno);
-				order.setEmail(email);
-				order.setUsername(entity.getUsername());
-				order.setFolder(entity.getFolder());
-				order.setThumbnail(entity.getThumbnail());
-				order.setOriginal(entity.getOriginal());
-				order.setFilename(entity.getFilename());
-				order.setPrice(entity.getPrice());
-				order.setCreatedt(DateTime.now());
-				order.setCharged(false);
-				order.setExpiredt(expiredt);
-				orderService.insertOrder(order);
+		fileHelper.createDirectory(ORDER_PATH + "/" + orderno);
+		for (PhotoForm photo : cart) {
+			boolean hasError = false;
+			PhotoEntity entity = photoService.getPhoto(username, folder, photo.getThumbnail());
+			if (entity != null && photo.getPrice() == entity.getPrice()) {
+				try {
+					Path srcPath = Paths.get(ORIGINAL_PATH + "/" + entity.getUsername() + "/" +
+							String.valueOf(entity.getFolder()) + "/" + entity.getOriginal());
+					String destFile = ORDER_PATH + "/" + orderno + "/" + entity.getOriginal();
+					Files.copy(srcPath, Paths.get(destFile), StandardCopyOption.REPLACE_EXISTING);
+					photos.add(destFile);
+					amount = amount + entity.getPrice();
+				} catch (IOException e) {
+					e.printStackTrace();
+					hasError = true;
+				}
+			} else {
+				hasError = true;
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error(e.getMessage());
-			List<String> errors = new ArrayList<String>();
-			errors.add(e.getMessage());
-			redirectAttributes.addFlashAttribute("errors", errors);
-			return "redirect:/guest/pay";
+
+			if (hasError) {
+				// price changed. or photo deleted.
+				List<String> errors = new ArrayList<String>();
+				errors.add(messageSource.getMessage("error.photo.changed", null, locale));
+				redirectAttributes.addFlashAttribute("errors", errors);
+				return "redirect:/guest/pay";
+			}
+
+			OrderEntity order = new OrderEntity();
+			order.setOrderno(orderno);
+			order.setEmail(email);
+			order.setUsername(entity.getUsername());
+			order.setFolder(entity.getFolder());
+			order.setThumbnail(entity.getThumbnail());
+			order.setOriginal(entity.getOriginal());
+			order.setFilename(entity.getFilename());
+			order.setPrice(entity.getPrice());
+			order.setCreatedt(DateTime.now());
+			order.setCharged(false);
+			order.setExpiredt(expiredt);
+			orderService.insertOrder(order);
 		}
 
 		// make thumbnail
@@ -243,7 +282,7 @@ public class GuestController {
 					.amount(amount)
 					.currency("jpy")
 					.capture(true)
-					.description("Order Number: " + orderno)
+					.description("Order No." + orderno)
 					.card(form.getToken()));
 			if (charge.getStatus() != ChargeStatus.Successful) {
 				logger.error(charge.getFailureCode() + ": " + charge.getFailureMessage());
@@ -278,13 +317,16 @@ public class GuestController {
 		mailHelper.sendOrderDone(email, param);
 
 		sessionStatus.setComplete();
-		redirectAttributes.addFlashAttribute("order", orderno);
+		redirectAttributes.addFlashAttribute("orderno", orderno);
 		redirectAttributes.addFlashAttribute("link", link);
 		return "redirect:/guest/done";
 	}
 
 	@GetMapping("/done")
 	public String done(Model model) {
+		if (!model.containsAttribute("orderno")) {
+			return "redirect:/guest/home";
+		}
 		return "/guest/done";
 	}
 }

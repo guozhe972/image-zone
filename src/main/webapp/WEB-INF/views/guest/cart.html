@@ -19,7 +19,7 @@
 										cache : false,
 										data : $('#fomPhoto').serialize(),
 										beforeSend : function() {
-											$('#mdlWaiting').modal('show');
+											//$('#mdlWaiting').modal('show');
 										}
 									})
 									.done(
@@ -56,7 +56,7 @@
 													errorThrown) {
 												// do nothing
 											}).always(function() {
-										$('#mdlWaiting').modal('hide');
+										//$('#mdlWaiting').modal('hide');
 									});
 						});
 	});
