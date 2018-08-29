@@ -104,6 +104,10 @@ public class GuestController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
+		String[] guest = user.getUsername().split("\\.");
+		model.addAttribute("username", guest[0]);
+		model.addAttribute("folder", Integer.parseInt(guest[1]));
+
 		List<PhotoForm> photos = new ArrayList<PhotoForm>();
 		List<PhotoEntity> entity = photoService.getPhotosByGuest(user.getUsername());
 		for (PhotoEntity photo : entity) {
@@ -117,7 +121,6 @@ public class GuestController {
 			}
 			photos.add(form);
 		}
-
 		model.addAttribute("photos", photos);
 		return "/guest/home";
 	}
@@ -135,6 +138,12 @@ public class GuestController {
 
 	@GetMapping("/cart")
 	public String cart(Model model) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		String[] guest = user.getUsername().split("\\.");
+		model.addAttribute("username", guest[0]);
+		model.addAttribute("folder", Integer.parseInt(guest[1]));
 		return "/guest/cart";
 	}
 
@@ -147,14 +156,6 @@ public class GuestController {
 			cart.remove(photo);
 		}
 		return ResponseEntity.ok().body(String.valueOf(cart.size()));
-	}
-
-	@PostMapping("/cart/clear")
-	public String cartClear(Model model) {
-		@SuppressWarnings("unchecked")
-		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
-		cart.clear();
-		return "redirect:/guest/home";
 	}
 
 	@GetMapping("/pay")

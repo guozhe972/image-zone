@@ -49,7 +49,7 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main px-0">
-		<div class="mw-content mx-auto mt-3 d-flex justify-content-between">
+		<div class="mw-content mx-auto pt-3 d-flex justify-content-between">
 			<h2 class="mb-0 ml-3">[[#{header.profit}]]</h2>
 			<h2 class="mb-0 mr-3"
 				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}#{money.unit}|"></h2>
@@ -78,6 +78,11 @@
 			</li>
 		</ul>
 	</div>
+
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 
 	<div id="mdlTransfer" class="modal fade" tabindex="-1" role="dialog"
 		data-backdrop="static" data-keyboard="false">

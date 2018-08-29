@@ -98,16 +98,18 @@
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main pb-3">
+	<div class="container bg-main px-0">
 		<div
 			class="mw-content mx-auto py-3 border-bottom d-flex justify-content-between">
-			<h2 class="mb-0">[[#{header.account}]]</h2>
-			<h2 class="mb-0"
+			<h2 class="mb-0 ml-3">[[#{header.account}]]</h2>
+			<h2 class="mb-0 mr-3"
 				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}#{money.unit}|"></h2>
 		</div>
+	</div>
+	<div class="container bg-main">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<th:block layout:replace="~{layout/parts/alert::info}" />
-		<form class="mw-content mx-auto pt-3" id="fomRequest" novalidate
+		<form id="fomRequest" class="mw-content mx-auto py-3" novalidate
 			th:action="@{/user/request}" th:object="${bankForm}" method="post">
 			<input type="hidden" id="amount" name="amount" th:value="${balance}" />
 			<div class="form-group row">

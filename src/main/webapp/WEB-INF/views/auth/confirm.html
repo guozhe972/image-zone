@@ -40,13 +40,13 @@ html {
 </script>
 </head>
 <body layout:fragment="body"
-	class="pt-header pb-footer d-flex align-items-center">
+	class="pt-header d-flex align-items-start align-items-md-center">
 	<header layout:insert="~{layout/parts/header::home(false, false)}"
 		class="fixed-top bg-header"></header>
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main my-auto pb-5">
-		<form id="fomConfirm" class="mw-content mx-auto pt-3" novalidate
+	<div class="container bg-main pb-md-5 my-md-auto">
+		<form id="fomConfirm" class="mw-content mx-auto py-3" novalidate
 			th:action="@{/auth/register}" th:object="${signupForm}" method="post"
 			autocomplete="off">
 			<h4>[[#{header.confirm}]]</h4>
@@ -64,7 +64,7 @@ html {
 					<span id="email" class="form-control readonly" th:text="*{email}"></span>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row mb-0">
 				<label for="code" class="col-sm-4 col-form-label text-sm-right">[[#{label.confirm.code}]]</label>
 				<div class="col-sm-8">
 					<div id="grpCode" class="input-group">

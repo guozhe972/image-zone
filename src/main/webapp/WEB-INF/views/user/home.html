@@ -54,7 +54,8 @@ label.custom-file-label::after {
 			dynamicTitle : true,
 			placement : 'top-start',
 			hideOnClick : true,
-			trigger : 'mouseenter'
+			trigger : 'mouseenter',
+			zIndex : 1031
 		});
 
 		function resetFile(obj) {
@@ -257,8 +258,8 @@ label.custom-file-label::after {
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
-	<th:block layout:replace="~{layout/parts/dialog::progress}" />
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
+	<th:block layout:replace="~{layout/parts/dialog::progress}" />
 	<div class="container bg-main">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<ul class="list-group list-group-flush mw-content mx-auto">
@@ -347,12 +348,13 @@ label.custom-file-label::after {
 				</div>
 				<div class="modal-body">
 					<form id="fomRename" action="#" autocomplete="off">
+						<input type="hidden" th:name="${_csrf.parameterName}"
+							th:value="${_csrf.token}" /> <input type="hidden" id="seq"
+							name="seq" />
 						<div class="form-group mb-0">
 							<label for="name">[[#{modal.rename.label}]]</label> <input
 								type="text" id="name" name="name" class="form-control"
-								maxlength="50" /> <input type="hidden" id="seq" name="seq" /><input
-								type="hidden" th:name="${_csrf.parameterName}"
-								th:value="${_csrf.token}" />
+								maxlength="50" />
 						</div>
 					</form>
 				</div>

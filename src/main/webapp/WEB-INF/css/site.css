@@ -110,6 +110,9 @@ input[type=date]::-webkit-clear-button {
 	.d-none-xs {
 		display: none !important;
 	}
+	.mb-0-xs {
+		margin-bottom: 0 !important;
+	}
 }
 
 @media ( min-width : 576px) {

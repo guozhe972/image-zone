@@ -159,14 +159,15 @@ html {
 	});
 </script>
 </head>
-<body layout:fragment="body" class="pt-header d-flex align-items-center">
+<body layout:fragment="body"
+	class="pt-header d-flex align-items-start align-items-md-center">
 	<header layout:insert="~{layout/parts/header::home(true, true)}"
 		class="fixed-top bg-header"></header>
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main my-auto pb-footer">
+	<div class="container bg-main pb-footer my-md-auto">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
-		<form id="fomSignup" class="mw-content mx-auto pt-3" novalidate
+		<form id="fomSignup" class="mw-content mx-auto py-3" novalidate
 			th:action="@{/auth/send}" th:object="${signupForm}" method="post"
 			autocomplete="off">
 			<h4>[[#{header.signup}]]</h4>
@@ -222,7 +223,7 @@ html {
 					</div>
 				</div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group row mb-0">
 				<div class="offset-sm-4 col-sm-8">
 					<button id="btnRegister" type="submit"
 						class="btn btn-primary btn-block-xs" style="width: 150px;"

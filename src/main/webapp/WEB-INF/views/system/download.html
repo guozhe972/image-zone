@@ -17,9 +17,11 @@ div.alert {
 </script>
 </head>
 <body layout:fragment="body" class="pt-header">
-	<header layout:insert="~{layout/parts/header::home(false, false)}"
+	<header layout:insert="~{layout/parts/header::download}"
 		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<div class="row pr-3 pb-3">
@@ -43,5 +45,9 @@ div.alert {
 			</div>
 		</div>
 	</div>
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 </body>
 </html>

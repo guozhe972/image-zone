@@ -3,10 +3,9 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>cart</title>
+<title>[[#{title.guest}]]</title>
 <script>
 	var target = 0;
-	var mdlClear = 0;
 	$(function() {
 		$('#fomPhoto')
 				.submit(
@@ -28,8 +27,6 @@
 												$('#bagCart').text(data);
 												$('#photo' + target).remove();
 												if (data == '0') {
-													$('#btnClear').addClass(
-															'd-none');
 													$('#btnOrder').addClass(
 															'disabled');
 													$('#total')
@@ -62,14 +59,6 @@
 										$('#mdlWaiting').modal('hide');
 									});
 						});
-
-		$('#mdlClear').on('hide.bs.modal', function(e) {
-			if (mdlClear == 1) {
-				mdlClear = 0;
-				$('#mdlWaiting').modal('show');
-				$('#fomClear').submit();
-			}
-		});
 	});
 </script>
 </head>
@@ -81,17 +70,14 @@
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
 		<div class="pt-3 d-flex justify-content-between">
-			<button type="button" class="btn btn-danger d-none" id="btnClear"
-				th:classappend="${#lists.isEmpty(cart)}?'d-none'"
-				data-toggle="modal" data-target="#mdlClear">クリア</button>
 			<button type="button" class="btn btn-warning" th:disabled="true"
 				style="opacity: 1;">
-				合計&nbsp;&nbsp; <span id="total"
+				[[#{label.cart.total}]]&nbsp;&nbsp;<span id="total"
 					th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(__${#aggregates.sum(cart.![price])}__,1,'COMMA')}|"></span>
 			</button>
 			<a class="btn btn-info ml-auto" id="btnOrder"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
-				th:href="@{/guest/pay}" role="button">注文手続きへ</a>
+				th:href="@{/guest/pay}" role="button">[[#{label.cart.order}]]</a>
 		</div>
 		<hr class="mb-0">
 
@@ -107,52 +93,25 @@
 							alt="thumbnail">
 						<div class="badge badge-warning position-absolute"
 							style="top: 0; right: 0;"
-							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|">金額</div>
+							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>
 					</div>
 					<div class="card-footer p-1 bg-white">
 						<button type="button" th:id="|btnDel${stat.count}|"
 							class="btn btn-danger btn-sm w-100" th:disabled="*{incart}"
-							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">削除</button>
+							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">[[#{label.cart.delete}]]</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<form id="fomPhoto" th:action="@{/guest/cart/del}" method="post">
-		<input type="hidden" id="username" name="username"
-			th:value="${#lists.isEmpty(cart)} ? '' : ${cart[0].username}" /> <input
-			type="hidden" id="folder" name="folder"
-			th:value="${#lists.isEmpty(cart)} ? '' : ${cart[0].folder}" /> <input
+	<form id="fomPhoto" action="#">
+		<input type="hidden" th:name="${_csrf.parameterName}"
+			th:value="${_csrf.token}" /> <input type="hidden" id="username"
+			name="username" th:value="${username}" /> <input type="hidden"
+			id="folder" name="folder" th:value="${folder}" /> <input
 			type="hidden" id="thumbnail" name="thumbnail" /> <input
 			type="hidden" id="price" name="price" />
 	</form>
-
-	<div id="mdlClear" class="modal fade" tabindex="-1" role="dialog"
-		data-backdrop="static" data-keyboard="false">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">確認</h5>
-					<button type="button" class="close" data-dismiss="modal">
-						<span>&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<p>クリアしますか。</p>
-				</div>
-				<div class="modal-footer">
-					<form id="fomClear" class="form-inline"
-						th:action="@{/guest/cart/clear}" method="post">
-						<button type="button" class="btn btn-primary" data-dismiss="modal"
-							onclick="mdlClear=1;">はい</button>
-					</form>
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">いいえ</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
 </body>
 </html>

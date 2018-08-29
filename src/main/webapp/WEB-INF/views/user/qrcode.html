@@ -11,38 +11,50 @@ html {
 </style>
 </head>
 <body layout:fragment="body"
-	class="pt-header pb-footer d-flex align-items-center">
+	class="pt-header d-flex align-items-start align-items-md-center">
 	<header layout:insert="~{layout/parts/header::user(-1)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main my-auto pb-5">
-		<div class="mx-auto">
+	<div class="container bg-main pb-md-5 my-md-auto">
+		<div class="mw-content mx-auto py-3">
 			<h4
 				th:text="${#strings.isEmpty(qrcode.name)}?|#{default.folder.name}${#numbers.formatInteger(qrcode.seq,2)}|:${qrcode.name}"></h4>
-			<hr>
-			<div>
-				<img id="qrcode" th:src="|data:image/png;base64,${qrcodeimg}|"
-					alt="QRcdoe" />
-			</div>
-			<div>
-				<span th:text="${qrcodeurl}"></span>
-			</div>
-			<div>
-				[[#{label.qrcode.url}]]<span th:text="${loginurl}"></span>
-			</div>
-			<div>
-				[[#{label.share.username}]]<span th:text="${qrcode.guest}"></span>
-			</div>
-			<div>
-				[[#{label.share.password}]]<span th:text="${qrcode.password}"></span>
-			</div>
-			<div th:if="${qrcode.plansdt}">
-				[[#{label.plans.plansdt}]]<span th:text="${qrcode.plansdt}"></span>
-			</div>
-			<div th:if="${qrcode.expiredt}">
-				[[#{label.share.expiredt}]]<span th:text="${qrcode.expiredt}"></span>
+			<hr class="mb-0-xs">
+			<div class="d-none" th:text="${qrcodeurl}"></div>
+			<div class="row">
+				<div class="col-sm-4 text-center">
+					<img id="qrcode" th:src="|data:image/png;base64,${qrcodeimg}|"
+						alt="QRcdoe" />
+				</div>
+				<div class="col-sm-8">
+					<div class="form-group mb-2">
+						<label for="login" class="mb-0">[[#{label.qrcode.url}]]</label> <span
+							id="login" class="form-control-plaintext py-0"
+							th:text="${loginurl}"></span>
+					</div>
+					<div class="form-group row mb-0">
+						<label for="username" class="col-6 col-form-label py-0">[[#{label.share.username}]]</label><span
+							id="username" class="col-6 form-control-plaintext py-0"
+							th:text="${qrcode.guest}"></span>
+					</div>
+					<div class="form-group row mb-0">
+						<label for="password" class="col-6 col-form-label py-0">[[#{label.share.password}]]</label><span
+							id="password" class="col-6 form-control-plaintext py-0"
+							th:text="${qrcode.password}"></span>
+					</div>
+					<div th:if="${qrcode.plansdt}" class="form-group row mb-0">
+						<label for="plansdt" class="col-6 col-form-label py-0">[[#{label.plans.plansdt}]]</label><span
+							id="plansdt" class="col-6 form-control-plaintext py-0"
+							th:text="${qrcode.plansdt}"></span>
+					</div>
+					<div class="form-group row mb-0">
+						<label for="expiredt" class="col-6 col-form-label py-0">[[#{label.share.expiredt}]]</label><span
+							id="expiredt" class="col-6 form-control-plaintext py-0"
+							th:text="${qrcode.expiredt}"></span>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
