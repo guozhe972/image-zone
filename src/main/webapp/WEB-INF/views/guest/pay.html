@@ -1,13 +1,11 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	th:with="total=${#aggregates.sum(cart.![price])}"
 	layout:decorate="~{layout/base}">
 <head>
 <title>[[#{title.guest}]]</title>
 <script th:src="@{/js/omise.min.js}"></script>
 <script>
-	var total = Number('[(${total})]');
 	$(function() {
 		// for test =====
 		$('#email').val('guest@mail.com');
@@ -15,11 +13,6 @@
 		$('#name').val('TARO TEST');
 		$('#code').val('123');
 		// for test =====
-
-		if (total < Number('[(${@applicationProperties.getProperty("omise.charge.min")})]')
-				|| Number('[(${@applicationProperties.getProperty("omise.charge.max")})]') < total) {
-			showAlertError([ '[(${#messages.msg("error.charge.range", #numbers.formatInteger(@applicationProperties.getProperty("omise.charge.min"),1,"COMMA"), #numbers.formatInteger(@applicationProperties.getProperty("omise.charge.max"),1,"COMMA"))})]' ]);
-		}
 
 		$('#btnMail').click(function() {
 			$('#email').removeClass('is-invalid');
@@ -141,8 +134,7 @@
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<form id="fomPay" class="mw-content mx-auto py-3" novalidate
 			th:action="@{/guest/pay}" th:object="${payForm}" method="post">
-			<input type="hidden" id="token" name="token" /> <input type="hidden"
-				id="amount" name="amount" th:value="${total}" />
+			<input type="hidden" id="token" name="token" />
 			<div class="form-group row">
 				<label for="grpEmail" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.email}]]</label>
 				<div class="col-sm-8">

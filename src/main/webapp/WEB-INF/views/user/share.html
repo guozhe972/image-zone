@@ -90,14 +90,12 @@ html {
 			return isValid;
 		}
 
-		$('#mdlShareBtn').click(function() {
-			//if ($('#fomShare').get(0).checkValidity()) {
-			if (isValidForm()) {
-				$('#mdlShare').modal('hide');
-				$('#mdlWaiting').modal('show');
-				$('#fomShare').submit();
+		$('#fomShare').submit(function(event) {
+			if (!isValidForm()) {
+				event.preventDefault();
+				event.stopPropagation();
 			} else {
-				$('#mdlShare').modal('hide');
+				$('#mdlWaiting').modal('show');
 			}
 		});
 	});
@@ -165,36 +163,14 @@ html {
 			</div>
 			<div class="form-group row mb-0">
 				<div class="offset-sm-4 col-sm-8">
-					<button type="button" class="btn btn-primary btn-block-xs"
-						style="width: 150px;" data-toggle="modal" data-target="#mdlShare">[[#{label.share.button}]]</button>
+					<button type="submit" class="btn btn-primary btn-block-xs"
+						style="width: 150px;">[[#{label.share.button}]]</button>
 					<!--/*
 					<small class="form-text text-muted">[(#{message.share.public})]</small>
 					*/-->
 				</div>
 			</div>
 		</form>
-	</div>
-
-	<div id="mdlShare" class="modal fade" tabindex="-1" role="dialog"
-		data-backdrop="static" data-keyboard="false">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title">[[#{modal.share.header}]]</h5>
-					<button type="button" class="close" data-dismiss="modal">
-						<span>&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<p>[(#{modal.share.message})]</p>
-				</div>
-				<div class="modal-footer">
-					<button id="mdlShareBtn" type="button" class="btn btn-primary">[[#{modal.button.yes}]]</button>
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">[[#{modal.button.no}]]</button>
-				</div>
-			</div>
-		</div>
 	</div>
 </body>
 </html>

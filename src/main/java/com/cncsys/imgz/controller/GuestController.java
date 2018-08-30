@@ -171,11 +171,26 @@ public class GuestController {
 	}
 
 	@GetMapping("/pay")
-	public String pay(Model model) {
+	public String pay(Model model, Locale locale) {
 		@SuppressWarnings("unchecked")
 		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
 		if (cart.isEmpty()) {
 			return "redirect:/guest/home";
+		}
+
+		int total = 0;
+		for (PhotoForm photo : cart) {
+			total += photo.getPrice();
+		}
+		model.addAttribute("total", total);
+
+		if (total < OMISE_MIN || OMISE_MAX < total) {
+			if (!model.containsAttribute("errors")) {
+				List<String> errors = new ArrayList<String>();
+				errors.add(messageSource.getMessage("error.charge.range",
+						new Object[] { String.format("%,d", OMISE_MIN), String.format("%,d", OMISE_MAX) }, locale));
+				model.addAttribute("errors", errors);
+			}
 		}
 
 		if (!model.containsAttribute("payForm")) {
@@ -226,16 +241,6 @@ public class GuestController {
 			return "redirect:/guest/pay";
 		}
 
-		// check amount
-		int amount = form.getAmount();
-		if (amount < OMISE_MIN || OMISE_MAX < amount) {
-			List<String> errors = new ArrayList<String>();
-			errors.add(messageSource.getMessage("error.charge.range",
-					new Object[] { String.format("%,d", OMISE_MIN), String.format("%,d", OMISE_MAX) }, locale));
-			redirectAttributes.addFlashAttribute("errors", errors);
-			return "redirect:/guest/pay";
-		}
-
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 		String[] guest = user.getUsername().split("\\.");
@@ -243,6 +248,7 @@ public class GuestController {
 		int folder = Integer.parseInt(guest[1]);
 
 		// order info
+		int amount = 0;
 		String orderno = orderService.createNumber();
 		if (email.isEmpty()) {
 			email = orderno;
@@ -283,6 +289,8 @@ public class GuestController {
 				errors.add(messageSource.getMessage("error.photo.changed", null, locale));
 				redirectAttributes.addFlashAttribute("errors", errors);
 				return "redirect:/guest/pay";
+			} else {
+				amount += entity.getPrice();
 			}
 
 			// insert uncharged order

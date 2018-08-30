@@ -6,6 +6,5 @@ import lombok.Data;
 public class PayForm {
 
 	private String email;
-	private int amount;
 	private String token;
 }
