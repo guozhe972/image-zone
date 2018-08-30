@@ -49,8 +49,10 @@ import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
 
 import co.omise.Client;
+import co.omise.ClientException;
 import co.omise.models.Charge;
 import co.omise.models.ChargeStatus;
+import co.omise.models.OmiseException;
 import co.omise.models.Transaction;
 
 @Controller
@@ -77,6 +79,12 @@ public class GuestController {
 
 	@Value("${omise.secret.key}")
 	private String OMISE_SKEY;
+
+	@Value("${omise.charge.min}")
+	private int OMISE_MIN;
+
+	@Value("${omise.charge.max}")
+	private int OMISE_MAX;
 
 	@Autowired
 	private PhotoService photoService;
@@ -202,14 +210,29 @@ public class GuestController {
 		}
 
 		String email = form.getEmail();
-		//if (email == null || email.isEmpty() || !email.matches(
-		//		"^(([0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*)|(\"[^\"]*\"))@[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*$")) {
-		//	result.rejectValue("email", "validation.signup.email");
-		//}
+		if (email == null) {
+			email = "";
+		} else {
+			email = email.trim();
+		}
 
+		if (email.isEmpty() || !email.matches(
+				"^(([0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*)|(\"[^\"]*\"))@[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*$")) {
+			result.rejectValue("email", "validation.signup.email");
+		}
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("payForm", form);
 			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "payForm", result);
+			return "redirect:/guest/pay";
+		}
+
+		// check amount
+		int amount = form.getAmount();
+		if (amount < OMISE_MIN || OMISE_MAX < amount) {
+			List<String> errors = new ArrayList<String>();
+			errors.add(messageSource.getMessage("error.charge.range",
+					new Object[] { String.format("%,d", OMISE_MIN), String.format("%,d", OMISE_MAX) }, locale));
+			redirectAttributes.addFlashAttribute("errors", errors);
 			return "redirect:/guest/pay";
 		}
 
@@ -221,42 +244,48 @@ public class GuestController {
 
 		// order info
 		String orderno = orderService.createNumber();
-		if (email == null || email.isEmpty()) {
+		if (email.isEmpty()) {
 			email = orderno;
 		}
 		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
-		List<String> photos = new ArrayList<String>();
-		int amount = 0;
 
-		// copy photos to order folder.
+		// copy photos to order folder
+		List<String> photos = new ArrayList<String>();
 		fileHelper.createDirectory(ORDER_PATH + "/" + orderno);
 		for (PhotoForm photo : cart) {
 			boolean hasError = false;
 			PhotoEntity entity = photoService.getPhoto(username, folder, photo.getThumbnail());
-			if (entity != null && photo.getPrice() == entity.getPrice()) {
-				try {
-					Path srcPath = Paths.get(ORIGINAL_PATH + "/" + entity.getUsername() + "/" +
-							String.valueOf(entity.getFolder()) + "/" + entity.getOriginal());
-					String destFile = ORDER_PATH + "/" + orderno + "/" + entity.getOriginal();
-					Files.copy(srcPath, Paths.get(destFile), StandardCopyOption.REPLACE_EXISTING);
-					photos.add(destFile);
-					amount = amount + entity.getPrice();
-				} catch (IOException e) {
-					e.printStackTrace();
+			if (entity != null) {
+				if (photo.getPrice() == entity.getPrice()) {
+					try {
+						Path srcPath = Paths.get(ORIGINAL_PATH + "/" + entity.getUsername() + "/" +
+								String.valueOf(entity.getFolder()) + "/" + entity.getOriginal());
+						String destFile = ORDER_PATH + "/" + orderno + "/" + entity.getOriginal();
+						Files.copy(srcPath, Paths.get(destFile), StandardCopyOption.REPLACE_EXISTING);
+						photos.add(destFile);
+					} catch (IOException e) {
+						e.printStackTrace();
+						hasError = true;
+						cart.remove(photo);
+					}
+				} else {
 					hasError = true;
+					photo.setPrice(entity.getPrice());
 				}
 			} else {
 				hasError = true;
+				cart.remove(photo);
 			}
 
 			if (hasError) {
-				// price changed. or photo deleted.
+				// price changed. or photo deleted. or no disk space.
 				List<String> errors = new ArrayList<String>();
 				errors.add(messageSource.getMessage("error.photo.changed", null, locale));
 				redirectAttributes.addFlashAttribute("errors", errors);
 				return "redirect:/guest/pay";
 			}
 
+			// insert uncharged order
 			OrderEntity order = new OrderEntity();
 			order.setOrderno(orderno);
 			order.setEmail(email);
@@ -275,50 +304,62 @@ public class GuestController {
 		// make thumbnail
 		asyncService.makeThumbnail(photos);
 
-		// charge process
+		// payment process
+		Client client = null;
+		Charge charge = null;
 		try {
-			Client client = new Client(OMISE_SKEY);
-			Charge charge = client.charges().create(new Charge.Create()
+			client = new Client(OMISE_SKEY);
+			charge = client.charges().create(new Charge.Create()
 					.amount(amount)
 					.currency("jpy")
 					.capture(true)
 					.description("Order No." + orderno)
 					.card(form.getToken()));
 			if (charge.getStatus() != ChargeStatus.Successful) {
-				logger.error(charge.getFailureCode() + ": " + charge.getFailureMessage());
 				asyncService.deleteOrder(orderno);
 				List<String> errors = new ArrayList<String>();
-				// TODO: charge.getFailureCode()を判断して、FailureMessageを多言語化
-				errors.add(charge.getFailureMessage());
+				errors.add(messageSource.getMessage("error.charge.failed", null, locale));
 				redirectAttributes.addFlashAttribute("errors", errors);
 				return "redirect:/guest/pay";
 			} else {
-				orderService.updateOrder(orderno, email);
-				Transaction trans = client.transactions().get(charge.getTransaction());
-				int real = (int) trans.getAmount();
-				accountService.updateBalance(username, amount, real);
+				logger.info("Order No." + orderno + " Charge Successful.");
 			}
-		} catch (Exception e) {
+		} catch (ClientException | IOException | OmiseException e) {
+			logger.error("Omise Exception Occurred.");
 			e.printStackTrace();
-			logger.error(e.getMessage());
 			asyncService.deleteOrder(orderno);
 			List<String> errors = new ArrayList<String>();
-			errors.add(e.getMessage());
+			errors.add(messageSource.getMessage("error.omise.exception", null, locale));
 			redirectAttributes.addFlashAttribute("errors", errors);
 			return "redirect:/guest/pay";
 		}
 
+		// charge success
+		orderService.updateOrder(orderno, email);
+		String downlink = "/download/" + orderno + "/" + codeParser.encrypt(email);
+
 		// send order mail
-		String[] param = new String[3];
-		param[0] = orderno;
-		param[1] = expiredt.toString();
-		String link = "/download/" + orderno + "/" + codeParser.encrypt(email);
-		param[2] = builder.path(link).build().toUriString();
-		mailHelper.sendOrderDone(email, param);
+		if (!email.equals(orderno)) {
+			String[] param = new String[3];
+			param[0] = orderno;
+			param[1] = expiredt.toString();
+			param[2] = builder.path(downlink).build().toUriString();
+			mailHelper.sendOrderDone(email, param);
+		}
+
+		// update balance
+		try {
+			Transaction trans = client.transactions().get(charge.getTransaction());
+			accountService.updateBalance(username, amount, (int) trans.getAmount());
+		} catch (IOException | OmiseException e) {
+			logger.error("Order No." + orderno + " User Balance Update Error.");
+			e.printStackTrace();
+			// TODO: send mail to admin
+		}
 
 		sessionStatus.setComplete();
 		redirectAttributes.addFlashAttribute("orderno", orderno);
-		redirectAttributes.addFlashAttribute("link", link);
+		redirectAttributes.addFlashAttribute("downlink", downlink);
 		return "redirect:/guest/done";
 	}
 

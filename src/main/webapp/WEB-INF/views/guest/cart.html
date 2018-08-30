@@ -73,7 +73,7 @@
 			<button type="button" class="btn btn-warning" th:disabled="true"
 				style="opacity: 1;">
 				[[#{label.cart.total}]]&nbsp;&nbsp;<span id="total"
-					th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(__${#aggregates.sum(cart.![price])}__,1,'COMMA')}|"></span>
+					th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span>
 			</button>
 			<a class="btn btn-info ml-auto" id="btnOrder"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'"

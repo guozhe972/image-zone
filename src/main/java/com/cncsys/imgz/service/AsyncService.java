@@ -36,7 +36,6 @@ public class AsyncService {
 	private FileHelper fileHelper;
 
 	public void makeThumbnail(List<String> photos) {
-		logger.info("async start.");
 		for (String photo : photos) {
 			try {
 				File original = new File(photo);
@@ -47,7 +46,6 @@ public class AsyncService {
 				e.printStackTrace();
 			}
 		}
-		logger.info("async end.");
 	}
 
 	@Transactional

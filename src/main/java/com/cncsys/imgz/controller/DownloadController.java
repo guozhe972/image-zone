@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -50,9 +51,10 @@ public class DownloadController {
 		}
 		model.addAttribute("photos", photos);
 
+		LocalDate expiredt = entity.get(0).getExpiredt();
 		List<String> errors = new ArrayList<String>();
 		errors.add(messageSource.getMessage("message.download.expiry",
-				new Object[] { entity.get(0).getExpiredt().toString() },
+				new Object[] { expiredt.toString() },
 				locale));
 		model.addAttribute("errors", errors);
 		return "/system/download";
