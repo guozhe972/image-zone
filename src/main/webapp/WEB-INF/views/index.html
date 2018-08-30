@@ -3,7 +3,7 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>Top</title>
+<title>[[#{title.index}]]</title>
 <meta name="description" th:content="#{site.keyword}">
 <style>
 @media ( max-width : 575px) {
@@ -17,16 +17,15 @@
 <body layout:fragment="body" class="pt-header">
 	<header layout:insert="~{layout/parts/header::home(true, true)}"
 		class="fixed-top bg-header"></header>
-	<div class="jumbotron rounded-0">
+	<div class="jumbotron rounded-0 py-4">
 		<div class="container">
-			<h1 class="display-4">[[#{label.welcome}]]</h1>
-			<p>iZoneとは</p>
-			<p>
-				写真販売に特化したをECサイトです。<br> 誰でも簡単にユーザー登録して、写真を販売することができます。
-			</p>
-			<p>
+			<h4>iZoneとは</h4>
+			<div class="mb-3">
+				写真販売に特化したECサイトです。<br> 誰でも簡単にユーザー登録して、写真を販売することができます。
+			</div>
+			<p class="mb-0">
 				<a class="btn btn-primary btn-lg" th:href="@{/auth/signup}"
-					role="button" style="width: 200px;">[[#{label.signup.button}]]</a>
+					role="button" style="width: 200px;">今すぐ登録</a>
 			</p>
 		</div>
 	</div>
@@ -36,10 +35,10 @@
 				alt="Step 1">
 			<div class="media-body">
 				<h4 class="mt-0">写真をアップロード</h4>
-				<ol class="pl-3">
+				<ul class="pl-3">
 					<li class="mb-2">撮影した写真をイベントフォルダにアップロードします。</li>
 					<li class="mb-2">アップロードした写真には透かし文字が印字されます。</li>
-				</ol>
+				</ul>
 			</div>
 		</div>
 		<hr>
@@ -48,10 +47,10 @@
 				alt="Step 2">
 			<div class="media-body">
 				<h4 class="mt-0">金額設定と公開</h4>
-				<ol class="pl-3">
+				<ul class="pl-3">
 					<li class="mb-2">アップロードした写真の販売金額を設定します。</li>
 					<li class="mb-2">イベントフォルダの公開パスワードを設定します。</li>
-				</ol>
+				</ul>
 			</div>
 		</div>
 		<hr>
@@ -59,11 +58,11 @@
 			<img class="align-self-start mr-3" th:src="@{/images/step3.png}"
 				alt="Step 3">
 			<div class="media-body">
-				<h4 class="mt-0">購入対象に連絡</h4>
-				<ol class="pl-3">
-					<li class="mb-2">設定した公開パスワードを購入対象に連絡します。</li>
-					<li class="mb-2">パスワードの代わりに公開QRコードを連絡することもできます。</li>
-				</ol>
+				<h4 class="mt-0">販売対象に連絡</h4>
+				<ul class="pl-3">
+					<li class="mb-2">設定した公開パスワードを販売対象に連絡します。</li>
+					<li class="mb-2">パスワードの代わりに公開QRコードを使用できます。</li>
+				</ul>
 			</div>
 		</div>
 		<hr>
@@ -72,10 +71,10 @@
 				alt="Step 4">
 			<div class="media-body">
 				<h4 class="mt-0">写真の購入</h4>
-				<ol class="pl-3">
-					<li class="mb-2">公開パスワードまたはQRコードでサイトにログインします。</li>
-					<li class="mb-2">写真を選択してクレジット決済します。</li>
-				</ol>
+				<ul class="pl-3">
+					<li class="mb-2">公開パスワードまたはQRコードでログインします。</li>
+					<li class="mb-2">写真を選択してクレジット支払で購入します。</li>
+				</ul>
 			</div>
 		</div>
 	</div>

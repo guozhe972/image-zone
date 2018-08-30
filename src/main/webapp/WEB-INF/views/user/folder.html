@@ -121,19 +121,19 @@ button[id^="btnPrice"]:disabled {
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div th:unless="${shared}" class="d-none-xs"
-		style="width: 100%; height: 55px;">
+	<div class="d-none-xs" style="width: 100%; height: 55px;">
 		<div
 			class="py-2 w-100 bg-main border-bottom d-flex justify-content-between fixed-top"
 			style="top: 56px;">
-			<button type="button" class="btnBulk btn btn-success ml-3"
+			<button type="button" class="btnBulk btn btn-warning ml-3"
 				th:disabled="${#lists.isEmpty(photos)}"
 				th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|"
 				data-toggle="modal" data-target="#mdlPrice">[[#{label.folder.bulk}]]</button>
 			<a class="btnShare btn btn-info mr-3"
 				th:classappend="${#lists.isEmpty(photos)}?'disabled'"
 				th:href="@{|/user/share/${folder}|}" role="button"><i
-				class="fas fa-share-alt"></i>&nbsp;[[#{label.folder.share}]]</a>
+				class="fas fa-share-alt"></i>&nbsp;<th:block
+					th:text="${shared}?#{label.folder.info}:#{label.folder.share}"></th:block></a>
 		</div>
 	</div>
 
@@ -153,12 +153,10 @@ button[id^="btnPrice"]:disabled {
 					<div class="card-footer p-1 bg-white btn-group d-flex" role="group">
 						<button type="button" th:id="|btnPrice${stat.count}|"
 							class="btn btn-warning btn-sm w-100"
-							th:classappend="${shared}?'rounded'" th:disabled="${shared}"
 							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($(this).text().replace('#{money.mark}','').replace(/,/g,''));|"
 							data-toggle="modal" data-target="#mdlPrice"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></button>
 						<button type="button" class="btn btn-danger btn-sm w-100"
-							th:classappend="${shared}?'d-none'"
 							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|"
 							data-toggle="modal" data-target="#mdlDelete">[[#{label.folder.delete}]]</button>
 					</div>
@@ -168,23 +166,22 @@ button[id^="btnPrice"]:disabled {
 	</div>
 
 	<button type="button" id="toTop"
-		class="btn btn-primary rounded-circle nofocus"
-		th:classappend="${shared}?'':'d-none-xs'">
+		class="btn btn-primary rounded-circle nofocus d-none-xs">
 		<i class="fas fa-angle-up fa-2x"></i>
 	</button>
 
-	<div th:unless="${shared}" class="d-none-sm"
-		style="width: 100%; height: 38px;">
+	<div class="d-none-sm" style="width: 100%; height: 38px;">
 		<div class="w-100 btn-group fixed-bottom">
 			<button type="button"
-				class="btnBulk btn btn-success w-100 rounded-0 nofocus"
+				class="btnBulk btn btn-warning w-100 rounded-0 nofocus"
 				th:disabled="${#lists.isEmpty(photos)}"
 				th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|"
 				data-toggle="modal" data-target="#mdlPrice">[[#{label.folder.bulk}]]</button>
 			<a class="btnShare btn btn-info w-100 rounded-0 nofocus"
 				th:classappend="${#lists.isEmpty(photos)}?'disabled'"
 				th:href="@{|/user/share/${folder}|}" role="button"><i
-				class="fas fa-share-alt"></i>&nbsp;[[#{label.folder.share}]]</a>
+				class="fas fa-share-alt"></i>&nbsp;<th:block
+					th:text="${shared}?#{label.folder.info}:#{label.folder.share}"></th:block></a>
 			<button id="btnScroll" type="button"
 				class="btn btn-primary rounded-0 nofocus"
 				style="padding-left: 13px; padding-right: 13px;">

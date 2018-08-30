@@ -290,23 +290,21 @@ label.custom-file-label::after {
 							<input type="file" class="custom-file-input"
 								th:id="|files*{seq}|" name="files"
 								accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
-								th:disabled="*{shared}" multiple required /> <label
-								th:for="|files*{seq}|" class="custom-file-label text-truncate"
+								multiple required /> <label th:for="|files*{seq}|"
+								class="custom-file-label text-truncate"
 								th:text="#{input.file.content}"></label>
 						</div>
 					</div>
 					<div class="form-group btn-group d-flex mb-0" role="group">
-						<button type="submit" class="btn text-none w-100 rounded-sm"
-							th:classappend="*{shared}?'btn-secondary':'btn-info'"
-							th:disabled="*{shared}"
+						<button type="submit"
+							class="btn btn-info text-none w-100 rounded-sm"
 							th:onclick="|return checkFolder(*{seq});|">
 							<i class="fas fa-upload"></i><span>&nbsp;[[#{label.user.upload}]]</span>
 						</button>
 						<a class="btn btn-warning text-none w-100 ml-sm-3 rounded-sm"
 							th:onclick="|return checkFolder(*{seq});|"
 							th:href="@{|/user/folder/*{seq}|}" role="button"> <i
-							class="fas fa-yen-sign"></i><span>&nbsp;<th:block
-									th:text="*{shared} ? #{label.user.price2}:#{label.user.price1}"></th:block></span>
+							class="fas fa-yen-sign"></i><span>&nbsp;[[#{label.user.price}]]</span>
 						</a> <a class="btn text-none w-100 ml-sm-3 rounded-sm"
 							th:classappend="*{shared}?'btn-success':'btn-secondary disabled'"
 							th:href="@{|/user/sales/*{seq}|}" role="button"> <i

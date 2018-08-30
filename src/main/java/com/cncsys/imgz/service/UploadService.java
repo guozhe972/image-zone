@@ -30,9 +30,6 @@ public class UploadService {
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
 
-	@Value("${photo.price.default}")
-	private int PRICE_DEFAULT;
-
 	@Autowired
 	private ImageEditor imageEditor;
 
@@ -42,7 +39,7 @@ public class UploadService {
 	@Autowired
 	private PhotoService photoService;
 
-	public void upload(String username, int folder, List<String> files) {
+	public void upload(String username, int folder, List<String> files, int price) {
 
 		String thumbPath = UPLOAD_PATH + "/" + username + "/" + String.valueOf(folder);
 		fileHelper.createDirectory(thumbPath);
@@ -92,7 +89,7 @@ public class UploadService {
 								photo.setThumbnail(thumbId);
 								photo.setOriginal(originId);
 								photo.setFilename(fileName);
-								photo.setPrice(PRICE_DEFAULT);
+								photo.setPrice(price);
 								photo.setCreatedt(DateTime.now());
 								photoService.insertPhoto(photo);
 							} catch (Exception e) {
@@ -131,7 +128,7 @@ public class UploadService {
 					photo.setThumbnail(thumbId);
 					photo.setOriginal(originId);
 					photo.setFilename(fileName);
-					photo.setPrice(PRICE_DEFAULT);
+					photo.setPrice(price);
 					photo.setCreatedt(DateTime.now());
 					photoService.insertPhoto(photo);
 				} catch (Exception e) {

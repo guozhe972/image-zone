@@ -80,7 +80,6 @@
 				th:href="@{/guest/pay}" role="button">[[#{label.cart.order}]]</a>
 		</div>
 		<hr class="mb-0">
-
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${cart}" th:object="${form}"
 				th:id="|photo${stat.count}|"

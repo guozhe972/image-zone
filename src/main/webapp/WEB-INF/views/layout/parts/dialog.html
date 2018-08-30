@@ -57,7 +57,8 @@
 					<p>[[#{modal.logout.message}]]</p>
 				</div>
 				<div class="modal-footer">
-					<form class="form-inline" th:action="@{/logout}" method="post">
+					<form id="fomLogout" class="form-inline" th:action="@{/logout}"
+						method="post">
 						<button type="submit" class="btn btn-primary">[[#{modal.button.yes}]]</button>
 					</form>
 					<button type="button" class="btn btn-secondary"

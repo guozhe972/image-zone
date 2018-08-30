@@ -79,6 +79,9 @@ public class UserController {
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
 
+	@Value("${photo.price.default}")
+	private int DEFAULT_PRICE;
+
 	@Value("${default.expired.days}")
 	private int DEFAULT_EXPIRED;
 
@@ -243,7 +246,7 @@ public class UserController {
 			}
 			fileList.add(fileName + "/" + newName);
 		}
-		uploadService.upload(user.getUsername(), form.getSeq(), fileList);
+		uploadService.upload(user.getUsername(), form.getSeq(), fileList, DEFAULT_PRICE);
 
 		// unlock folder
 		//folderService.unlock(user.getUsername(), form.getSeq());
