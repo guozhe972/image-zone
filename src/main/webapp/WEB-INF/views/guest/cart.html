@@ -75,7 +75,7 @@
 				[[#{label.cart.total}]]&nbsp;&nbsp;<span id="total"
 					th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span>
 			</button>
-			<a class="btn btn-info ml-auto" id="btnOrder"
+			<a class="btn btn-info" id="btnOrder"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
 				th:href="@{/guest/pay}" role="button">[[#{label.cart.order}]]</a>
 		</div>
@@ -83,15 +83,13 @@
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${cart}" th:object="${form}"
 				th:id="|photo${stat.count}|"
-				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
+				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card">
-					<div class="card-body p-0 text-center"
-						style="height: 200px; line-height: 194px;">
+					<div class="card-body p-0 text-center photo">
 						<img class="img-fluid mh-100"
 							th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
-						<div class="badge badge-warning position-absolute"
-							style="top: 0; right: 0;"
+						<div class="badge badge-warning badge-price"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>
 					</div>
 					<div class="card-footer p-1 bg-white">

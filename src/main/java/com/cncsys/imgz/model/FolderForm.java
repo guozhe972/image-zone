@@ -31,6 +31,7 @@ public class FolderForm {
 	private String guest;
 	private String password;
 	private List<MultipartFile> files;
+	private int price;
 	@JsonFormat(shape = Shape.STRING)
 	@DateTimeFormat(iso = ISO.DATE)
 	private LocalDate expiredt;

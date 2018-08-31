@@ -50,10 +50,9 @@
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				th:id="|photo${stat.count}|"
-				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
+				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card">
-					<div class="card-body p-0 text-center"
-						style="height: 200px; line-height: 194px;">
+					<div class="card-body p-0 text-center photo">
 						<a
 							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
 							title=""> <img class="lazyload img-fluid mh-100"
@@ -61,8 +60,7 @@
 							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 						</a>
-						<div class="badge badge-warning position-absolute"
-							style="top: 0; right: 0;"
+						<div class="badge badge-warning badge-price"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>
 					</div>
 					<div class="card-footer p-1 bg-white">
@@ -70,7 +68,9 @@
 							class="btn btn-sm w-100"
 							th:classappend="*{incart}?'btn-secondary':'btn-info'"
 							th:disabled="*{incart}"
-							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">[[#{label.guest.cart}]]</button>
+							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">
+							<i class="fas fa-cart-plus"></i>&nbsp;[[#{label.guest.cart}]]
+						</button>
 					</div>
 				</div>
 			</div>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>[[#{title.index}]]</title>
+<meta name="description" th:content="#{site.keyword}">
+<style>
+@media ( max-width : 575px) {
+	div.media>img {
+		width: 25%;
+		height: 25%;
+	}
+}
+</style>
+</head>
+<body layout:fragment="body" class="pt-header">
+	<header layout:insert="~{layout/parts/header::home(true, true)}"
+		class="fixed-top bg-header"></header>
+	<div class="jumbotron rounded-0 py-4">
+		<div class="container">
+			<h4>iZone是</h4>
+			<div class="mb-3">
+				为摄影师专门打造的出售照片的网站。<br> 谁都可以简单快捷的注册用户，在网站出售照片。
+			</div>
+			<p class="mb-0">
+				<a class="btn btn-primary btn-lg" th:href="@{/auth/signup}"
+					role="button" style="width: 200px;">马上注册</a>
+			</p>
+		</div>
+	</div>
+	<div class="container bg-main pb-3">
+		<div class="media">
+			<img class="align-self-start mr-3" th:src="@{/images/step1.png}"
+				alt="Step 1">
+			<div class="media-body">
+				<h4 class="mt-0">上传照片</h4>
+				<ul class="pl-3">
+					<li class="mb-2">把想要出售的照片上传到活动文件夹。</li>
+					<li class="mb-2">系统自动会为上传的照片加上防盗水印。</li>
+				</ul>
+			</div>
+		</div>
+		<hr>
+		<div class="media">
+			<img class="align-self-start mr-3" th:src="@{/images/step2.png}"
+				alt="Step 2">
+			<div class="media-body">
+				<h4 class="mt-0">设置价格并共享</h4>
+				<ul class="pl-3">
+					<li class="mb-2">为上传的照片设置好出售价格。</li>
+					<li class="mb-2">设置活动文件夹的共享密码。</li>
+				</ul>
+			</div>
+		</div>
+		<hr>
+		<div class="media">
+			<img class="align-self-start mr-3" th:src="@{/images/step3.png}"
+				alt="Step 3">
+			<div class="media-body">
+				<h4 class="mt-0">联系买家</h4>
+				<ul class="pl-3">
+					<li class="mb-2">把共享密码通知给买家。</li>
+					<li class="mb-2">也可以用二维码取代共享密码。</li>
+				</ul>
+			</div>
+		</div>
+		<hr>
+		<div class="media">
+			<img class="align-self-start mr-3" th:src="@{/images/step4.png}"
+				alt="Step 4">
+			<div class="media-body">
+				<h4 class="mt-0">购买照片</h4>
+				<ul class="pl-3">
+					<li class="mb-2">买家可以通过共享密码或二维码登录网站。</li>
+					<li class="mb-2">选择中意的照片，并支付购买。</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
+	<div class="pb-footer w-100"></div>
+	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
+</body>
+</html>

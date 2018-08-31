@@ -90,6 +90,25 @@ input[type=date]::-webkit-clear-button {
 	box-shadow: none;
 }
 
+.badge-price {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 80%;
+}
+
+.photo {
+	height: 120px;
+	line-height: 112px;
+}
+
+@media ( min-width : 400px) {
+	.photo {
+		height: 200px;
+		line-height: 194px;
+	}
+}
+
 @media ( max-width : 575px) {
 	.text-none-xs {
 		width: auto !important;

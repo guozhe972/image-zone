@@ -26,10 +26,9 @@ div.alert {
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
-				class="col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
+				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card">
-					<div class="card-body p-0 text-center"
-						style="height: 200px; line-height: 194px;">
+					<div class="card-body p-0 text-center photo">
 						<img class="lazyload img-fluid mh-100"
 							th:src="@{/images/loading.gif}"
 							th:data-original="@{|/order/*{orderno}/thumbnail_*{thumbnail}|}"

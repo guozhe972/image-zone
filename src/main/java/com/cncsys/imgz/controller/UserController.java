@@ -97,6 +97,12 @@ public class UserController {
 	@Value("${qrcode.size.height}")
 	private int QRCODE_HEIGHT;
 
+	@Value("${photo.price.min}")
+	private int PRICE_MIN;
+
+	@Value("${photo.price.max}")
+	private int PRICE_MAX;
+
 	@Autowired
 	private MessageSource messageSource;
 
@@ -172,6 +178,7 @@ public class UserController {
 			form.setName(folder.getName());
 			form.setShared(folder.isShared());
 			form.setExpiredt(folder.getExpiredt());
+			form.setPrice(DEFAULT_PRICE);
 			folders.add(form);
 		}
 
@@ -246,7 +253,14 @@ public class UserController {
 			}
 			fileList.add(fileName + "/" + newName);
 		}
-		uploadService.upload(user.getUsername(), form.getSeq(), fileList, DEFAULT_PRICE);
+
+		int price = form.getPrice();
+		if (price < PRICE_MIN) {
+			price = PRICE_MIN;
+		} else if (price > PRICE_MAX) {
+			price = PRICE_MAX;
+		}
+		uploadService.upload(user.getUsername(), form.getSeq(), fileList, price);
 
 		// unlock folder
 		//folderService.unlock(user.getUsername(), form.getSeq());

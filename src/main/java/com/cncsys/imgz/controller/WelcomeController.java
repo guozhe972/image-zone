@@ -1,5 +1,7 @@
 package com.cncsys.imgz.controller;
 
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,8 +18,8 @@ public class WelcomeController {
 	private CodeParser codeParser;
 
 	@GetMapping("/")
-	public String welcome() {
-		return "/index";
+	public String welcome(Locale locale) {
+		return "/index_" + locale.getLanguage().toLowerCase();
 	}
 
 	@GetMapping("/login/{usernm}/{folder}/{token}")
@@ -47,5 +49,10 @@ public class WelcomeController {
 	@GetMapping("/about/privacy")
 	public String privacyPolicy() {
 		return "/about/privacy";
+	}
+
+	@GetMapping("/about/security")
+	public String aboutSecurity() {
+		return "/about/security";
 	}
 }

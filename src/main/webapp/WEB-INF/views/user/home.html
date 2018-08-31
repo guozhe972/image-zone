@@ -10,8 +10,14 @@
 label.custom-file-label::after {
 	content: "[(#{input.file.button})]";
 }
+
+.input-group.is-invalid .input-group-text, .input-group.is-invalid .form-control
+	{
+	border-color: #E74C3C;
+}
 </style>
 <script>
+	var target = 0;
 	function checkFolder(seq) {
 		var unLocked = true;
 		/*$.ajax({
@@ -94,35 +100,77 @@ label.custom-file-label::after {
 					}
 				});
 
-		$('form[data-type="upload"]').submit(
+		$('.btnUpload').click(function() {
+			target = $(this).attr('data-target');
+
+			var selFiles = $('#files' + target);
+			selFiles.removeClass('is-invalid');
+			$('#grpFile' + target).next('.invalid-feedback').remove();
+
+			if (selFiles.get(0).files.length == 0) {
+				selFiles.addClass('is-invalid');
+				$('#grpFile' + target).after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{validation.upload.nofile})]'
+				}));
+				return;
+			}
+
+			if (!checkFile(selFiles.get(0))) {
+				resetFile(selFiles.get(0));
+				selFiles.addClass('is-invalid');
+				$('#grpFile' + target).after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{validation.upload.invalid})]'
+				}));
+				return;
+			}
+
+			$('#money').val($('#price' + target).val());
+			$('#mdlPrice').modal('show');
+		});
+		$('#mdlPrice').on('shown.bs.modal', function() {
+			$('#money').trigger('focus');
+		});
+		$('#money').focus(function() {
+			$(this).select();
+		});
+		$('#mdlPriceBtn')
+				.click(
+						function() {
+							var money = $('#money').val();
+							if (!/^[0-9]+$/.test(money)
+									|| money < Number('[(${@applicationProperties.getProperty("photo.price.min")})]')
+									|| money > Number('[(${@applicationProperties.getProperty("photo.price.max")})]')) {
+								$('#grpMoney').addClass('is-invalid');
+								$('#grpMoney')
+										.after(
+												$(
+														'<div/>',
+														{
+															'class' : 'invalid-feedback d-block',
+															text : '[(${#messages.msg("validation.photo.price", #numbers.formatInteger(@applicationProperties.getProperty("photo.price.min"),1,"COMMA"), #numbers.formatInteger(@applicationProperties.getProperty("photo.price.max"),1,"COMMA"))})]'
+														}));
+								return;
+							}
+
+							$('#price' + target).val(money);
+							if (checkFolder(target)) {
+								$('#mdlPrice').modal('hide');
+								$('#fomUpload' + target).submit();
+							} else {
+								$('#mdlPrice').modal('hide');
+							}
+						});
+		$('#mdlPrice').on('hide.bs.modal', function(e) {
+			$('#grpMoney').removeClass('is-invalid');
+			$('#grpMoney').next('.invalid-feedback').remove();
+		});
+
+		$('form[name="fomUpload"]').submit(
 				function(event) {
 					event.preventDefault();
-					$('.is-invalid').removeClass('is-invalid');
-					$('.invalid-feedback').remove();
 					var form = $(this).get(0);
-					var selFiles = $(this).find(':file').get(0);
-
-					if (selFiles.files.length == 0) {
-						$(selFiles).addClass('is-invalid');
-						$(selFiles).parent().after($('<div/>', {
-							'class' : 'invalid-feedback d-block',
-							text : '[(#{validation.upload.nofile})]'
-						}));
-						event.stopPropagation();
-						return;
-					}
-
-					if (!checkFile(selFiles)) {
-						resetFile(selFiles);
-						$(selFiles).addClass('is-invalid');
-						$(selFiles).parent().after($('<div/>', {
-							'class' : 'invalid-feedback d-block',
-							text : '[(#{validation.upload.invalid})]'
-						}));
-						event.stopPropagation();
-						return;
-					}
-
 					var ajaxReq = $.ajax({
 						url : '[(@{/user/upload})]',
 						method : 'POST',
@@ -168,21 +216,21 @@ label.custom-file-label::after {
 						if (jqXHR.status == 405) {
 							location.href = '[(@{/system/error})]';
 						} else if (jqXHR.status == 400) {
-							$(selFiles).addClass('is-invalid');
-							$(selFiles).parent().after($('<div/>', {
+							$('#files' + target).addClass('is-invalid');
+							$('#grpFile' + target).after($('<div/>', {
 								'class' : 'invalid-feedback d-block',
 								text : jqXHR.responseText
 							}));
 						} else if (jqXHR.status == 0) {
-							$(selFiles).addClass('is-invalid');
-							$(selFiles).parent().after($('<div/>', {
+							$('#files' + target).addClass('is-invalid');
+							$('#grpFile' + target).after($('<div/>', {
 								'class' : 'invalid-feedback d-block',
 								text : '[(#{validation.upload.invalid})]'
 							}));
 						}
 					});
 					ajaxReq.always(function() {
-						resetFile(selFiles);
+						resetFile($('#files' + target).get(0));
 						$('#mdlUpload').modal('hide');
 					});
 				});
@@ -264,11 +312,12 @@ label.custom-file-label::after {
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<ul class="list-group list-group-flush mw-content mx-auto">
 			<li class="list-group-item px-0 py-3" th:each="form : ${folders}">
-				<form data-type="upload" enctype="multipart/form-data" novalidate
+				<form name="fomUpload" enctype="multipart/form-data" novalidate
 					th:action="@{/user/upload}" method="post" th:object="${form}"
-					autocomplete="off">
+					th:id="|fomUpload${form.seq}|" autocomplete="off">
 					<input type="hidden" th:id="|seq*{seq}|" name="seq"
-						th:value="*{seq}" />
+						th:value="*{seq}" /> <input type="hidden" th:id="|price*{seq}|"
+						name="price" th:value="*{price}" />
 					<div class="form-group mb-2 d-flex justify-content-between">
 						<div class="text-truncate" style="max-width: 300px;">
 							<a th:id="|lnkName*{seq}|" class="text-folder" tabindex="-1"
@@ -286,7 +335,7 @@ label.custom-file-label::after {
 						</div>
 					</div>
 					<div class="form-group">
-						<div class="custom-file">
+						<div th:id="|grpFile*{seq}|" class="custom-file">
 							<input type="file" class="custom-file-input"
 								th:id="|files*{seq}|" name="files"
 								accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
@@ -296,9 +345,8 @@ label.custom-file-label::after {
 						</div>
 					</div>
 					<div class="form-group btn-group d-flex mb-0" role="group">
-						<button type="submit"
-							class="btn btn-info text-none w-100 rounded-sm"
-							th:onclick="|return checkFolder(*{seq});|">
+						<button type="button" th:data-target="*{seq}"
+							class="btnUpload btn btn-info text-none w-100 rounded-sm">
 							<i class="fas fa-upload"></i><span>&nbsp;[[#{label.user.upload}]]</span>
 						</button>
 						<a class="btn btn-warning text-none w-100 ml-sm-3 rounded-sm"
@@ -333,6 +381,39 @@ label.custom-file-label::after {
 		class="btn btn-primary rounded-circle nofocus">
 		<i class="fas fa-angle-up fa-2x"></i>
 	</button>
+
+	<div id="mdlPrice" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">[[#{modal.price.header}]]</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div id="grpMoney" class="input-group">
+						<div class="input-group-prepend">
+							<span class="input-group-text">[[#{money.label}]]</span>
+						</div>
+						<input type="number" id="money" pattern="[0-9]+"
+							th:min="${@applicationProperties.getProperty('photo.price.min')}"
+							th:max="${@applicationProperties.getProperty('photo.price.max')}"
+							maxlength="7" class="form-control text-right num-only" />
+						<div class="input-group-append">
+							<span class="input-group-text">[[#{modal.price.unit}]]</span>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button id="mdlPriceBtn" type="button" class="btn btn-primary">[[#{modal.button.ok}]]</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<div id="mdlRename" class="modal fade" tabindex="-1" role="dialog"
 		data-backdrop="static" data-keyboard="false">
