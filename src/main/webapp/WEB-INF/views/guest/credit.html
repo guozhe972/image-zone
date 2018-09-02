@@ -133,7 +133,7 @@
 	<div class="container bg-main">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<form id="fomPay" class="mw-content mx-auto py-3" novalidate
-			th:action="@{/guest/pay}" th:object="${payForm}" method="post">
+			th:action="@{/guest/credit}" th:object="${payForm}" method="post">
 			<input type="hidden" id="token" name="token" />
 			<div class="form-group row">
 				<label for="grpEmail" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.email}]]</label>

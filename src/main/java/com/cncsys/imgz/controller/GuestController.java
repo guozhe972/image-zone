@@ -6,9 +6,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -26,15 +31,24 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.servlet.FlashMap;
+import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.helper.CodeParser;
@@ -47,6 +61,7 @@ import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.omise.Client;
 import co.omise.ClientException;
@@ -85,6 +100,21 @@ public class GuestController {
 
 	@Value("${omise.charge.max}")
 	private int OMISE_MAX;
+
+	@Value("${alipay.app.id}")
+	private String ALIPAY_APPID;
+
+	@Value("${alipay.public.key}")
+	private String ALIPAY_PUBLIC;
+
+	@Value("${alipay.private.key}")
+	private String ALIPAY_PRIVATE;
+
+	@Value("${alipay.gateway.url}")
+	private String ALIPAY_GATEWAY;
+
+	@Value("${alipay.product.subject}")
+	private String ALIPAY_SUBJECT;
 
 	@Autowired
 	private PhotoService photoService;
@@ -184,27 +214,36 @@ public class GuestController {
 		}
 		model.addAttribute("total", total);
 
-		if (total < OMISE_MIN || OMISE_MAX < total) {
-			if (!model.containsAttribute("errors")) {
-				List<String> errors = new ArrayList<String>();
-				errors.add(messageSource.getMessage("error.charge.range",
-						new Object[] { String.format("%,d", OMISE_MIN), String.format("%,d", OMISE_MAX) }, locale));
-				model.addAttribute("errors", errors);
-			}
-		}
-
 		if (!model.containsAttribute("payForm")) {
 			PayForm form = new PayForm();
 			model.addAttribute("payForm", form);
 		}
 
-		int[] years = new int[10];
-		int year = LocalDate.now().getYear();
-		for (int i = 0; i < years.length; i++) {
-			years[i] = year + i;
+		String view = "/system/none";
+		if ("ja".equals(locale.getLanguage())) {
+			view = "/guest/zhpay";
+
+		} else if ("zh".equals(locale.getLanguage())) {
+			view = "/guest/credit";
+
+			if (total < OMISE_MIN || OMISE_MAX < total) {
+				if (!model.containsAttribute("errors")) {
+					List<String> errors = new ArrayList<String>();
+					errors.add(messageSource.getMessage("error.charge.range",
+							new Object[] { String.format("%,d", OMISE_MIN), String.format("%,d", OMISE_MAX) }, locale));
+					model.addAttribute("errors", errors);
+				}
+			}
+
+			int[] years = new int[10];
+			int year = LocalDate.now().getYear();
+			for (int i = 0; i < years.length; i++) {
+				years[i] = year + i;
+			}
+			model.addAttribute("years", years);
 		}
-		model.addAttribute("years", years);
-		return "/guest/pay";
+
+		return view;
 	}
 
 	@PostMapping(path = "/mail", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
@@ -214,8 +253,187 @@ public class GuestController {
 		return "ok";
 	}
 
-	@PostMapping("/pay")
-	public String order(@ModelAttribute PayForm form, BindingResult result, Model model,
+	@PostMapping("/alipay")
+	public void alipay(@ModelAttribute PayForm form, BindingResult result, Model model,
+			RedirectAttributes redirectAttributes, HttpServletRequest request, HttpServletResponse response,
+			UriComponentsBuilder builder, Locale locale) throws AlipayApiException, IOException {
+		@SuppressWarnings("unchecked")
+		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
+		if (cart.isEmpty()) {
+			response.sendRedirect(request.getContextPath() + "/guest/home");
+			return;
+		}
+
+		String email = form.getEmail();
+		if (email == null) {
+			email = "";
+		} else {
+			email = email.trim();
+		}
+
+		if (email.isEmpty() || !email.matches(
+				"^(([0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*)|(\"[^\"]*\"))@[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*$")) {
+			result.rejectValue("email", "validation.signup.email");
+		}
+		if (result.hasErrors()) {
+			FlashMap flashMap = new FlashMap();
+			flashMap.put("payForm", form);
+			flashMap.put(BindingResult.MODEL_KEY_PREFIX + "payForm", result);
+
+			String redirectPath = request.getContextPath() + "/guest/pay";
+			flashMap.setTargetRequestPath(redirectPath);
+			FlashMapManager flashMapManager = RequestContextUtils.getFlashMapManager(request);
+			flashMapManager.saveOutputFlashMap(flashMap, request, response);
+			response.sendRedirect(redirectPath);
+			return;
+		}
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+		String[] guest = user.getUsername().split("\\.");
+		String username = guest[0];
+		int folder = Integer.parseInt(guest[1]);
+
+		// order info
+		int amount = 0;
+		String orderno = orderService.createNumber();
+		if (email.isEmpty()) {
+			email = orderno;
+		}
+		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
+
+		// copy photos to order folder
+		List<String> photos = new ArrayList<String>();
+		fileHelper.createDirectory(ORDER_PATH + "/" + orderno);
+		for (PhotoForm photo : cart) {
+			boolean hasError = false;
+			PhotoEntity entity = photoService.getPhoto(username, folder, photo.getThumbnail());
+			if (entity != null) {
+				if (photo.getPrice() == entity.getPrice()) {
+					try {
+						Path srcPath = Paths.get(ORIGINAL_PATH + "/" + entity.getUsername() + "/" +
+								String.valueOf(entity.getFolder()) + "/" + entity.getOriginal());
+						String destFile = ORDER_PATH + "/" + orderno + "/" + entity.getOriginal();
+						Files.copy(srcPath, Paths.get(destFile), StandardCopyOption.REPLACE_EXISTING);
+						photos.add(destFile);
+					} catch (IOException e) {
+						e.printStackTrace();
+						hasError = true;
+						cart.remove(photo);
+					}
+				} else {
+					hasError = true;
+					photo.setPrice(entity.getPrice());
+				}
+			} else {
+				hasError = true;
+				cart.remove(photo);
+			}
+
+			if (hasError) {
+				// price changed. or photo deleted. or no disk space.
+				List<String> errors = new ArrayList<String>();
+				errors.add(messageSource.getMessage("error.photo.changed", null, locale));
+
+				FlashMap flashMap = new FlashMap();
+				flashMap.put("errors", errors);
+
+				String redirectPath = request.getContextPath() + "/guest/pay";
+				flashMap.setTargetRequestPath(redirectPath);
+				FlashMapManager flashMapManager = RequestContextUtils.getFlashMapManager(request);
+				flashMapManager.saveOutputFlashMap(flashMap, request, response);
+				response.sendRedirect(redirectPath);
+				return;
+			} else {
+				amount += entity.getPrice();
+			}
+
+			// insert uncharged order
+			OrderEntity order = new OrderEntity();
+			order.setOrderno(orderno);
+			order.setEmail(email);
+			order.setUsername(entity.getUsername());
+			order.setFolder(entity.getFolder());
+			order.setThumbnail(entity.getThumbnail());
+			order.setOriginal(entity.getOriginal());
+			order.setFilename(entity.getFilename());
+			order.setPrice(entity.getPrice());
+			order.setCreatedt(DateTime.now());
+			order.setCharged(false);
+			order.setExpiredt(expiredt);
+			orderService.insertOrder(order);
+		}
+
+		// make thumbnail
+		asyncService.makeThumbnail(photos);
+
+		// payment process (go to alipay)
+		AlipayClient alipayClient = new DefaultAlipayClient(ALIPAY_GATEWAY, ALIPAY_APPID, ALIPAY_PRIVATE, "json",
+				"utf-8", ALIPAY_PUBLIC, "RSA2");
+
+		String returnUrl = builder.cloneBuilder().path("/guest/alipay/" + codeParser.encrypt(email)).build()
+				.toUriString();
+		String notifyUrl = builder.cloneBuilder().path("/alipay/notify").build().toUriString();
+		AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
+		alipayRequest.setReturnUrl(returnUrl);
+		alipayRequest.setNotifyUrl(notifyUrl);
+
+		Map<String, String> paramMap = new HashMap<>();
+		paramMap.put("out_trade_no", orderno);
+		paramMap.put("total_amount", String.valueOf(amount));
+		paramMap.put("subject", ALIPAY_SUBJECT);
+		paramMap.put("passback_params", codeParser.encrypt(email));
+		paramMap.put("timeout_express", "20m");
+		paramMap.put("product_code", "FAST_INSTANT_TRADE_PAY");
+		ObjectMapper objMapper = new ObjectMapper();
+		alipayRequest.setBizContent(objMapper.writeValueAsString(paramMap));
+
+		response.setContentType("text/html;charset=utf-8");
+		response.getWriter().write(alipayClient.pageExecute(alipayRequest).getBody());
+		response.getWriter().flush();
+		response.getWriter().close();
+	}
+
+	@GetMapping("/alipay/{token}")
+	public String aliReturn(@PathVariable("token") String token, RedirectAttributes redirectAttributes,
+			HttpServletRequest request, SessionStatus sessionStatus, Locale locale)
+			throws AlipayApiException {
+		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String[]> requestParams = request.getParameterMap();
+		for (Iterator<String> iter = requestParams.keySet().iterator(); iter.hasNext();) {
+			String name = (String) iter.next();
+			String[] values = (String[]) requestParams.get(name);
+			String valueStr = "";
+			for (int i = 0; i < values.length; i++) {
+				valueStr = (i == values.length - 1) ? valueStr + values[i]
+						: valueStr + values[i] + ",";
+			}
+			//valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+			params.put(name, valueStr);
+		}
+
+		String orderno = request.getParameter("out_trade_no");
+
+		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
+		if (!signVerified) {
+			asyncService.deleteOrder(orderno);
+			List<String> errors = new ArrayList<String>();
+			// TODO: define error msg
+			errors.add(messageSource.getMessage("error.charge.failed", null, locale));
+			redirectAttributes.addFlashAttribute("errors", errors);
+			return "redirect:/guest/pay";
+		}
+
+		String downlink = "/download/" + orderno + "/" + token;
+
+		sessionStatus.setComplete();
+		redirectAttributes.addFlashAttribute("orderno", orderno);
+		redirectAttributes.addFlashAttribute("downlink", downlink);
+		return "redirect:/guest/done";
+	}
+
+	@PostMapping("/credit")
+	public String credit(@ModelAttribute PayForm form, BindingResult result, Model model,
 			RedirectAttributes redirectAttributes, SessionStatus sessionStatus, UriComponentsBuilder builder,
 			Locale locale) {
 		@SuppressWarnings("unchecked")
@@ -356,6 +574,7 @@ public class GuestController {
 		}
 
 		// update balance
+		//accountService.updateBalance(username, amount, amount);
 		try {
 			Transaction trans = client.transactions().get(charge.getTransaction());
 			accountService.updateBalance(username, amount, (int) trans.getAmount());

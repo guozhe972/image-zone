@@ -1,0 +1,122 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>[[#{title.guest}]]</title>
+<script>
+	$(function() {
+		// for test =====
+		$('#email').val('jvqvur8422@sandbox.com');
+		// for test =====
+
+		$('#btnMail').click(function() {
+			$('#email').removeClass('is-invalid');
+			$('#grpEmail').next('.invalid-feedback').remove();
+			if (!checkMailAddress($('#email').val())) {
+				$('#email').addClass('is-invalid');
+				$('#grpEmail').after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{validation.signup.email})]'
+				}));
+				return;
+			}
+
+			$.ajax({
+				url : '[(@{/guest/mail})]',
+				method : 'POST',
+				headers : {
+					'[(${_csrf.headerName})]' : '[(${_csrf.token})]'
+				},
+				cache : false,
+				contentType : "application/json",
+				data : JSON.stringify({
+					email : $('#email').val()
+				})
+			});
+		});
+
+		function isValidForm() {
+			var isValid = true;
+			$('.is-invalid').removeClass('is-invalid');
+			$('.invalid-feedback').remove();
+
+			if (!checkMailAddress($('#email').val())) {
+				$('#email').addClass('is-invalid');
+				$('#grpEmail').after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{validation.signup.email})]'
+				}));
+				isValid = false;
+			}
+			return isValid;
+		}
+
+		$('.submit').click(function() {
+			if (isValidForm()) {
+				$('#mdlWaiting').modal('show');
+				$('#fomPay').attr('action', $(this).data('action'));
+				$('#fomPay').submit();
+			}
+		});
+	});
+</script>
+</head>
+<body layout:fragment="body" class="pt-header">
+	<header layout:insert="~{layout/parts/header::guest(-1)}"
+		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
+	<div class="container bg-main px-0">
+		<div
+			class="mw-content mx-auto py-3 border-bottom d-flex justify-content-between">
+			<h2 class="mb-0 ml-3">[[#{header.purchase}]]</h2>
+			<h2 class="mb-0 mr-3"
+				th:text="|${#numbers.formatInteger(total,1,'COMMA')}#{money.unit}|"></h2>
+		</div>
+	</div>
+	<div class="container bg-main">
+		<th:block layout:replace="~{layout/parts/alert::error}" />
+		<form id="fomPay" class="mw-content mx-auto py-3" novalidate
+			action="#" th:object="${payForm}" method="post">
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+			<div class="form-group row">
+				<label for="grpEmail" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.email}]]</label>
+				<div class="col-sm-8">
+					<div id="grpEmail" class="input-group">
+						<input type="email" th:field="*{email}" class="form-control"
+							th:errorclass="is-invalid" autofocus required />
+						<div class="input-group-append">
+							<button type="button" id="btnMail"
+								class="btn btn-info rounded-right">[[#{label.email.button}]]</button>
+						</div>
+					</div>
+					<div class="invalid-feedback d-block"
+						th:if="${#fields.hasErrors('email')}" th:errors="*{email}">email
+						error</div>
+					<small class="form-text text-muted">[[#{message.email.receive}]]</small>
+				</div>
+			</div>
+			<div class="form-group row mb-0">
+				<label for="number" class="col-sm-4 col-form-label text-sm-right">支払方法</label>
+				<div class="col-sm-8">
+					<div class="btn-group d-flex" role="group">
+						<button id="btnAlipay" type="button"
+							th:data-action="@{/guest/alipay}"
+							class="submit btn btn-info w-100">
+							<i class="fab fa-alipay"></i>&nbsp;支付宝
+						</button>
+						<button id="btnWxpay" type="button"
+							th:data-action="@{/guest/wxpay}"
+							class="submit btn btn-success w-100" disabled>
+							<i class="fab fa-weixin"></i>&nbsp;微信
+						</button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

@@ -101,7 +101,7 @@ label.custom-file-label::after {
 				});
 
 		$('.btnUpload').click(function() {
-			target = $(this).attr('data-target');
+			target = $(this).data('target')
 
 			var selFiles = $('#files' + target);
 			selFiles.removeClass('is-invalid');

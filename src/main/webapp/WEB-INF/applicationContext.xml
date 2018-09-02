@@ -42,7 +42,7 @@
 	</bean>
 	<bean id="localeResolver"
 		class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
-		<property name="defaultLocale" value="ja" />
+		<property name="defaultLocale" value="${locale.default}" />
 	</bean>
 
 	<mvc:annotation-driven>
@@ -165,6 +165,8 @@
 		<sec:intercept-url pattern="/download/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/order/**"
+			access="permitAll" />
+		<sec:intercept-url pattern="/alipay/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/admin/**"
 			access="hasAuthority('ADMIN')" />

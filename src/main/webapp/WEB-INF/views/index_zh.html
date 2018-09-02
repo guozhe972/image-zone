@@ -14,7 +14,7 @@
 }
 </style>
 </head>
-<body layout:fragment="body" class="pt-header">
+<body layout:fragment="body" class="pt-header pb-footer">
 	<header layout:insert="~{layout/parts/header::home(true, true)}"
 		class="fixed-top bg-header"></header>
 	<div class="jumbotron rounded-0 py-4">
@@ -82,7 +82,6 @@
 		class="btn btn-primary rounded-circle nofocus">
 		<i class="fas fa-angle-up fa-2x"></i>
 	</button>
-	<div class="pb-footer w-100"></div>
 	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>
 </html>

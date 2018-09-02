@@ -7,7 +7,7 @@
 		class="navbar navbar-expand navbar-dark">
 		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
 		<div class="d-flex ml-auto">
-			<form th:if="${lang}" id="fomLang" class="navbar-nav form-inline"
+			<form th:if="${lang} and ${@applicationProperties.getProperty('locale.change')}" id="fomLang" class="navbar-nav form-inline"
 				th:action="@{/system/lang}" method="post">
 				<input type="hidden" id="lang" name="lang" />
 				<div class="nav-item dropdown">
