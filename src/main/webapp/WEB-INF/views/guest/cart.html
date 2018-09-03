@@ -24,7 +24,7 @@
 									})
 									.done(
 											function(data, textStatus, jqXHR) {
-												$('#bagCart').text(data);
+												$('.bagCart').text(data);
 												$('#photo' + target).remove();
 												if (data == '0') {
 													$('#btnOrder').addClass(
@@ -63,7 +63,7 @@
 </script>
 </head>
 <body layout:fragment="body" class="pt-header">
-	<header layout:insert="~{layout/parts/header::guest(-1)}"
+	<header layout:insert="~{layout/parts/header::guest(0)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 

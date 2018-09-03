@@ -7,7 +7,9 @@
 		class="navbar navbar-expand navbar-dark">
 		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
 		<div class="d-flex ml-auto">
-			<form th:if="${lang} and ${@applicationProperties.getProperty('locale.change')}" id="fomLang" class="navbar-nav form-inline"
+			<form
+				th:if="${lang} and ${@applicationProperties.getProperty('locale.change')}"
+				id="fomLang" class="navbar-nav form-inline"
 				th:action="@{/system/lang}" method="post">
 				<input type="hidden" id="lang" name="lang" />
 				<div class="nav-item dropdown">
@@ -82,22 +84,23 @@
 
 	<nav layout:fragment="guest(active)"
 		class="navbar navbar-expand-sm navbar-dark">
-		<button class="navbar-toggler p-0 border-0" type="button"
-			onclick="$('#navMenu').toggleClass('open');">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<a class="navbar-brand h1 mb-0" th:href="@{/guest/home}">[[#{site.brand}]]</a>
+		<a class="btn btn-primary d-none-sm" th:href="@{/guest/cart}"
+			role="button"><i class="fas fa-shopping-cart"></i>&nbsp;<span
+			class="bagCart badge badge-pill badge-danger"
+			th:text="${#lists.size(cart)}"></span></a> <a
+			class="navbar-brand h1 mb-0" th:href="@{/guest/home}">[[#{site.brand}]]</a>
 		<div class="navbar-collapse offcanvas-collapse" id="navMenu">
 			<ul class="navbar-nav">
 				<li class="nav-item" th:classappend="(${active} == 0)? 'active'"><a
-					class="nav-link" th:href="@{/guest/home}">[[#{menu.guest.home}]]</a></li>
-				<li class="nav-item"><a class="nav-link" href="#"
-					data-toggle="modal" data-target="#mdlLogout">[[#{label.logout}]]</a></li>
+					class="nav-link" th:href="@{/guest/cart}">[[#{menu.guest.cart}]]&nbsp;<span
+						class="bagCart badge badge-pill badge-danger"
+						th:text="${#lists.size(cart)}"></span></a></li>
 			</ul>
 		</div>
-		<a class="btn btn-primary" th:href="@{/guest/cart}" role="button"><i
-			class="fas fa-shopping-cart"></i>&nbsp;<span id="bagCart"
-			class="badge badge-pill badge-danger" th:text="${#lists.size(cart)}"></span></a>
+		<button class="btn btn-primary text-none-xs" style="width: 140px;"
+			type="button" data-toggle="modal" data-target="#mdlLogout">
+			<i class="fas fa-sign-out-alt"></i><span>&nbsp;[[#{label.logout}]]</span>
+		</button>
 	</nav>
 
 	<nav layout:fragment="download"

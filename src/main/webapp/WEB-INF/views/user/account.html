@@ -5,6 +5,7 @@
 <head>
 <title>[[#{title.user}]]</title>
 <script>
+	var showWait = false;
 	$(function() {
 		// for test =====
 		$('#bank').val('三菱UFJ銀行');
@@ -70,11 +71,15 @@
 
 		$('#mdlRequestBtn').click(function() {
 			if (isValidForm()) {
-				$('#mdlRequest').modal('hide');
+				showWait = true;
+			}
+			$('#mdlRequest').modal('hide');
+		});
+		$('#mdlRequest').on('hidden.bs.modal', function() {
+			if (showWait) {
+				showWait = false;
 				$('#mdlWaiting').modal('show');
 				$('#fomRequest').submit();
-			} else {
-				$('#mdlRequest').modal('hide');
 			}
 		});
 	});

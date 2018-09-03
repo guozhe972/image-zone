@@ -27,7 +27,7 @@
 						}
 					}).done(
 							function(data, textStatus, jqXHR) {
-								$('#bagCart').text(data);
+								$('.bagCart').text(data);
 								$('#btnAdd' + target).prop('disabled', true);
 								$('#btnAdd' + target).addClass('btn-secondary')
 										.removeClass('btn-info');
@@ -41,7 +41,7 @@
 </script>
 </head>
 <body layout:fragment="body" class="pt-header">
-	<header layout:insert="~{layout/parts/header::guest(0)}"
+	<header layout:insert="~{layout/parts/header::guest(-1)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 

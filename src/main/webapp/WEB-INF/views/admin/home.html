@@ -5,20 +5,16 @@
 <head>
 <title>[[#{title.admin}]]</title>
 <script>
+	var showWait = false;
 	$(function() {
 		$('#mdlTransfer').on('shown.bs.modal', function() {
-			$('#fee').trigger('focus');
+			$('#fee').focus();
 		});
-		$('#fee').focus(function() {
-			$(this).select();
-		});
-
 		$('#mdlTransferBtn').click(
 				function() {
-					$('.is-invalid').removeClass('is-invalid');
-					$('.invalid-feedback').remove();
-
 					var fee = $('#fee').val();
+					$('#grpMoney').removeClass('is-invalid');
+					$('#grpMoney').next('.invalid-feedback').remove();
 					if (!/^[0-9]+$/.test(fee)
 							|| fee < Number($('#fee').attr('min'))
 							|| fee > Number($('#fee').attr('max'))) {
@@ -30,14 +26,17 @@
 						return;
 					}
 
+					showWait = true;
 					$('#mdlTransfer').modal('hide');
-					$('#mdlWaiting').modal('show');
-					$('#fomTransfer').submit();
 				});
-
-		$('#mdlTransfer').on('hide.bs.modal', function(e) {
-			$('.is-invalid').removeClass('is-invalid');
-			$('.invalid-feedback').remove();
+		$('#mdlTransfer').on('hidden.bs.modal', function() {
+			$('#grpMoney').removeClass('is-invalid');
+			$('#grpMoney').next('.invalid-feedback').remove();
+			if (showWait) {
+				showWait = false;
+				$('#mdlWaiting').modal('show');
+				$('#fomTransfer').submit();
+			}
 		});
 	});
 </script>
@@ -73,7 +72,7 @@
 						th:text="|*{#numbers.formatInteger(amount,1,'COMMA')}#{money.unit}|"></p>
 					<button type="button" class="btn btn-info" data-toggle="modal"
 						data-target="#mdlTransfer"
-						th:onclick="|$('#transno').val('*{transno}');|">[[#{label.transfer.button}]]</button>
+						th:onclick="|$('#transno').val('*{transno}');$('#fee').val('');|">[[#{label.transfer.button}]]</button>
 				</div>
 			</li>
 		</ul>

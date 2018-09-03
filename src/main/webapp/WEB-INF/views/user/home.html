@@ -18,6 +18,7 @@ label.custom-file-label::after {
 </style>
 <script>
 	var target = 0;
+	var showWait = false;
 	function checkFolder(seq) {
 		var unLocked = true;
 		/*$.ajax({
@@ -139,6 +140,8 @@ label.custom-file-label::after {
 				.click(
 						function() {
 							var money = $('#money').val();
+							$('#grpMoney').removeClass('is-invalid');
+							$('#grpMoney').next('.invalid-feedback').remove();
 							if (!/^[0-9]+$/.test(money)
 									|| money < Number('[(${@applicationProperties.getProperty("photo.price.min")})]')
 									|| money > Number('[(${@applicationProperties.getProperty("photo.price.max")})]')) {
@@ -156,121 +159,156 @@ label.custom-file-label::after {
 
 							$('#price' + target).val(money);
 							if (checkFolder(target)) {
-								$('#mdlPrice').modal('hide');
-								$('#fomUpload' + target).submit();
-							} else {
-								$('#mdlPrice').modal('hide');
+								showWait = true;
+							}
+							$('#mdlPrice').modal('hide');
+						});
+		$('#mdlPrice')
+				.on(
+						'hidden.bs.modal',
+						function() {
+							$('#grpMoney').removeClass('is-invalid');
+							$('#grpMoney').next('.invalid-feedback').remove();
+							if (showWait) {
+								showWait = false;
+								var ajaxReq = $
+										.ajax({
+											url : '[(@{/user/upload})]',
+											method : 'POST',
+											cache : false,
+											data : new FormData($(
+													'#fomUpload' + target).get(
+													0)),
+											contentType : false,
+											processData : false,
+											dataType : 'json',
+											beforeSend : function(xhr) {
+												$('.progress-bar-title')
+														.text(
+																'[(#{modal.upload.header})]');
+												$('.progress-bar').text('');
+												if (navigator.userAgent
+														.toLowerCase().indexOf(
+																'edge') < 0) {
+													$('.progress-bar').css(
+															'width', '0%');
+												}
+												$('.progress-bar').addClass(
+														'bg-info').removeClass(
+														'bg-warning');
+												$('#mdlUpload').modal('show');
+											},
+											xhr : function() {
+												var xhr = $.ajaxSettings.xhr();
+												xhr.upload.onprogress = function(
+														e) {
+													var perc = Math
+															.round((e.loaded / e.total) * 100);
+													$('.progress-bar').text(
+															perc + '%');
+													$('.progress-bar')
+															.css('width',
+																	perc + '%');
+													if (perc == 100) {
+														$('.progress-bar-title')
+																.text(
+																		'[(#{modal.waiting.header})]');
+														$('.progress-bar')
+																.text('');
+														$('.progress-bar')
+																.addClass(
+																		'bg-warning')
+																.removeClass(
+																		'bg-info');
+													}
+												};
+												return xhr;
+											}
+										});
+								ajaxReq.done(function(data) {
+									// do nothing
+								});
+								ajaxReq
+										.fail(function(jqXHR) {
+											if (jqXHR.status == 405) {
+												location.href = '[(@{/system/error})]';
+											} else if (jqXHR.status == 400) {
+												$('#files' + target).addClass(
+														'is-invalid');
+												$('#grpFile' + target)
+														.after(
+																$(
+																		'<div/>',
+																		{
+																			'class' : 'invalid-feedback d-block',
+																			text : jqXHR.responseText
+																		}));
+											} else if (jqXHR.status == 0) {
+												$('#files' + target).addClass(
+														'is-invalid');
+												$('#grpFile' + target)
+														.after(
+																$(
+																		'<div/>',
+																		{
+																			'class' : 'invalid-feedback d-block',
+																			text : '[(#{validation.upload.invalid})]'
+																		}));
+											}
+										});
+								ajaxReq.always(function() {
+									resetFile($('#files' + target).get(0));
+									$('#mdlUpload').modal('hide');
+								});
 							}
 						});
-		$('#mdlPrice').on('hide.bs.modal', function(e) {
-			$('#grpMoney').removeClass('is-invalid');
-			$('#grpMoney').next('.invalid-feedback').remove();
-		});
-
-		$('form[name="fomUpload"]').submit(
-				function(event) {
-					event.preventDefault();
-					var form = $(this).get(0);
-					var ajaxReq = $.ajax({
-						url : '[(@{/user/upload})]',
-						method : 'POST',
-						cache : false,
-						data : new FormData(form),
-						contentType : false,
-						processData : false,
-						dataType : 'json',
-						beforeSend : function(xhr) {
-							$('.progress-bar-title').text(
-									'[(#{modal.upload.header})]');
-							$('.progress-bar').text('');
-							if (navigator.userAgent.toLowerCase().indexOf(
-									'edge') < 0) {
-								$('.progress-bar').css('width', '0%');
-							}
-							$('.progress-bar').addClass('bg-info').removeClass(
-									'bg-warning');
-							$('#mdlUpload').modal('show');
-						},
-						xhr : function() {
-							var xhr = $.ajaxSettings.xhr();
-							xhr.upload.onprogress = function(e) {
-								var perc = Math
-										.round((e.loaded / e.total) * 100);
-								$('.progress-bar').text(perc + '%');
-								$('.progress-bar').css('width', perc + '%');
-								if (perc == 100) {
-									$('.progress-bar-title').text(
-											'[(#{modal.waiting.header})]');
-									$('.progress-bar').text('');
-									$('.progress-bar').addClass('bg-warning')
-											.removeClass('bg-info');
-								}
-							};
-							return xhr;
-						}
-					});
-					ajaxReq.done(function(data) {
-						// do nothing
-					});
-					ajaxReq.fail(function(jqXHR) {
-						if (jqXHR.status == 405) {
-							location.href = '[(@{/system/error})]';
-						} else if (jqXHR.status == 400) {
-							$('#files' + target).addClass('is-invalid');
-							$('#grpFile' + target).after($('<div/>', {
-								'class' : 'invalid-feedback d-block',
-								text : jqXHR.responseText
-							}));
-						} else if (jqXHR.status == 0) {
-							$('#files' + target).addClass('is-invalid');
-							$('#grpFile' + target).after($('<div/>', {
-								'class' : 'invalid-feedback d-block',
-								text : '[(#{validation.upload.invalid})]'
-							}));
-						}
-					});
-					ajaxReq.always(function() {
-						resetFile($('#files' + target).get(0));
-						$('#mdlUpload').modal('hide');
-					});
-				});
 
 		$('#mdlRename').on('shown.bs.modal', function() {
 			$('#name').focus();
 		});
-		$('#mdlRenameBtn').click(
+		$('#mdlRename').on(
+				'hidden.bs.modal',
 				function() {
-					var seq = $('#seq').val();
-					$.ajax({
-						url : '[(@{/user/rename})]',
-						method : 'POST',
-						cache : false,
-						data : $('#fomRename').serialize(),
-						beforeSend : function() {
-							$('#mdlRename').modal('hide');
-							$('#mdlWaiting').modal('show');
-						}
-					}).done(
-							function(data, textStatus, jqXHR) {
-								$('#lnkName' + seq).text(data);
-								$('#lnkName' + seq).get(0).title = '<small>'
-										+ data + '</small>';
-							}).fail(function(jqXHR, textStatus, errorThrown) {
-						if (textStatus == 'error') {
-							location.href = '[(@{/system/error})]';
-						}
-					}).always(function() {
-						$('#mdlWaiting').modal('hide');
-					});
+					if (showWait) {
+						showWait = false;
+						$.ajax({
+							url : '[(@{/user/rename})]',
+							method : 'POST',
+							cache : false,
+							data : $('#fomRename').serialize(),
+							beforeSend : function() {
+								$('#mdlWaiting').modal('show');
+							}
+						})
+								.done(
+										function(data, textStatus, jqXHR) {
+											$('#lnkName' + $('#seq').val())
+													.text(data);
+											$('#lnkName' + $('#seq').val())
+													.get(0).title = '<small>'
+													+ data + '</small>';
+										})
+								.fail(function(jqXHR, textStatus, errorThrown) {
+									if (textStatus == 'error') {
+										location.href = '[(@{/system/error})]';
+									}
+								}).always(function() {
+									$('#mdlWaiting').modal('hide');
+								});
+					}
 				});
 
 		$('#mdlClearBtn').click(function() {
 			if (checkFolder($('#folder').val())) {
-				$('#mdlClear').modal('hide');
+				showWait = true;
+			}
+			$('#mdlClear').modal('hide');
+		});
+		$('#mdlClear').on('hidden.bs.modal', function() {
+			if (showWait) {
+				showWait = false;
 				$('#mdlWaiting').modal('show');
 				$('#fomClear').submit();
-			} else {
-				$('#mdlClear').modal('hide');
 			}
 		});
 
@@ -290,13 +328,17 @@ label.custom-file-label::after {
 				return;
 			}
 
+			showWait = true;
 			$('#mdlCreate').modal('hide');
-			$('#mdlWaiting').modal('show');
-			$('#fomCreate').submit();
 		});
-		$('#mdlCreate').on('hide.bs.modal', function(e) {
+		$('#mdlCreate').on('hidden.bs.modal', function() {
 			$('#foldernm').removeClass('is-invalid');
 			$('#foldernm').next('.invalid-feedback').remove();
+			if (showWait) {
+				showWait = false;
+				$('#mdlWaiting').modal('show');
+				$('#fomCreate').submit();
+			}
 		});
 	});
 </script>
@@ -312,7 +354,7 @@ label.custom-file-label::after {
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<ul class="list-group list-group-flush mw-content mx-auto">
 			<li class="list-group-item px-0 py-3" th:each="form : ${folders}">
-				<form name="fomUpload" enctype="multipart/form-data" novalidate
+				<form enctype="multipart/form-data" novalidate
 					th:action="@{/user/upload}" method="post" th:object="${form}"
 					th:id="|fomUpload${form.seq}|" autocomplete="off">
 					<input type="hidden" th:id="|seq*{seq}|" name="seq"
@@ -371,7 +413,8 @@ label.custom-file-label::after {
 		<div class="mw-content mx-auto py-3">
 			<button type="button" class="btn btn-primary btn-block"
 				th:disabled="${#lists.size(folders)}>=${@applicationProperties.getProperty('max.folder.count')}"
-				data-toggle="modal" data-target="#mdlCreate">[[#{label.user.create}]]</button>
+				onclick="$('#foldernm').val('');" data-toggle="modal"
+				data-target="#mdlCreate">[[#{label.user.create}]]</button>
 			<small class="form-text text-muted"
 				th:text="${#messages.msg('message.folder.create', #numbers.formatInteger(@applicationProperties.getProperty('max.folder.count'),1,'COMMA'))}"></small>
 		</div>
@@ -438,7 +481,8 @@ label.custom-file-label::after {
 					</form>
 				</div>
 				<div class="modal-footer">
-					<button id="mdlRenameBtn" type="button" class="btn btn-primary">[[#{modal.button.ok}]]</button>
+					<button type="button" class="btn btn-primary"
+						onclick="showWait=true;" data-dismiss="modal">[[#{modal.button.ok}]]</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
 				</div>

@@ -17,11 +17,6 @@ $(function() {
 		this.value = this.value.replace(/\D/g, '');
 		this.value = this.value.slice(0, this.maxLength);
 	});
-
-	$('#fomLogout').submit(function(event) {
-		// $('#mdlLogout').modal('hide');
-		// $('#mdlWaiting').modal('show');
-	});
 });
 
 function showAlertError(arrMsg) {

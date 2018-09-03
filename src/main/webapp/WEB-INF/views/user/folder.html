@@ -13,7 +13,7 @@
 </style>
 <script>
 	var target = 0;
-	var process = '';
+	var showWait = false;
 	$(function() {
 		$('img.lazyload').lazyload();
 
@@ -23,83 +23,85 @@
 		$('#money').focus(function() {
 			$(this).select();
 		});
-
-		$('#mdlPrice').on('hide.bs.modal', function(e) {
-			$('.is-invalid').removeClass('is-invalid');
-			$('.invalid-feedback').remove();
-		});
-
-		$('#fomSubmit')
-				.submit(
-						function(event) {
-							event.preventDefault();
-							var action = '';
-							switch (process) {
-							case 'price':
-								$('.is-invalid').removeClass('is-invalid');
-								$('.invalid-feedback').remove();
-								var money = $('#money').val();
-								if (!/^[0-9]+$/.test(money)
-										|| money != $('#price').val()
-										|| money < Number('[(${@applicationProperties.getProperty("photo.price.min")})]')
-										|| money > Number('[(${@applicationProperties.getProperty("photo.price.max")})]')) {
-									$('#grpMoney').addClass('is-invalid');
-									$('#grpMoney')
-											.after(
-													$(
-															'<div/>',
-															{
-																'class' : 'invalid-feedback d-block',
-																text : '[(${#messages.msg("validation.photo.price", #numbers.formatInteger(@applicationProperties.getProperty("photo.price.min"),1,"COMMA"), #numbers.formatInteger(@applicationProperties.getProperty("photo.price.max"),1,"COMMA"))})]'
-															}));
-								} else {
-									$('#mdlPrice').modal('hide');
-									action = '[(@{/user/price})]';
-								}
-								break;
-							case 'delete':
-								$('#mdlDelete').modal('hide');
-								action = '[(@{/user/delete})]';
-								break;
-							}
-							if (action == '') {
-								event.stopPropagation();
+		$('#mdlPriceBtn')
+				.click(
+						function() {
+							var money = $('#money').val();
+							$('#grpMoney').removeClass('is-invalid');
+							$('#grpMoney').next('.invalid-feedback').remove();
+							if (!/^[0-9]+$/.test(money)
+									|| money < Number('[(${@applicationProperties.getProperty("photo.price.min")})]')
+									|| money > Number('[(${@applicationProperties.getProperty("photo.price.max")})]')) {
+								$('#grpMoney').addClass('is-invalid');
+								$('#grpMoney')
+										.after(
+												$(
+														'<div/>',
+														{
+															'class' : 'invalid-feedback d-block',
+															text : '[(${#messages.msg("validation.photo.price", #numbers.formatInteger(@applicationProperties.getProperty("photo.price.min"),1,"COMMA"), #numbers.formatInteger(@applicationProperties.getProperty("photo.price.max"),1,"COMMA"))})]'
+														}));
 								return;
 							}
 
-							$.ajax({
-								url : action,
-								method : 'POST',
-								cache : false,
-								data : $('#fomSubmit').serialize(),
-								beforeSend : function() {
-									$('#mdlWaiting').modal('show');
-								}
-							}).done(function(data, textStatus, jqXHR) {
-								switch (process) {
-								case 'price':
-									if (target > 0) {
-										$('#bagPrice' + target).text(data);
-									} else {
-										location.reload();
-									}
-									break;
-								case 'delete':
-									$('#photo' + target).remove();
-									if ($('div.card').length == 0) {
-										$('#btnBulk').prop('disabled', true);
-									}
-									break;
-								}
-							}).fail(function(jqXHR, textStatus, errorThrown) {
-								if (textStatus == 'error') {
-									location.href = '[(@{/system/error})]';
-								}
-							}).always(function() {
-								$('#mdlWaiting').modal('hide');
-							});
+							$('#price').val(money);
+							showWait = true;
+							$('#mdlPrice').modal('hide');
 						});
+		$('#mdlPrice').on('hidden.bs.modal', function() {
+			$('#grpMoney').removeClass('is-invalid');
+			$('#grpMoney').next('.invalid-feedback').remove();
+			if (showWait) {
+				showWait = false;
+				$.ajax({
+					url : '[(@{/user/price})]',
+					method : 'POST',
+					cache : false,
+					data : $('#fomSubmit').serialize(),
+					beforeSend : function() {
+						$('#mdlWaiting').modal('show');
+					}
+				}).done(function(data, textStatus, jqXHR) {
+					if (target > 0) {
+						$('#bagPrice' + target).text(data);
+					} else {
+						location.reload();
+					}
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					if (textStatus == 'error') {
+						location.href = '[(@{/system/error})]';
+					}
+				}).always(function() {
+					$('#mdlWaiting').modal('hide');
+				});
+			}
+		});
 
+		$('#mdlDelete').on('hidden.bs.modal', function() {
+			if (showWait) {
+				showWait = false;
+				$.ajax({
+					url : '[(@{/user/delete})]',
+					method : 'POST',
+					cache : false,
+					data : $('#fomSubmit').serialize(),
+					beforeSend : function() {
+						$('#mdlWaiting').modal('show');
+					}
+				}).done(function(data, textStatus, jqXHR) {
+					$('#photo' + target).remove();
+					if ($('div.card').length == 0) {
+						$('#btnBulk').prop('disabled', true);
+					}
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					if (textStatus == 'error') {
+						location.href = '[(@{/system/error})]';
+					}
+				}).always(function() {
+					$('#mdlWaiting').modal('hide');
+				});
+			}
+		});
 	});
 </script>
 </head>
@@ -113,7 +115,7 @@
 		<div class="pt-3 d-flex justify-content-between">
 			<button id="btnBulk" type="button" class="btn btn-warning"
 				th:disabled="${#lists.isEmpty(photos)}"
-				th:onclick="|process='price';target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|"
+				th:onclick="|target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|"
 				data-toggle="modal" data-target="#mdlPrice">[[#{label.folder.bulk}]]</button>
 			<a class="btn btn-info" th:href="@{|/user/share/${folder}|}"
 				role="button"><i class="fas fa-share-alt"></i>&nbsp;<th:block
@@ -136,10 +138,10 @@
 					</div>
 					<div class="card-footer p-1 bg-white btn-group d-flex" role="group">
 						<button type="button" class="btn btn-warning btn-sm w-100"
-							th:onclick="|process='price';target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($('#bagPrice${stat.count}').text().replace('#{money.mark}','').replace(/,/g,''));|"
+							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($('#bagPrice${stat.count}').text().replace('#{money.mark}','').replace(/,/g,''));|"
 							data-toggle="modal" data-target="#mdlPrice">[[#{label.folder.price}]]</button>
 						<button type="button" class="btn btn-danger btn-sm w-100"
-							th:onclick="|process='delete';target=${stat.count};$('#thumbnail').val('*{thumbnail}');|"
+							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');|"
 							data-toggle="modal" data-target="#mdlDelete">[[#{label.folder.delete}]]</button>
 					</div>
 				</div>
@@ -185,8 +187,7 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-primary"
-						onclick="$('#price').val($('#money').val());$('#fomSubmit').submit();">[[#{modal.button.ok}]]</button>
+					<button id="mdlPriceBtn" type="button" class="btn btn-primary">[[#{modal.button.ok}]]</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
 				</div>
@@ -209,7 +210,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary"
-						onclick="$('#fomSubmit').submit();">[[#{modal.button.yes}]]</button>
+						onclick="showWait=true;" data-dismiss="modal">[[#{modal.button.yes}]]</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">[[#{modal.button.no}]]</button>
 				</div>

@@ -220,10 +220,10 @@ public class GuestController {
 		}
 
 		String view = "/system/none";
-		if ("ja".equals(locale.getLanguage())) {
+		if ("zh".equals(locale.getLanguage())) {
 			view = "/guest/zhpay";
 
-		} else if ("zh".equals(locale.getLanguage())) {
+		} else if ("ja".equals(locale.getLanguage())) {
 			view = "/guest/credit";
 
 			if (total < OMISE_MIN || OMISE_MAX < total) {

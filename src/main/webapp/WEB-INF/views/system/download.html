@@ -23,6 +23,15 @@ div.alert {
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
+		<div class="pt-3 d-flex justify-content-end">
+		<div class="row"><label for="expiredt">[[#{label.signup.username}]]</label>
+
+					<span id="expiredt" class="form-control-plaintext"
+						th:text="${expiredt}"></span></div>
+			<a class="btn btn-info" th:href="@{|/download/zip/${link}|}"
+				role="button"><i class="fas fa-download"></i>&nbsp;[[#{label.download.bulk}]]</a>
+		</div>
+		<hr class="mb-0">
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
@@ -35,9 +44,8 @@ div.alert {
 							alt="thumbnail">
 					</div>
 					<div class="card-footer p-1 bg-white">
-						<a role="button" th:target="_blank"
-							th:href="@{|/order/*{orderno}/*{thumbnail}|}"
-							th:download="|IMG${#numbers.formatInteger(stat.count,5)}|"
+						<a role="button"
+							th:href="@{|/download/img/${stat.count}/*{orderno}|(file=*{thumbnail})}"
 							class="btn btn-info btn-sm w-100">[[#{label.download.button}]]</a>
 					</div>
 				</div>

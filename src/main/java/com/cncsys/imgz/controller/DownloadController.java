@@ -26,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.cncsys.imgz.entity.OrderEntity;
@@ -73,8 +74,10 @@ public class DownloadController {
 			photos.add(form);
 		}
 		model.addAttribute("photos", photos);
+		model.addAttribute("link", order + "/" + token);
 
 		LocalDate expiredt = entity.get(0).getExpiredt();
+		model.addAttribute("expiredt", expiredt);
 		List<String> errors = new ArrayList<String>();
 		errors.add(messageSource.getMessage("message.download.expiry",
 				new Object[] { expiredt.toString() },
@@ -83,17 +86,17 @@ public class DownloadController {
 		return "/system/download";
 	}
 
-	@GetMapping("/download/img/{seq}/{order}/{file}")
+	@GetMapping("/download/img/{seq}/{order}")
 	public ResponseEntity<byte[]> img(@PathVariable("seq") int seq, @PathVariable("order") String order,
-			@PathVariable("file") String file) throws IOException {
+			@RequestParam("file") String file) throws IOException {
 		String filePath = ORDER_PATH + "/" + order + "/" + file;
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.IMAGE_JPEG);
-		headers.add("Content-Disposition",
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.IMAGE_JPEG);
+		responseHeaders.set("Content-Disposition",
 				"attachment;filename=IMG" + String.format("%05d", seq) + fileHelper.getExtension(file));
 
-		return new ResponseEntity<>(Files.readAllBytes(Paths.get(filePath)), headers, HttpStatus.OK);
+		return new ResponseEntity<>(Files.readAllBytes(Paths.get(filePath)), responseHeaders, HttpStatus.OK);
 	}
 
 	@GetMapping("/download/zip/{order}/{token}")
@@ -111,8 +114,9 @@ public class DownloadController {
 			public void writeTo(OutputStream outputStream) throws IOException {
 				try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(outputStream));) {
 					for (int i = 0; i < photos.size(); i++) {
-						try (InputStream in = new BufferedInputStream(new FileInputStream(photos.get(i)))) {
-							zos.putNextEntry(new ZipEntry("IMG" + String.format("%05d", i + 1)));
+						try (InputStream in = new BufferedInputStream(new FileInputStream(photos.get(i)));) {
+							zos.putNextEntry(new ZipEntry(
+									"IMG" + String.format("%05d", i + 1) + fileHelper.getExtension(photos.get(i))));
 							byte[] b = new byte[1024];
 							int len;
 							while ((len = in.read(b)) != -1) {

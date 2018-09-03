@@ -10,6 +10,7 @@ html {
 }
 </style>
 <script>
+	var showWait = false;
 	$(function() {
 		function isValidForm() {
 			var isValid = true;
@@ -51,7 +52,6 @@ html {
 		$('#mdlForgot').on('shown.bs.modal', function() {
 			$('#username').focus();
 		});
-
 		$('#mdlForgotBtn').click(function() {
 			$('#username').removeClass('is-invalid');
 			if ($('#username').val().length == 0) {
@@ -59,24 +59,31 @@ html {
 				$('#username').focus();
 				return;
 			}
-			$.ajax({
-				url : '[(@{/auth/forgot})]',
-				method : 'POST',
-				cache : false,
-				data : $('#fomForgot').serialize(),
-				beforeSend : function() {
-					$('#mdlForgot').modal('hide');
-					$('#mdlWaiting').modal('show');
-				}
-			}).done(function(data, textStatus, jqXHR) {
-				showAlertInfo([ data ]);
-			}).fail(function(jqXHR, textStatus, errorThrown) {
-				if (textStatus == 'error') {
-					location.href = '[(@{/system/error})]';
-				}
-			}).always(function() {
-				$('#mdlWaiting').modal('hide');
-			});
+
+			showWait = true;
+			$('#mdlForgot').modal('hide');
+		});
+		$('#mdlForgot').on('hidden.bs.modal', function() {
+			if (showWait) {
+				showWait = false;
+				$.ajax({
+					url : '[(@{/auth/forgot})]',
+					method : 'POST',
+					cache : false,
+					data : $('#fomForgot').serialize(),
+					beforeSend : function() {
+						$('#mdlWaiting').modal('show');
+					}
+				}).done(function(data, textStatus, jqXHR) {
+					showAlertInfo([ data ]);
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					if (textStatus == 'error') {
+						location.href = '[(@{/system/error})]';
+					}
+				}).always(function() {
+					$('#mdlWaiting').modal('hide');
+				});
+			}
 		});
 	});
 </script>
