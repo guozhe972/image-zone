@@ -64,7 +64,7 @@ public class UploadService {
 							String ext = fileHelper.getExtension(fileName);
 							try {
 								// unzip original image
-								String originId = UUID.randomUUID().toString() + ext;
+								String originId = UUID.randomUUID().toString().replace("-", "") + ext;
 								File original = new File(originPath + "/" + originId);
 								FileOutputStream fos = new FileOutputStream(original);
 								int len;
@@ -74,7 +74,7 @@ public class UploadService {
 								fos.close();
 
 								// make thumbnail image
-								String thumbId = UUID.randomUUID().toString() + ext;
+								String thumbId = UUID.randomUUID().toString().replace("-", "") + ext;
 								File preview = new File(thumbPath + "/" + "preview_" + thumbId);
 								File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
 								BufferedImage marked = imageEditor.getPreview(ImageIO.read(original));
@@ -108,12 +108,12 @@ public class UploadService {
 				String ext = fileHelper.getExtension(file.getName());
 				try {
 					// move original image
-					String originId = UUID.randomUUID().toString() + ext;
+					String originId = UUID.randomUUID().toString().replace("-", "") + ext;
 					File original = new File(originPath + "/" + originId);
 					file.renameTo(original);
 
 					// make thumbnail image
-					String thumbId = UUID.randomUUID().toString() + ext;
+					String thumbId = UUID.randomUUID().toString().replace("-", "") + ext;
 					File preview = new File(thumbPath + "/" + "preview_" + thumbId);
 					File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
 					BufferedImage marked = imageEditor.getPreview(ImageIO.read(original));

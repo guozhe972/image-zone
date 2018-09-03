@@ -300,7 +300,6 @@ public class GuestController {
 		if (email.isEmpty()) {
 			email = orderno;
 		}
-		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
 
 		// copy photos to order folder
 		List<String> photos = new ArrayList<String>();
@@ -360,7 +359,7 @@ public class GuestController {
 			order.setPrice(entity.getPrice());
 			order.setCreatedt(DateTime.now());
 			order.setCharged(false);
-			order.setExpiredt(expiredt);
+			order.setExpiredt(null);
 			orderService.insertOrder(order);
 		}
 
@@ -413,18 +412,15 @@ public class GuestController {
 		}
 
 		String orderno = request.getParameter("out_trade_no");
+		String downlink = "/download/" + orderno + "/" + token;
 
 		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
 		if (!signVerified) {
-			asyncService.deleteOrder(orderno);
 			List<String> errors = new ArrayList<String>();
-			// TODO: define error msg
-			errors.add(messageSource.getMessage("error.charge.failed", null, locale));
+			errors.add(messageSource.getMessage("error.payment.failed", null, locale));
 			redirectAttributes.addFlashAttribute("errors", errors);
 			return "redirect:/guest/pay";
 		}
-
-		String downlink = "/download/" + orderno + "/" + token;
 
 		sessionStatus.setComplete();
 		redirectAttributes.addFlashAttribute("orderno", orderno);
@@ -471,7 +467,6 @@ public class GuestController {
 		if (email.isEmpty()) {
 			email = orderno;
 		}
-		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
 
 		// copy photos to order folder
 		List<String> photos = new ArrayList<String>();
@@ -523,7 +518,7 @@ public class GuestController {
 			order.setPrice(entity.getPrice());
 			order.setCreatedt(DateTime.now());
 			order.setCharged(false);
-			order.setExpiredt(expiredt);
+			order.setExpiredt(null);
 			orderService.insertOrder(order);
 		}
 
@@ -544,7 +539,7 @@ public class GuestController {
 			if (charge.getStatus() != ChargeStatus.Successful) {
 				asyncService.deleteOrder(orderno);
 				List<String> errors = new ArrayList<String>();
-				errors.add(messageSource.getMessage("error.charge.failed", null, locale));
+				errors.add(messageSource.getMessage("error.credit.issue", null, locale));
 				redirectAttributes.addFlashAttribute("errors", errors);
 				return "redirect:/guest/pay";
 			} else {
@@ -561,7 +556,8 @@ public class GuestController {
 		}
 
 		// charge success
-		orderService.updateOrder(orderno, email);
+		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
+		orderService.updateOrder(orderno, email, expiredt);
 		String downlink = "/download/" + orderno + "/" + codeParser.encrypt(email);
 
 		// send order mail

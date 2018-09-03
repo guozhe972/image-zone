@@ -3,6 +3,7 @@ package com.cncsys.imgz.controller;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -20,8 +21,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.helper.CodeParser;
 import com.cncsys.imgz.helper.MailHelper;
+import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.OrderService;
 
@@ -47,6 +50,9 @@ public class PayController {
 	@Autowired
 	private AsyncService asyncService;
 
+	@Autowired
+	private AccountService accountService;
+
 	@PostMapping("/alipay/notify")
 	public void aliNotify(HttpServletRequest request, HttpServletResponse response,
 			UriComponentsBuilder builder, Locale locale) throws AlipayApiException, IOException {
@@ -60,13 +66,13 @@ public class PayController {
 				valueStr = (i == values.length - 1) ? valueStr + values[i]
 						: valueStr + values[i] + ",";
 			}
-
 			//valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
 			params.put(name, valueStr);
 		}
 
 		String orderno = request.getParameter("out_trade_no");
 		String token = request.getParameter("passback_params");
+		String downlink = "/download/" + orderno + "/" + token;
 		String email = codeParser.decrypt(token);
 
 		String result = "failure";
@@ -75,21 +81,32 @@ public class PayController {
 			logger.info("notify ok.");
 			//String tradeNo = request.getParameter("trade_no");
 			String tradeStatus = request.getParameter("trade_status");
+			logger.info("trade_status:" + tradeStatus);
 			if (tradeStatus.equals("TRADE_FINISHED") || tradeStatus.equals("TRADE_SUCCESS")) {
-				orderService.updateOrder(orderno, email);
-			}
+				// TODO: check trade info.
+				LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
+				int updCount = orderService.updateOrder(orderno, email, expiredt);
+				if (!email.equals(orderno) && updCount > 0) {
+					// send order mail
+					String[] param = new String[3];
+					param[0] = orderno;
+					param[1] = expiredt.toString();
+					param[2] = builder.path(downlink).build().toUriString();
+					mailHelper.sendOrderDone(email, param);
 
-			LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
-			String downlink = "/download/" + orderno + "/" + token;
-
-			if (!email.equals(orderno)) {
-				String[] param = new String[3];
-				param[0] = orderno;
-				param[1] = expiredt.toString();
-				param[2] = builder.path(downlink).build().toUriString();
-				mailHelper.sendOrderDone(email, param);
+					// update balance
+					int amount = 0;
+					List<OrderEntity> order = orderService.getValidOrder(orderno, email);
+					for (OrderEntity entity : order) {
+						amount += entity.getPrice();
+					}
+					String username = order.get(0).getUsername();
+					// TODO: calc real money.
+					int real = amount - Math.round(amount * 0.6F / 100F);
+					accountService.updateBalance(username, amount, real);
+				}
+				result = "success";
 			}
-			result = "success";
 		} else {
 			logger.info("notify ng.");
 			asyncService.deleteOrder(orderno);

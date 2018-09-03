@@ -82,7 +82,7 @@ public class TransferService {
 
 	@Transactional
 	public void doneTransfer(String transno, int fee) {
-		transferMapper.updateTransfer(transno, DateTime.now());
+		transferMapper.updateTransfer(transno, Math.abs(fee), DateTime.now());
 		//accountMapper.updateBalance(ADMIN_NAME, -Math.abs(fee));
 		accountMapper.updateBalance(ADMIN_NAME, COST_TRANSFER - Math.abs(fee));
 	}

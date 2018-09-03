@@ -241,7 +241,7 @@ public class UserController {
 		//folderService.lock(user.getUsername(), form.getSeq());
 
 		int cnt = 1;
-		String uuid = UUID.randomUUID().toString();
+		String uuid = UUID.randomUUID().toString().replace("-", "");
 		List<String> fileList = new ArrayList<String>();
 		for (MultipartFile file : form.getFiles()) {
 			String fileName = file.getOriginalFilename();

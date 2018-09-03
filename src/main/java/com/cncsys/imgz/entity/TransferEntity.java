@@ -15,6 +15,7 @@ public class TransferEntity {
 	private String acname;
 	private int amount;
 	private boolean done;
+	private int fee;
 	private DateTime createdt;
 	private DateTime updatedt;
 }

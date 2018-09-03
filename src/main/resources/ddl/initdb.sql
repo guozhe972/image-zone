@@ -43,8 +43,8 @@ CREATE TABLE photo
 (
     username varchar(20) NOT NULL,
     folder int NOT NULL,
-    thumbnail varchar(50) NOT NULL,
-    original varchar(50) NOT NULL,
+    thumbnail varchar(40) NOT NULL,
+    original varchar(40) NOT NULL,
     filename varchar(255) NOT NULL,
     price int NOT NULL,
     createdt timestamp NOT NULL,
@@ -58,13 +58,13 @@ CREATE TABLE "order"
     email varchar (255) NOT NULL,
     username varchar(20) NOT NULL,
     folder int NOT NULL,
-    thumbnail varchar(50) NOT NULL,
-    original varchar(50) NOT NULL,
+    thumbnail varchar(40) NOT NULL,
+    original varchar(40) NOT NULL,
     filename varchar(255) NOT NULL,
     price int NOT NULL,
     createdt timestamp NOT NULL,
     charged boolean NOT NULL,
-    expiredt date NOT NULL,
+    expiredt date,
     CONSTRAINT order_pkey PRIMARY KEY (orderno, email, original)
 );
 CREATE INDEX order_idx1 ON "order" (username, folder, thumbnail);
@@ -80,7 +80,9 @@ CREATE TABLE transfer
     acnumber varchar(20) NOT NULL,
     acname varchar(100) NOT NULL,
     amount int NOT NULL,
+    amount int NOT NULL,
     done boolean NOT NULL,
+    fee int NOT NULL DEFAULT 0,
     createdt timestamp NOT NULL,
     updatedt timestamp,
     CONSTRAINT transfer_pkey PRIMARY KEY (transno)

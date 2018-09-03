@@ -44,7 +44,7 @@ public class OrderService {
 	}
 
 	@Transactional
-	public void updateOrder(String orderno, String email) {
-		orderMapper.updateCharged(orderno, email, true);
+	public int updateOrder(String orderno, String email, LocalDate expiredt) {
+		return orderMapper.updateCharged(orderno, email, expiredt);
 	}
 }
