@@ -80,7 +80,6 @@ CREATE TABLE transfer
     acnumber varchar(20) NOT NULL,
     acname varchar(100) NOT NULL,
     amount int NOT NULL,
-    amount int NOT NULL,
     done boolean NOT NULL,
     fee int NOT NULL DEFAULT 0,
     createdt timestamp NOT NULL,
