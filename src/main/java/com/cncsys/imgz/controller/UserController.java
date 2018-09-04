@@ -2,7 +2,6 @@ package com.cncsys.imgz.controller;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -510,7 +509,11 @@ public class UserController {
 		if (!model.containsAttribute("bankForm")) {
 			BankForm form = new BankForm();
 			form.setActype(BankForm.AcTypes[0]);
+			form.setAmount(user.getBalance().setScale(0, BigDecimal.ROUND_DOWN).intValue());
 			model.addAttribute("bankForm", form);
+		} else {
+			BankForm form = (BankForm) model.asMap().get("bankForm");
+			form.setAmount(user.getBalance().setScale(0, BigDecimal.ROUND_DOWN).intValue());
 		}
 
 		return "/user/account";
@@ -536,7 +539,7 @@ public class UserController {
 			return "redirect:/user/account";
 		}
 
-		if (user.getBalance().setScale(0, RoundingMode.DOWN).intValue() != form.getAmount()) {
+		if (user.getBalance().setScale(0, BigDecimal.ROUND_DOWN).intValue() != form.getAmount()) {
 			// 改竄エラー
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.account.changed", null, locale));
@@ -556,8 +559,8 @@ public class UserController {
 		entity.setAcname(form.getAcname().trim());
 		entity.setAmount(form.getAmount());
 		entity.setCreatedt(DateTime.now());
-		int balance = transferService.acceptTransfer(entity);
-		if (balance < 0) {
+		BigDecimal balance = transferService.acceptTransfer(entity);
+		if (balance.compareTo(BigDecimal.ZERO) < 0) {
 			// 多重エラー
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.account.changed", null, locale));
@@ -565,7 +568,7 @@ public class UserController {
 			redirectAttributes.addFlashAttribute("bankForm", form);
 			return "redirect:/user/account";
 		} else {
-			user.setBalance(BigDecimal.valueOf(balance).setScale(2));
+			user.setBalance(balance);
 		}
 
 		String[] param = new String[5];

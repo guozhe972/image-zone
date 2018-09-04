@@ -104,7 +104,7 @@
 		<th:block layout:replace="~{layout/parts/alert::info}" />
 		<form id="fomRequest" class="mw-content mx-auto py-3" novalidate
 			th:action="@{/user/request}" th:object="${bankForm}" method="post">
-			<input type="hidden" id="amount" name="amount" th:value="${balance}" />
+			<input type="hidden" th:field="*{amount}" />
 			<div class="form-group row">
 				<label for="bank" class="col-sm-4 col-form-label text-sm-right">[[#{label.account.bank}]]</label>
 				<div class="col-sm-8">
@@ -171,7 +171,7 @@
 				<div class="offset-sm-4 col-sm-8">
 					<button type="button" class="btn btn-primary btn-block-xs"
 						style="width: 150px;"
-						th:disabled="${balance}<${@applicationProperties.getProperty('cost.transfer.fee')}"
+						th:disabled="*{amount}<${@applicationProperties.getProperty('cost.transfer.fee')}"
 						data-toggle="modal" data-target="#mdlRequest">[[#{label.request.button}]]</button>
 					<small class="form-text text-muted"
 						th:text="${#messages.msg('message.transfer.cost', #numbers.formatInteger(@applicationProperties.getProperty('cost.transfer.fee'),1,'COMMA'))}"></small>

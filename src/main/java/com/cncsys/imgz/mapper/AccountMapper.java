@@ -1,5 +1,7 @@
 package com.cncsys.imgz.mapper;
 
+import java.math.BigDecimal;
+
 import org.apache.ibatis.annotations.Param;
 import org.joda.time.DateTime;
 
@@ -19,5 +21,5 @@ public interface AccountMapper {
 
 	String updatePassword(@Param("username") String username, @Param("password") String password);
 
-	int updateBalance(@Param("username") String username, @Param("balance") int balance);
+	BigDecimal updateBalance(@Param("username") String username, @Param("balance") BigDecimal balance);
 }

@@ -1,6 +1,7 @@
 package com.cncsys.imgz.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,9 @@ public class PayController {
 
 	@Value("${alipay.public.key}")
 	private String ALIPAY_PUBLIC;
+
+	@Value("${alipay.cost.rate}")
+	private String ALIPAY_RATE;
 
 	@Value("${order.download.days}")
 	private int DOWNLOAD_DAYS;
@@ -101,9 +105,9 @@ public class PayController {
 						amount += entity.getPrice();
 					}
 					String username = order.get(0).getUsername();
-					// TODO: calc real money.
-					int real = amount - Math.round(amount * 0.6F / 100F);
-					accountService.updateBalance(username, amount, real);
+					BigDecimal fee = BigDecimal.valueOf(amount).multiply(new BigDecimal(ALIPAY_RATE)).divide(
+							BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
+					accountService.updateBalance(username, amount, BigDecimal.valueOf(amount).subtract(fee));
 				}
 				result = "success";
 			}
@@ -112,9 +116,6 @@ public class PayController {
 			asyncService.deleteOrder(orderno);
 		}
 
-		response.setContentType("text/plain;charset=utf-8");
-		response.getWriter().write(result);
-		response.getWriter().flush();
-		response.getWriter().close();
+		response.getWriter().println(result);
 	}
 }

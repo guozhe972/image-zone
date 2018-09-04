@@ -1,5 +1,7 @@
 package com.cncsys.imgz.service;
 
+import java.math.BigDecimal;
+
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,10 +96,11 @@ public class AccountService {
 	}
 
 	@Transactional
-	public void updateBalance(String username, int amount, int real) {
-		int fee = Math.round(amount * COST_SETTLE / 100F);
-		accountMapper.updateBalance(username, amount - fee);
-		accountMapper.updateBalance(ADMIN_NAME, fee - (amount - real));
+	public void updateBalance(String username, int amount, BigDecimal real) {
+		BigDecimal fee = BigDecimal.valueOf(amount * COST_SETTLE).divide(BigDecimal.valueOf(100), 2,
+				BigDecimal.ROUND_DOWN);
+		accountMapper.updateBalance(username, BigDecimal.valueOf(amount).subtract(fee));
+		accountMapper.updateBalance(ADMIN_NAME, fee.subtract(BigDecimal.valueOf(amount).subtract(real)));
 	}
 
 	@Transactional
@@ -108,11 +111,5 @@ public class AccountService {
 	@Transactional
 	public void updateLogindt(String username) {
 		accountMapper.updateLogindt(username, DateTime.now());
-	}
-
-	@Transactional(readOnly = true)
-	public LocalDate getExpiredt(String username) {
-		AccountEntity account = accountMapper.selectAccount(username);
-		return account.getExpiredt();
 	}
 }

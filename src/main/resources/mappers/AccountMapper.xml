@@ -4,64 +4,51 @@
 
 <mapper namespace="com.cncsys.imgz.mapper.AccountMapper">
 
-<!--
-	<resultMap id="userResultMap" type="UserInfo">
-		<id column="username" property="user" />
-		<result column="password" property="pass" />
-		<result column="mailaddress" property="mail" />
-		<result column="createdate" property="cdate" />
-		<collection property="roles" ofType="UserRole">
-			<id property="user" column="username" />
-			<id property="role" column="authority" />
-		</collection>
-	</resultMap>
-
-	<select id="selectUser" parameterType="string"
-		resultMap="userResultMap">
-
-		select i.username, i.password, i.mailaddress, i.createdate,
-		r.authority
-		from userinfo i join userrole r on i.username = r.username
-		where i.username = #{user}
-	</select>
--->
-
 	<select id="selectAccount" resultType="AccountEntity">
-		select username, password, email, authority, balance, createdt, enabled, expiredt
+		select username, password,
+		email, authority, balance, createdt, enabled, expiredt
 		from account
 		where username = #{username}
 	</select>
 
 	<select id="selectByReset" resultType="AccountEntity">
-		select username, password, email, authority, balance, createdt, enabled, expiredt
+		select username, password,
+		email, authority, balance, createdt, enabled, expiredt
 		from account
 		where username = #{username} and password = #{password}
 	</select>
 
 	<insert id="insertAccount" parameterType="AccountEntity">
-		insert into account (username, password, email, authority, createdt, enabled, expiredt)
-		values (#{username}, #{password}, #{email}, #{authority}, #{createdt}, #{enabled}, #{expiredt})
+		insert into account
+		(username, password, email, authority, createdt, enabled, expiredt)
+		values (#{username}, #{password}, #{email}, #{authority}, #{createdt},
+		#{enabled}, #{expiredt})
 	</insert>
 
 	<update id="updateLogindt">
 		update account set logindt = #{logindt}
-		where username = #{username}
+		where username
+		= #{username}
 	</update>
 
 	<update id="updateAccount" parameterType="AccountEntity">
-		update account set password = #{password}, email = #{email},
-		enabled = #{enabled}, expiredt = #{expiredt}
+		update account set
+		password = #{password}, email = #{email},
+		enabled = #{enabled},
+		expiredt = #{expiredt}
 		where username = #{username}
 	</update>
 
 	<select id="updatePassword" resultType="String">
-		update account set password = #{password}
+		update account set
+		password = #{password}
 		where username = #{username}
 		returning email
 	</select>
 
-	<select id="updateBalance" resultType="int">
-		update account set balance = (balance + #{balance})
+	<select id="updateBalance" resultType="BigDecimal">
+		update account set balance
+		= (balance + #{balance})
 		where username = #{username}
 		returning balance
 	</select>

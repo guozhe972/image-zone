@@ -59,7 +59,7 @@ public class AdminController {
 
 	@PostMapping("/transfer")
 	public String transfer(@RequestParam("transno") String transno, @RequestParam("fee") int fee) {
-		transferService.doneTransfer(transno, fee);
+		transferService.doneTransfer(transno, Math.abs(fee));
 		return "redirect:/admin/home";
 	}
 }

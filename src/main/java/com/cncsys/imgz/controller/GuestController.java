@@ -1,6 +1,7 @@
 package com.cncsys.imgz.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -570,10 +571,10 @@ public class GuestController {
 		}
 
 		// update balance
-		//accountService.updateBalance(username, amount, amount);
+		//accountService.updateBalance(username, amount, new BigDecimal(amount));
 		try {
 			Transaction trans = client.transactions().get(charge.getTransaction());
-			accountService.updateBalance(username, amount, (int) trans.getAmount());
+			accountService.updateBalance(username, amount, new BigDecimal(trans.getAmount()));
 		} catch (IOException | OmiseException e) {
 			logger.error("Order No." + orderno + " User Balance Update Error.");
 			e.printStackTrace();

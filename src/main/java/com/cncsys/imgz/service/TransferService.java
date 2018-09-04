@@ -1,5 +1,6 @@
 package com.cncsys.imgz.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 
@@ -58,18 +59,18 @@ public class TransferService {
 		return result;
 	}
 
-	public int acceptTransfer(TransferEntity transfer) {
-		int balance = -1;
+	public BigDecimal acceptTransfer(TransferEntity transfer) {
+		BigDecimal balance = new BigDecimal(-1);
 		TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
 
 		try {
-			balance = accountMapper.updateBalance(transfer.getUsername(), -Math.abs(transfer.getAmount()));
-			if (balance < 0) {
+			balance = accountMapper.updateBalance(transfer.getUsername(),
+					BigDecimal.valueOf(transfer.getAmount()).negate());
+			if (balance.compareTo(BigDecimal.ZERO) < 0) {
 				transactionManager.rollback(status);
 			} else {
 				transfer.setAmount(transfer.getAmount() - COST_TRANSFER);
 				transferMapper.insertTransfer(transfer);
-				//accountMapper.updateBalance(ADMIN_NAME, COST_TRANSFER);
 				transactionManager.commit(status);
 			}
 		} catch (Exception e) {
@@ -82,8 +83,7 @@ public class TransferService {
 
 	@Transactional
 	public void doneTransfer(String transno, int fee) {
-		transferMapper.updateTransfer(transno, Math.abs(fee), DateTime.now());
-		//accountMapper.updateBalance(ADMIN_NAME, -Math.abs(fee));
-		accountMapper.updateBalance(ADMIN_NAME, COST_TRANSFER - Math.abs(fee));
+		transferMapper.updateTransfer(transno, fee, DateTime.now());
+		accountMapper.updateBalance(ADMIN_NAME, new BigDecimal(COST_TRANSFER - fee));
 	}
 }
