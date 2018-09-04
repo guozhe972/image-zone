@@ -539,7 +539,7 @@ public class GuestController {
 			if (charge.getStatus() != ChargeStatus.Successful) {
 				asyncService.deleteOrder(orderno);
 				List<String> errors = new ArrayList<String>();
-				errors.add(messageSource.getMessage("error.credit.issue", null, locale));
+				errors.add(messageSource.getMessage("error.payment.failed", null, locale));
 				redirectAttributes.addFlashAttribute("errors", errors);
 				return "redirect:/guest/pay";
 			} else {

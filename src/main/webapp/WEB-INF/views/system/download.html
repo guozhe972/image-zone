@@ -4,15 +4,20 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>[[#{title.download}]]</title>
+<link rel="stylesheet" th:href="@{/css/tippy.css}">
+<script th:src="@{/js/tippy.min.js}"></script>
 <script th:src="@{/js/jquery.lazyload.min.js}"></script>
-<style>
-div.alert {
-	max-width: 100% !important;
-}
-</style>
 <script>
 	$(function() {
 		$('img.lazyload').lazyload();
+
+		tippy.one('#tipExpiry', {
+			animation : 'fade',
+			arrow : true,
+			placement : 'bottom',
+			hideOnClick : true,
+			trigger : 'click'
+		});
 	});
 </script>
 </head>
@@ -23,16 +28,18 @@ div.alert {
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
-		<div class="pt-3 d-flex justify-content-end">
-		<div class="row"><label for="expiredt">[[#{label.signup.username}]]</label>
-
-					<span id="expiredt" class="form-control-plaintext"
-						th:text="${expiredt}"></span></div>
-			<a class="btn btn-info" th:href="@{|/download/zip/${link}|}"
-				role="button"><i class="fas fa-download"></i>&nbsp;[[#{label.download.bulk}]]</a>
+		<div class="pt-3 d-flex justify-content-between">
+			<div style="line-height: 38px; font-size: 110%;">
+				[[#{label.download.expiry}]]<span class="text-danger"
+					th:text="${expiredt}"></span>&nbsp;<span id="tipExpiry"
+					style="cursor: pointer" th:title="#{tooltip.download.expiry}"><i
+					class="fas fa-question-circle text-dark"></i></span>
+			</div>
+			<a class="btn btn-info text-none-xs"
+				th:href="@{|/download/zip/${link}|}" role="button"><i
+				class="fas fa-download"></i><span>&nbsp;[[#{label.download.bulk}]]</span></a>
 		</div>
 		<hr class="mb-0">
-		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">

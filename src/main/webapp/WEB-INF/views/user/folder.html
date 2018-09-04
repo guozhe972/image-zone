@@ -116,7 +116,9 @@
 			<button id="btnBulk" type="button" class="btn btn-warning"
 				th:disabled="${#lists.isEmpty(photos)}"
 				th:onclick="|target=0;$('#thumbnail').val('*');$('#money').val(${@applicationProperties.getProperty('photo.price.default')});|"
-				data-toggle="modal" data-target="#mdlPrice">[[#{label.folder.bulk}]]</button>
+				data-toggle="modal" data-target="#mdlPrice">
+				<i class="fas fa-cogs"></i>&nbsp;[[#{label.folder.bulk}]]
+			</button>
 			<a class="btn btn-info" th:href="@{|/user/share/${folder}|}"
 				role="button"><i class="fas fa-share-alt"></i>&nbsp;<th:block
 					th:text="${shared}?#{label.folder.info}:#{label.folder.share}"></th:block></a>
