@@ -1,5 +1,7 @@
 package com.cncsys.imgz.entity;
 
+import java.math.BigDecimal;
+
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
@@ -16,7 +18,7 @@ public class AccountEntity {
 	private String password;
 	private String email;
 	private Authority authority;
-	private int balance;
+	private BigDecimal balance;
 	private DateTime createdt;
 	private boolean enabled;
 	private LocalDate expiredt;

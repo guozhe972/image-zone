@@ -83,8 +83,8 @@ public class GuestController {
 		return cart;
 	}
 
-	@Value("${order.download.limit}")
-	private int DOWNLOAD_LIMIT;
+	@Value("${order.download.days}")
+	private int DOWNLOAD_DAYS;
 
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
@@ -556,7 +556,7 @@ public class GuestController {
 		}
 
 		// charge success
-		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
+		LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_DAYS);
 		orderService.updateOrder(orderno, email, expiredt);
 		String downlink = "/download/" + orderno + "/" + codeParser.encrypt(email);
 

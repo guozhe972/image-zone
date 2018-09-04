@@ -35,8 +35,8 @@ public class PayController {
 	@Value("${alipay.public.key}")
 	private String ALIPAY_PUBLIC;
 
-	@Value("${order.download.limit}")
-	private int DOWNLOAD_LIMIT;
+	@Value("${order.download.days}")
+	private int DOWNLOAD_DAYS;
 
 	@Autowired
 	private OrderService orderService;
@@ -84,7 +84,7 @@ public class PayController {
 			logger.info("trade_status:" + tradeStatus);
 			if (tradeStatus.equals("TRADE_FINISHED") || tradeStatus.equals("TRADE_SUCCESS")) {
 				// TODO: check trade info.
-				LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_LIMIT);
+				LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_DAYS);
 				int updCount = orderService.updateOrder(orderno, email, expiredt);
 				if (!email.equals(orderno) && updCount > 0) {
 					// send order mail

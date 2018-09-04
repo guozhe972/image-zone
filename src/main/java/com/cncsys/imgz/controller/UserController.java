@@ -1,6 +1,8 @@
 package com.cncsys.imgz.controller;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -526,7 +528,7 @@ public class UserController {
 			return "redirect:/user/account";
 		}
 
-		if (user.getBalance() < COST_TRANSFER) {
+		if (user.getBalance().compareTo(BigDecimal.valueOf(COST_TRANSFER)) < 0) {
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.account.balance", null, locale));
 			redirectAttributes.addFlashAttribute("errors", errors);
@@ -534,7 +536,7 @@ public class UserController {
 			return "redirect:/user/account";
 		}
 
-		if (user.getBalance() != form.getAmount()) {
+		if (user.getBalance().setScale(0, RoundingMode.DOWN).intValue() != form.getAmount()) {
 			// 改竄エラー
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.account.changed", null, locale));
@@ -563,7 +565,7 @@ public class UserController {
 			redirectAttributes.addFlashAttribute("bankForm", form);
 			return "redirect:/user/account";
 		} else {
-			user.setBalance(balance);
+			user.setBalance(BigDecimal.valueOf(balance).setScale(2));
 		}
 
 		String[] param = new String[5];

@@ -1,5 +1,6 @@
 package com.cncsys.imgz.model;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 
 import org.joda.time.LocalDate;
@@ -12,7 +13,7 @@ import com.cncsys.imgz.entity.AccountEntity.Authority;
 public class LoginUser extends User {
 	private final String email;
 	private final Authority authority;
-	private int balance;
+	private BigDecimal balance;
 	private final LocalDate expiredt;
 
 	public LoginUser(AccountEntity account, boolean nonExpired,
@@ -33,11 +34,11 @@ public class LoginUser extends User {
 		return authority;
 	}
 
-	public int getBalance() {
+	public BigDecimal getBalance() {
 		return balance;
 	}
 
-	public void setBalance(int balance) {
+	public void setBalance(BigDecimal balance) {
 		this.balance = balance;
 	}
 

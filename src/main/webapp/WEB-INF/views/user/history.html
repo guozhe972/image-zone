@@ -17,6 +17,13 @@
 			<h2 class="mb-0 mr-3"
 				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}#{money.unit}|"></h2>
 		</div>
+		<div
+			class="alert alert-info alert-dismissible fade show mw-content mx-auto mt-3 mb-0"
+			role="alert">
+			<div
+				th:utext="${#messages.msg('info.history.limit', @applicationProperties.getProperty('default.history.months'))}"></div>
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+		</div>
 		<ul class="list-group mw-content mx-auto py-3">
 			<li
 				class="list-group-item rounded-0 border-left-0 border-right-0 px-0 py-2"
@@ -33,7 +40,7 @@
 				</div>
 				<div class="float-right pr-3 text-right">
 					<div>
-						<span class="badge"
+						<span class="badge" style="font-size: 80%;"
 							th:classappend="*{done}?'badge-success':'badge-warning'"
 							th:text="*{done}?#{label.transfer.done}:#{label.transfer.accept}"></span>
 					</div>
