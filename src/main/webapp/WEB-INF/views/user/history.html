@@ -16,8 +16,9 @@
 		<div class="mw-content mx-auto pt-3 d-flex justify-content-between">
 			<h2 class="mb-0 ml-3">[[#{header.account}]]</h2>
 			<h2 class="mb-0 mr-3"
-				th:text="|${#numbers.formatDecimal(balance,1,'POINT',scale,'COMMA')}#{money.unit}|"></h2>
+				th:text="|${#numbers.formatDecimal(balance,1,'COMMA',scale,'POINT')}#{money.unit}|"></h2>
 		</div>
+		<!--/*
 		<div
 			class="alert alert-info alert-dismissible fade show mw-content mx-auto mt-3 mb-0"
 			role="alert">
@@ -25,12 +26,13 @@
 				th:utext="${#messages.msg('info.history.limit', @applicationProperties.getProperty('transfer.history.months'))}"></div>
 			<button type="button" class="close" data-dismiss="alert">&times;</button>
 		</div>
+		*/-->
 		<ul class="list-group mw-content mx-auto py-3">
 			<li
 				class="list-group-item rounded-0 border-left-0 border-right-0 px-0 py-2"
 				th:each="form,stat : ${history}" th:object="${form}">
 				<div class="float-left px-3">
-					<div th:text="*{transno}"></div>
+					<div class="text-muted" th:text="*{transno}"></div>
 					<div th:text="*{bank}"></div>
 					<div th:text="*{branch}"></div>
 					<th:block th:switch="*{actype}">

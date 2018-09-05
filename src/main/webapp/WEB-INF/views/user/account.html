@@ -97,7 +97,7 @@
 			class="mw-content mx-auto py-3 border-bottom d-flex justify-content-between">
 			<h2 class="mb-0 ml-3">[[#{header.account}]]</h2>
 			<h2 class="mb-0 mr-3"
-				th:text="|${#numbers.formatDecimal(balance,1,'POINT',scale,'COMMA')}#{money.unit}|"></h2>
+				th:text="|${#numbers.formatDecimal(balance,1,'COMMA',scale,'POINT')}#{money.unit}|"></h2>
 		</div>
 	</div>
 	<div class="container bg-main">
@@ -175,7 +175,7 @@
 						th:disabled="*{amount}<${@applicationProperties.getProperty('cost.transfer.fee')}"
 						data-toggle="modal" data-target="#mdlRequest">[[#{label.request.button}]]</button>
 					<small class="form-text text-muted"
-						th:text="${#messages.msg('message.transfer.cost', #numbers.formatInteger(@applicationProperties.getProperty('cost.transfer.fee'),1,'COMMA'))}"></small>
+						th:utext="${#messages.msg('message.transfer.cost', #numbers.formatInteger(@applicationProperties.getProperty('cost.transfer.fee'),1,'COMMA'))}"></small>
 				</div>
 			</div>
 		</form>

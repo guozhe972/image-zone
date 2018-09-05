@@ -52,7 +52,7 @@
 		<div class="mw-content mx-auto pt-3 d-flex justify-content-between">
 			<h2 class="mb-0 ml-3">[[#{header.profit}]]</h2>
 			<h2 class="mb-0 mr-3"
-				th:text="|${#numbers.formatDecimal(balance,1,'POINT',scale,'COMMA')}#{money.unit}|"></h2>
+				th:text="|${#numbers.formatDecimal(balance,1,'COMMA',scale,'POINT')}#{money.unit}|"></h2>
 		</div>
 		<ul class="list-group mw-content mx-auto py-3">
 			<li
