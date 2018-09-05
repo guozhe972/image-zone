@@ -35,16 +35,6 @@
 	<mvc:resources mapping="/order/**"
 		location="file:${order.file.path}/" />
 
-	<bean id="messageSource"
-		class="org.springframework.context.support.ResourceBundleMessageSource">
-		<property name="basename" value="i18n/messages" />
-		<property name="defaultEncoding" value="UTF-8" />
-	</bean>
-	<bean id="localeResolver"
-		class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
-		<property name="defaultLocale" value="${locale.default}" />
-	</bean>
-
 	<mvc:annotation-driven>
 		<mvc:message-converters>
 			<bean
@@ -78,6 +68,15 @@
 		</property>
 	</bean>
 
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="i18n/messages" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+	<bean id="localeResolver"
+		class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+		<property name="defaultLocale" value="${locale.default}" />
+	</bean>
 
 	<bean id="templateResolver"
 		class="org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver">
@@ -207,7 +206,6 @@
 			<bean class="com.cncsys.imgz.handler.LoggedInUserHandler" />
 		</mvc:interceptor>
 	</mvc:interceptors>
-
 
 	<bean id="mailSender"
 		class="org.springframework.mail.javamail.JavaMailSenderImpl">

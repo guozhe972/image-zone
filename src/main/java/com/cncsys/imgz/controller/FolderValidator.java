@@ -19,8 +19,8 @@ public class FolderValidator implements SmartValidator {
 	@Value("${upload.file.size}")
 	private long UPLOAD_SIZE;
 
-	@Value("${default.expired.days}")
-	private int DEFAULT_EXPIRED;
+	@Value("${folder.expired.days}")
+	private int EXPIRED_DAYS;
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -69,10 +69,10 @@ public class FolderValidator implements SmartValidator {
 				}
 
 				LocalDate mindt = LocalDate.now();
-				LocalDate maxdt = LocalDate.now().plusDays(DEFAULT_EXPIRED);
+				LocalDate maxdt = LocalDate.now().plusDays(EXPIRED_DAYS);
 				if (mindt.isAfter(expiredt) || maxdt.isBefore(expiredt)) {
 					errors.rejectValue("expiredt", "validation.share.expiredt",
-							new Object[] { DEFAULT_EXPIRED }, null);
+							new Object[] { EXPIRED_DAYS }, null);
 				}
 			}
 		} else if (ArrayUtils.contains(validationHints, Plans.class)) {
@@ -94,10 +94,10 @@ public class FolderValidator implements SmartValidator {
 				}
 
 				LocalDate mindt = LocalDate.now();
-				LocalDate maxdt = LocalDate.now().plusDays(DEFAULT_EXPIRED);
+				LocalDate maxdt = LocalDate.now().plusDays(EXPIRED_DAYS);
 				if (mindt.isAfter(plansdt) || maxdt.isBefore(plansdt)) {
 					errors.rejectValue("plansdt", "validation.plans.plansdt",
-							new Object[] { DEFAULT_EXPIRED }, null);
+							new Object[] { EXPIRED_DAYS }, null);
 				}
 			}
 
@@ -109,10 +109,10 @@ public class FolderValidator implements SmartValidator {
 				}
 
 				LocalDate mindt = plansdt;
-				LocalDate maxdt = plansdt.plusDays(DEFAULT_EXPIRED);
+				LocalDate maxdt = plansdt.plusDays(EXPIRED_DAYS);
 				if (mindt.isAfter(expiredt) || maxdt.isBefore(expiredt)) {
 					errors.rejectValue("expiredt", "validation.plans.expiredt",
-							new Object[] { DEFAULT_EXPIRED }, null);
+							new Object[] { EXPIRED_DAYS }, null);
 				}
 			}
 		}

@@ -380,7 +380,7 @@ public class GuestController {
 
 		Map<String, String> paramMap = new HashMap<>();
 		paramMap.put("out_trade_no", orderno);
-		paramMap.put("total_amount", String.valueOf(amount));
+		paramMap.put("total_amount", String.valueOf(amount) + ".00");
 		paramMap.put("subject", ALIPAY_SUBJECT);
 		paramMap.put("passback_params", codeParser.encrypt(email));
 		paramMap.put("timeout_express", "20m");

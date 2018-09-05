@@ -5,7 +5,8 @@
 <head>
 <title>[[#{title.user}]]</title>
 </head>
-<body layout:fragment="body" class="pt-header">
+<body layout:fragment="body" class="pt-header"
+	th:with="scale=((${#locale.language}=='ja')?0:2)">
 	<header layout:insert="~{layout/parts/header::user(2)}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
@@ -15,13 +16,13 @@
 		<div class="mw-content mx-auto pt-3 d-flex justify-content-between">
 			<h2 class="mb-0 ml-3">[[#{header.account}]]</h2>
 			<h2 class="mb-0 mr-3"
-				th:text="|${#numbers.formatInteger(balance,1,'COMMA')}#{money.unit}|"></h2>
+				th:text="|${#numbers.formatDecimal(balance,1,'POINT',scale,'COMMA')}#{money.unit}|"></h2>
 		</div>
 		<div
 			class="alert alert-info alert-dismissible fade show mw-content mx-auto mt-3 mb-0"
 			role="alert">
 			<div
-				th:utext="${#messages.msg('info.history.limit', @applicationProperties.getProperty('default.history.months'))}"></div>
+				th:utext="${#messages.msg('info.history.limit', @applicationProperties.getProperty('transfer.history.months'))}"></div>
 			<button type="button" class="close" data-dismiss="alert">&times;</button>
 		</div>
 		<ul class="list-group mw-content mx-auto py-3">

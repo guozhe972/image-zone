@@ -83,13 +83,13 @@ public class UserController {
 	@Value("${photo.price.default}")
 	private int DEFAULT_PRICE;
 
-	@Value("${default.expired.days}")
-	private int DEFAULT_EXPIRED;
+	@Value("${folder.expired.days}")
+	private int EXPIRED_DAYS;
 
 	@Value("${cost.transfer.fee}")
 	private int COST_TRANSFER;
 
-	@Value("${max.folder.count}")
+	@Value("${folder.count.max}")
 	private int FOLDER_MAX;
 
 	@Value("${qrcode.size.width}")
@@ -424,12 +424,12 @@ public class UserController {
 				form.setName(folder.getName());
 				form.setGuest(folder.getGuest());
 				form.setPassword("");
-				form.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED / 2));
+				form.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 				model.addAttribute("folderForm", form);
 			}
 
 			model.addAttribute("mindt", LocalDate.now());
-			model.addAttribute("maxdt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
+			model.addAttribute("maxdt", LocalDate.now().plusDays(EXPIRED_DAYS));
 			return "/user/share";
 		}
 	}
@@ -659,18 +659,18 @@ public class UserController {
 			form.setSeq(0);
 			form.setPassword("");
 			form.setPlansdt(LocalDate.now());
-			form.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED / 2));
+			form.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 			model.addAttribute("folderForm", form);
 			model.addAttribute("minExpiredt", LocalDate.now());
-			model.addAttribute("maxExpiredt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
+			model.addAttribute("maxExpiredt", LocalDate.now().plusDays(EXPIRED_DAYS));
 		} else {
 			FolderForm form = (FolderForm) model.asMap().get("folderForm");
 			model.addAttribute("minExpiredt", form.getPlansdt());
-			model.addAttribute("maxExpiredt", form.getPlansdt().plusDays(DEFAULT_EXPIRED));
+			model.addAttribute("maxExpiredt", form.getPlansdt().plusDays(EXPIRED_DAYS));
 		}
 
 		model.addAttribute("minPlansdt", LocalDate.now());
-		model.addAttribute("maxPlansdt", LocalDate.now().plusDays(DEFAULT_EXPIRED));
+		model.addAttribute("maxPlansdt", LocalDate.now().plusDays(EXPIRED_DAYS));
 
 		String prefix = messageSource.getMessage("default.folder.name", null, locale);
 		Map<Integer, String> folders = new LinkedHashMap<Integer, String>();

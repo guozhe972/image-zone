@@ -18,11 +18,11 @@ import com.cncsys.imgz.mapper.FolderMapper;
 @Service
 public class AccountService {
 
-	@Value("${init.folder.count}")
+	@Value("${folder.count.init}")
 	private int FOLDER_COUNT;
 
-	@Value("${default.expired.days}")
-	private int DEFAULT_EXPIRED;
+	@Value("${folder.expired.days}")
+	private int EXPIRED_DAYS;
 
 	@Value("${cost.settle.percent}")
 	private int COST_SETTLE;
@@ -76,7 +76,7 @@ public class AccountService {
 		account.setCreatedt(sysnow);
 		account.setEnabled(true);
 		if (accountMapper.insertAccount(account) > 0) {
-			LocalDate expiredt = LocalDate.now().plusDays(DEFAULT_EXPIRED);
+			LocalDate expiredt = LocalDate.now().plusDays(EXPIRED_DAYS);
 			for (int i = 0; i < FOLDER_COUNT; i++) {
 				int seq = folderMapper.insertFolder(username, "", sysnow);
 				String guest = username + "." + String.format("%02d", seq);

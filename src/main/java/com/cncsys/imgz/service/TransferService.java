@@ -27,7 +27,7 @@ public class TransferService {
 	@Value("${admin.username}")
 	private String ADMIN_NAME;
 
-	@Value("${default.history.months}")
+	@Value("${transfer.history.months}")
 	private int HISTORY_MONTHS;
 
 	@Autowired

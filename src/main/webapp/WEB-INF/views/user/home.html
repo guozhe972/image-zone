@@ -412,11 +412,11 @@ label.custom-file-label::after {
 		</ul>
 		<div class="mw-content mx-auto py-3">
 			<button type="button" class="btn btn-primary btn-block"
-				th:disabled="${#lists.size(folders)}>=${@applicationProperties.getProperty('max.folder.count')}"
+				th:disabled="${#lists.size(folders)}>=${@applicationProperties.getProperty('folder.count.max')}"
 				onclick="$('#foldernm').val('');" data-toggle="modal"
 				data-target="#mdlCreate">[[#{label.user.create}]]</button>
 			<small class="form-text text-muted"
-				th:text="${#messages.msg('message.folder.create', #numbers.formatInteger(@applicationProperties.getProperty('max.folder.count'),1,'COMMA'))}"></small>
+				th:text="${#messages.msg('message.folder.create', #numbers.formatInteger(@applicationProperties.getProperty('folder.count.max'),1,'COMMA'))}"></small>
 		</div>
 	</div>
 
@@ -443,7 +443,7 @@ label.custom-file-label::after {
 						<input type="number" id="money" pattern="[0-9]+"
 							th:min="${@applicationProperties.getProperty('photo.price.min')}"
 							th:max="${@applicationProperties.getProperty('photo.price.max')}"
-							maxlength="7" class="form-control text-right num-only" />
+							maxlength="6" class="form-control text-right num-only" />
 						<div class="input-group-append">
 							<span class="input-group-text">[[#{modal.price.unit}]]</span>
 						</div>

@@ -20,8 +20,8 @@ import com.cncsys.imgz.mapper.PhotoMapper;
 @Service
 public class FolderService {
 
-	@Value("${default.expired.days}")
-	private int DEFAULT_EXPIRED;
+	@Value("${folder.expired.days}")
+	private int EXPIRED_DAYS;
 
 	@Autowired
 	private FolderMapper folderMapper;
@@ -66,7 +66,7 @@ public class FolderService {
 		account.setAuthority(Authority.GUEST);
 		account.setCreatedt(sysnow);
 		account.setEnabled(false);
-		account.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED));
+		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS));
 		if (accountMapper.insertAccount(account) > 0) {
 			folderMapper.updateGuest(username, seq, guest);
 		}
@@ -98,7 +98,7 @@ public class FolderService {
 		account.setUsername(guest);
 		account.setPassword(passwordEncoder.encode(guest));
 		account.setEnabled(false);
-		account.setExpiredt(LocalDate.now().plusDays(DEFAULT_EXPIRED));
+		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS));
 		accountMapper.updateAccount(account);
 
 		photoMapper.deleteByFolder(username, seq);

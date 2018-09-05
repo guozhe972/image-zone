@@ -182,7 +182,7 @@
 						<input type="number" id="money" pattern="[0-9]+"
 							th:min="${@applicationProperties.getProperty('photo.price.min')}"
 							th:max="${@applicationProperties.getProperty('photo.price.max')}"
-							maxlength="7" class="form-control text-right num-only" />
+							maxlength="6" class="form-control text-right num-only" />
 						<div class="input-group-append">
 							<span class="input-group-text">[[#{money.unit}]]</span>
 						</div>

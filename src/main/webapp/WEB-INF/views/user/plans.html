@@ -67,7 +67,7 @@ html {
 						var mindt = dateStr;
 						var maxdt = moment(dateStr)
 								.add(
-										Number('[(${@applicationProperties.getProperty("default.expired.days")})]'),
+										Number('[(${@applicationProperties.getProperty("folder.expired.days")})]'),
 										'd').format('YYYY-MM-DD');
 
 						fpExpiredt.set('minDate', mindt);
@@ -135,7 +135,7 @@ html {
 											'<div/>',
 											{
 												'class' : 'invalid-feedback d-block',
-												text : '[(${#messages.msg("validation.plans.plansdt", @applicationProperties.getProperty("default.expired.days"))})]'
+												text : '[(${#messages.msg("validation.plans.plansdt", @applicationProperties.getProperty("folder.expired.days"))})]'
 											}));
 					isValid = false;
 				}
@@ -164,7 +164,7 @@ html {
 											'<div/>',
 											{
 												'class' : 'invalid-feedback d-block',
-												text : '[(${#messages.msg("validation.plans.expiredt", @applicationProperties.getProperty("default.expired.days"))})]'
+												text : '[(${#messages.msg("validation.plans.expiredt", @applicationProperties.getProperty("folder.expired.days"))})]'
 											}));
 					isValid = false;
 				}
