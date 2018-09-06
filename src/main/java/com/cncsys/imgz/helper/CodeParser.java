@@ -34,7 +34,7 @@ public class CodeParser {
 		try {
 			rtn = deluxEncryptor.decrypt(cipherText);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// do noting
 		}
 		return rtn;
 	}
@@ -48,7 +48,7 @@ public class CodeParser {
 		try {
 			rtn = queryEncryptor.decrypt(cipherText);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// do noting
 		}
 		return rtn;
 	}

@@ -8,16 +8,29 @@
 		</encoder>
 	</appender>
 
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>/apl/imgz/log/app.log</file>
-		<append>true</append>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>/apl/imgz/log/app_%d{yyyyMMdd}.log</fileNamePattern>
+			<maxHistory>10</maxHistory>
+		</rollingPolicy>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
 		<encoder>
 			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5level] %logger - %msg%n</pattern>
 		</encoder>
 	</appender>
 
-	<root level="INFO">
+	<logger name="com.cncsys.imgz" level="DEBUG" additivity="false">
 		<appender-ref ref="STDOUT" />
-		<!-- <appender-ref ref="FILE" /> -->
+		<appender-ref ref="FILE" />
+	</logger>
+
+	<root level="ERROR">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
 	</root>
 </configuration>

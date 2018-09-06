@@ -43,7 +43,7 @@ public class AsyncService {
 				BufferedImage scaled = imageEditor.getThumbnail(ImageIO.read(original));
 				ImageIO.write(scaled, "jpeg", thumbnail);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.warn("Exception", e);
 			}
 		}
 	}
@@ -55,7 +55,7 @@ public class AsyncService {
 			fileHelper.deleteFolder(new File(ORDER_PATH + "/" + orderno));
 			orderMapper.deleteOrder(orderno);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("Exception", e);
 		}
 	}
 }

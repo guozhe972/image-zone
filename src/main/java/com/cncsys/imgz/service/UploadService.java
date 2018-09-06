@@ -13,6 +13,8 @@ import java.util.zip.ZipInputStream;
 import javax.imageio.ImageIO;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,12 +25,16 @@ import com.cncsys.imgz.helper.ImageEditor;
 
 @Service
 public class UploadService {
+	private static final Logger logger = LoggerFactory.getLogger(UploadService.class);
 
 	@Value("${upload.file.path}")
 	private String UPLOAD_PATH;
 
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
+
+	@Value("${zip.charset}")
+	private String ZIP_CHARSET;
 
 	@Autowired
 	private ImageEditor imageEditor;
@@ -56,7 +62,7 @@ public class UploadService {
 			File file = new File(tempPath + "/" + newName);
 			if (file.getName().toLowerCase().endsWith(".zip")) {
 				try {
-					ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName("MS932"));
+					ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName(ZIP_CHARSET));
 					ZipEntry entry = zis.getNextEntry();
 					while (entry != null) {
 						if (!entry.isDirectory() && entry.getName().toLowerCase().matches(".+(\\.jpg|\\.jpeg)$")) {
@@ -93,7 +99,7 @@ public class UploadService {
 								photo.setCreatedt(DateTime.now());
 								photoService.insertPhoto(photo);
 							} catch (Exception e) {
-								e.printStackTrace();
+								logger.warn("Exception", e);
 							}
 						}
 						entry = zis.getNextEntry();
@@ -101,7 +107,7 @@ public class UploadService {
 					zis.closeEntry();
 					zis.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.warn("Exception", e);
 				}
 				file.delete();
 			} else {
@@ -132,7 +138,7 @@ public class UploadService {
 					photo.setCreatedt(DateTime.now());
 					photoService.insertPhoto(photo);
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.warn("Exception", e);
 				}
 			}
 		}

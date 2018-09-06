@@ -33,9 +33,4 @@ public class SystemController {
 	public String serverError() {
 		return "/system/error";
 	}
-
-	@GetMapping("/denied")
-	public String accessDenied() {
-		return "/system/denied";
-	}
 }

@@ -13,6 +13,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -73,6 +75,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 @Controller
 @RequestMapping("/user")
 public class UserController {
+	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	@Value("${upload.file.path}")
 	private String UPLOAD_PATH;
@@ -250,7 +253,7 @@ public class UserController {
 			try {
 				file.transferTo(new File(tempPath + "/" + newName));
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.warn("Exception", e);
 			}
 			fileList.add(fileName + "/" + newName);
 		}
@@ -412,7 +415,7 @@ public class UserController {
 				MatrixToImageWriter.writeToStream(bitMatrix, "png", bytStream);
 				qrcodeimg = Base64.encodeBase64String(bytStream.toByteArray());
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.warn("Exception", e);
 			}
 			model.addAttribute("qrcodeimg", qrcodeimg);
 			model.addAttribute("qrcodeurl", qrcodeurl);
@@ -531,7 +534,7 @@ public class UserController {
 			return "redirect:/user/account";
 		}
 
-		if (user.getBalance().compareTo(BigDecimal.valueOf(COST_TRANSFER)) < 0) {
+		if (form.getAmount() <= COST_TRANSFER) {
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.account.balance", null, locale));
 			redirectAttributes.addFlashAttribute("errors", errors);
@@ -546,6 +549,11 @@ public class UserController {
 			redirectAttributes.addFlashAttribute("errors", errors);
 			redirectAttributes.addFlashAttribute("bankForm", form);
 			return "redirect:/user/account";
+		}
+
+		// for zh env
+		if (form.getBranch() == null) {
+			form.setBranch("");
 		}
 
 		String transno = transferService.createNumber();
@@ -575,8 +583,12 @@ public class UserController {
 		param[0] = transno;
 		param[1] = form.getBank().trim();
 		param[2] = form.getBranch().trim();
-		param[3] = messageSource.getMessage("bank.account.type" + String.valueOf(form.getActype()), null, locale) + " "
-				+ form.getAcnumber().trim();
+		if (form.getActype() == 0) {
+			param[3] = form.getAcnumber().trim();
+		} else {
+			param[3] = messageSource.getMessage("bank.account.type" + String.valueOf(form.getActype()), null, locale)
+					+ " " + form.getAcnumber().trim();
+		}
 		param[4] = String.format("%,d", form.getAmount() - COST_TRANSFER)
 				+ messageSource.getMessage("money.unit", null, locale);
 		mailHelper.sendTransAccept(user.getEmail(), param);
@@ -733,7 +745,7 @@ public class UserController {
 			MatrixToImageWriter.writeToStream(bitMatrix, "png", bytStream);
 			qrcodeimg = Base64.encodeBase64String(bytStream.toByteArray());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("Exception", e);
 		}
 		model.addAttribute("qrcodeimg", qrcodeimg);
 		model.addAttribute("qrcodeurl", qrcodeurl);

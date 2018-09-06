@@ -24,8 +24,7 @@
 				</div>
 			</form>
 			<a th:if="${sign}" class="btn btn-primary text-none-xs ml-3"
-				style="width: 120px;" th:href="@{/auth/signin}" role="button"><i
-				class="fas fa-user"></i><span>&nbsp;[[#{label.login}]]</span></a>
+				th:href="@{/auth/signin}" role="button"><i class="fas fa-user"></i><span>&nbsp;[[#{label.login}]]</span></a>
 		</div>
 	</nav>
 
@@ -44,8 +43,8 @@
 					class="nav-link" href="#">[[#{menu.admin.manage}]]</a></li>
 			</ul>
 		</div>
-		<button class="btn btn-primary text-none-xs" style="width: 140px;"
-			type="button" data-toggle="modal" data-target="#mdlLogout">
+		<button class="btn btn-primary text-none-xs" type="button"
+			data-toggle="modal" data-target="#mdlLogout">
 			<i class="fas fa-sign-out-alt"></i><span>&nbsp;[[#{label.logout}]]</span>
 		</button>
 	</nav>
@@ -71,13 +70,10 @@
 						<a class="dropdown-item" th:href="@{/user/history}">[[#{menu.user.history}]]</a>
 						<a class="dropdown-item" th:href="@{/user/change}">[[#{menu.user.change}]]</a>
 					</div></li>
-				<li class="nav-item d-none"
-					th:classappend="(${active} == 3)? 'active'"><a
-					class="nav-link" href="#">[[#{menu.user.notice}]]</a></li>
 			</ul>
 		</div>
-		<button class="btn btn-primary text-none-xs" style="width: 140px;"
-			type="button" data-toggle="modal" data-target="#mdlLogout">
+		<button class="btn btn-primary text-none-xs" type="button"
+			data-toggle="modal" data-target="#mdlLogout">
 			<i class="fas fa-sign-out-alt"></i><span>&nbsp;[[#{label.logout}]]</span>
 		</button>
 	</nav>
@@ -97,18 +93,18 @@
 						th:text="${#lists.size(cart)}"></span></a></li>
 			</ul>
 		</div>
-		<button class="btn btn-primary text-none-xs" style="width: 140px;"
-			type="button" data-toggle="modal" data-target="#mdlLogout">
+		<button class="btn btn-primary text-none-xs" type="button"
+			data-toggle="modal" data-target="#mdlLogout">
 			<i class="fas fa-sign-out-alt"></i><span>&nbsp;[[#{label.logout}]]</span>
 		</button>
 	</nav>
 
 	<nav layout:fragment="download"
 		class="navbar navbar-expand navbar-dark">
-		<a class="navbar-brand h1 mb-0" th:href="@{/guest/home}">[[#{site.brand}]]</a>
+		<a class="navbar-brand h1 mb-0" th:href="@{/}">[[#{site.brand}]]</a>
 		<button sec:authorize="isAuthenticated()"
-			class="btn btn-primary ml-auto text-none-xs" style="width: 140px;"
-			type="button" data-toggle="modal" data-target="#mdlLogout">
+			class="btn btn-primary ml-auto text-none-xs" type="button"
+			data-toggle="modal" data-target="#mdlLogout">
 			<i class="fas fa-sign-out-alt"></i><span>&nbsp;[[#{label.logout}]]</span>
 		</button>
 	</nav>

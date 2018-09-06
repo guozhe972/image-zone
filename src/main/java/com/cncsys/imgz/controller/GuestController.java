@@ -317,7 +317,7 @@ public class GuestController {
 						Files.copy(srcPath, Paths.get(destFile), StandardCopyOption.REPLACE_EXISTING);
 						photos.add(destFile);
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.warn("Exception", e);
 						hasError = true;
 						cart.remove(photo);
 					}
@@ -484,7 +484,7 @@ public class GuestController {
 						Files.copy(srcPath, Paths.get(destFile), StandardCopyOption.REPLACE_EXISTING);
 						photos.add(destFile);
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.warn("Exception", e);
 						hasError = true;
 						cart.remove(photo);
 					}
@@ -547,8 +547,7 @@ public class GuestController {
 				logger.info("Order No." + orderno + " Charge Successful.");
 			}
 		} catch (ClientException | IOException | OmiseException e) {
-			logger.error("Omise Exception Occurred.");
-			e.printStackTrace();
+			logger.warn("Exception", e);
 			asyncService.deleteOrder(orderno);
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.omise.exception", null, locale));
@@ -576,8 +575,8 @@ public class GuestController {
 			Transaction trans = client.transactions().get(charge.getTransaction());
 			accountService.updateBalance(username, amount, new BigDecimal(trans.getAmount()));
 		} catch (IOException | OmiseException e) {
+			logger.warn("Exception", e);
 			logger.error("Order No." + orderno + " User Balance Update Error.");
-			e.printStackTrace();
 			// TODO: send mail to admin
 		}
 

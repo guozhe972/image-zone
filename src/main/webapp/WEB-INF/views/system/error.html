@@ -4,23 +4,21 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
-<title>error</title>
+<title>[[#{title.error}]]</title>
 </head>
 <body layout:fragment="body" class="pt-header"
 	th:with="httpStatus=${T(org.springframework.http.HttpStatus).valueOf(#response.status)}">
-	<header layout:insert="~{layout/parts/header::home(false, false)}"
+	<header layout:insert="~{layout/parts/header::download}"
 		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main">
 		<div class="mw-content mx-auto text-center pt-5">
-			<h1>error page</h1>
-			<h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|">404</h1>
-			<p th:utext="${errorMessage}">Error
-				java.lang.NullPointerException</p>
-			<form sec:authorize="isAuthenticated()" th:action="@{/logout}"
-				method="post">
-				<span sec:authentication="principal.email"></span><br>
-				<button type="submit" class="btn btn-primary">ログアウト</button>
-			</form>
+			<h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|"></h1>
+			<p th:utext="${errorMessage}"></p>
+			<br> <span sec:authorize="isAuthenticated()"
+				sec:authentication="principal.username"></span>
 		</div>
 	</div>
 </body>

@@ -416,7 +416,7 @@ label.custom-file-label::after {
 				onclick="$('#foldernm').val('');" data-toggle="modal"
 				data-target="#mdlCreate">[[#{label.user.create}]]</button>
 			<small class="form-text text-muted"
-				th:text="${#messages.msg('message.folder.create', #numbers.formatInteger(@applicationProperties.getProperty('folder.count.max'),1,'COMMA'))}"></small>
+				th:utext="${#messages.msg('message.folder.create', #numbers.formatInteger(@applicationProperties.getProperty('folder.count.max'),1,'COMMA'))}"></small>
 		</div>
 	</div>
 
