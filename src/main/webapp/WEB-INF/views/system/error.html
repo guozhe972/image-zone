@@ -1,6 +1,5 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/base}">
 <head>
@@ -17,8 +16,11 @@
 		<div class="mw-content mx-auto text-center pt-5">
 			<h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|"></h1>
 			<p th:utext="${errorMessage}"></p>
-			<br> <span sec:authorize="isAuthenticated()"
-				sec:authentication="principal.username"></span>
+			<br>
+			<button class="btn btn-primary" type="button"
+				onclick="history.back(-1);">
+				<i class="fas fa-arrow-left"></i>&nbsp;[[#{label.back}]]
+			</button>
 		</div>
 	</div>
 </body>

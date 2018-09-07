@@ -69,7 +69,6 @@ import co.omise.ClientException;
 import co.omise.models.Charge;
 import co.omise.models.ChargeStatus;
 import co.omise.models.OmiseException;
-import co.omise.models.Transaction;
 
 @Controller
 @RequestMapping("/guest")
@@ -101,6 +100,9 @@ public class GuestController {
 
 	@Value("${omise.charge.max}")
 	private int OMISE_MAX;
+
+	@Value("${omise.cost.rate}")
+	private String OMISE_RATE;
 
 	@Value("${alipay.app.id}")
 	private String ALIPAY_APPID;
@@ -570,15 +572,20 @@ public class GuestController {
 		}
 
 		// update balance
-		//accountService.updateBalance(username, amount, new BigDecimal(amount));
+		BigDecimal fee = BigDecimal.valueOf(amount).multiply(new BigDecimal(OMISE_RATE)).divide(
+				BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
+		accountService.updateBalance(username, amount, BigDecimal.valueOf(amount).subtract(fee));
+		/*
+		Transaction trans = null;
 		try {
-			Transaction trans = client.transactions().get(charge.getTransaction());
-			accountService.updateBalance(username, amount, new BigDecimal(trans.getAmount()));
+			trans = client.transactions().get(charge.getTransaction());
 		} catch (IOException | OmiseException e) {
 			logger.warn("Exception", e);
 			logger.error("Order No." + orderno + " User Balance Update Error.");
-			// TODO: send mail to admin
+			// send mail to admin
 		}
+		accountService.updateBalance(username, amount, new BigDecimal(trans.getAmount()));
+		*/
 
 		sessionStatus.setComplete();
 		redirectAttributes.addFlashAttribute("orderno", orderno);

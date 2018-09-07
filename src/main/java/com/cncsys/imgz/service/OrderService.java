@@ -27,8 +27,14 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<OrderEntity> selectOrder(String orderno, String email) {
+		List<OrderEntity> result = orderMapper.selectOrder(orderno, email);
+		return result;
+	}
+
+	@Transactional(readOnly = true)
 	public List<OrderEntity> getValidOrder(String orderno, String email) {
-		List<OrderEntity> result = orderMapper.selectOrder(orderno, email, LocalDate.now());
+		List<OrderEntity> result = orderMapper.selectByDownload(orderno, email, LocalDate.now());
 		return result;
 	}
 

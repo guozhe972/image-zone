@@ -13,7 +13,19 @@
 		where orderno = #{orderno}
 		and email =
 		#{email}
-		and charged = true
+	</select>
+
+	<select id="selectByDownload" resultType="OrderEntity">
+		select orderno, email,
+		username, folder, thumbnail, original, price,
+		createdt, charged,
+		expiredt
+		from "order"
+		where orderno = #{orderno}
+		and email =
+		#{email}
+		and
+		charged = true
 		and expiredt >= #{expiredt}
 		order by createdt
 		asc

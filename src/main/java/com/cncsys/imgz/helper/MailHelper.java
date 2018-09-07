@@ -20,9 +20,6 @@ public class MailHelper {
 	@Value("${email.from}")
 	private String MAIL_FROM;
 
-	@Value("${admin.email}")
-	private String MAIL_ADMIN;
-
 	@Autowired
 	private MailSender mailSender;
 

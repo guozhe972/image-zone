@@ -9,7 +9,9 @@ import com.cncsys.imgz.entity.OrderEntity;
 
 public interface OrderMapper {
 
-	List<OrderEntity> selectOrder(@Param("orderno") String orderno, @Param("email") String email,
+	List<OrderEntity> selectOrder(@Param("orderno") String orderno, @Param("email") String email);
+
+	List<OrderEntity> selectByDownload(@Param("orderno") String orderno, @Param("email") String email,
 			@Param("expiredt") LocalDate expiredt);
 
 	List<OrderEntity> selectByFolder(@Param("username") String username, @Param("folder") int folder);
