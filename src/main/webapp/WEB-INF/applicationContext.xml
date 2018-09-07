@@ -149,6 +149,7 @@
 	<sec:http pattern="/webfonts/**" security="none" />
 	<sec:http pattern="/js/**" security="none" />
 	<sec:http pattern="/images/**" security="none" />
+	<sec:http pattern="/alipay/**" security="none" />
 	<bean id="authenticationSuccessHandler"
 		class="com.cncsys.imgz.handler.AuthenticationSuccessHandlerImpl" />
 	<sec:http>
@@ -164,8 +165,6 @@
 		<sec:intercept-url pattern="/download/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/order/**"
-			access="permitAll" />
-		<sec:intercept-url pattern="/alipay/**"
 			access="permitAll" />
 		<sec:intercept-url pattern="/admin/**"
 			access="hasAuthority('ADMIN')" />

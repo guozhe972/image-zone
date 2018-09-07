@@ -27,27 +27,18 @@
 		and
 		charged = true
 		and expiredt >= #{expiredt}
-		order by createdt
-		asc
+		order by createdt asc
 	</select>
 
 	<select id="selectByFolder" resultType="OrderEntity">
-		select "order".username,
-		"order".folder, "order".thumbnail, "order".price, count(1) as qty,
-		sum("order".price) as amount
-		from "order" inner join photo on
-		"order".username = photo.username and
-		"order".folder = photo.folder and
-		"order".thumbnail = photo.thumbnail
-		where
-		"order".username = #{username}
-		and "order".folder = #{folder}
-		and "order".charged =
-		true
+		select username, folder,
+		thumbnail, price, count(1) as qty
+		from "order"
+		where username =
+		#{username} and folder = #{folder} and charged = true
 		group by
-		"order".username, "order".folder, "order".thumbnail,
-		"order".price
-		order by qty desc, amount desc
+		username, folder, thumbnail, price
+		order by qty desc
 	</select>
 
 	<insert id="insertOrder" parameterType="OrderEntity">

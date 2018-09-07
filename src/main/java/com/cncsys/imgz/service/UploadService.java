@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.cncsys.imgz.entity.PhotoEntity;
@@ -33,9 +35,6 @@ public class UploadService {
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
 
-	@Value("${zip.charset}")
-	private String ZIP_CHARSET;
-
 	@Autowired
 	private ImageEditor imageEditor;
 
@@ -46,6 +45,13 @@ public class UploadService {
 	private PhotoService photoService;
 
 	public void upload(String username, int folder, List<String> files, int price) {
+		String charset = "UTF-8";
+		Locale locale = LocaleContextHolder.getLocale();
+		if ("ja".equals(locale.getLanguage())) {
+			charset = "MS932";
+		} else if ("zh".equals(locale.getLanguage())) {
+			charset = "GBK";
+		}
 
 		String thumbPath = UPLOAD_PATH + "/" + username + "/" + String.valueOf(folder);
 		fileHelper.createDirectory(thumbPath);
@@ -62,7 +68,7 @@ public class UploadService {
 			File file = new File(tempPath + "/" + newName);
 			if (file.getName().toLowerCase().endsWith(".zip")) {
 				try {
-					ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName(ZIP_CHARSET));
+					ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName(charset));
 					ZipEntry entry = zis.getNextEntry();
 					while (entry != null) {
 						if (!entry.isDirectory() && entry.getName().toLowerCase().matches(".+(\\.jpg|\\.jpeg)$")) {

@@ -419,6 +419,7 @@ public class GuestController {
 
 		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
 		if (!signVerified) {
+			logger.warn("alipay return NG");
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.payment.failed", null, locale));
 			redirectAttributes.addFlashAttribute("errors", errors);

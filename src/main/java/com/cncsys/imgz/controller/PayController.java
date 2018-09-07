@@ -82,11 +82,11 @@ public class PayController {
 		String result = "failure";
 		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
 		if (signVerified) {
-			logger.info("alipay notify ok.");
+			logger.info("alipay notify OK");
 			//String appId = request.getParameter("app_id");
-			//String tradeNo = request.getParameter("trade_no");
-			//String receiptAmount = request.getParameter("receipt_amount");
 			//String sellerId = request.getParameter("seller_id");
+			//String tradeNo = request.getParameter("trade_no");
+
 			String tradeStatus = request.getParameter("trade_status");
 			logger.info("trade_status:" + tradeStatus);
 			if (tradeStatus.equals("TRADE_FINISHED") || tradeStatus.equals("TRADE_SUCCESS")) {
@@ -97,6 +97,7 @@ public class PayController {
 				}
 
 				String totalAmount = request.getParameter("total_amount");
+				logger.info("total_amount:" + totalAmount);
 				int total = Integer.parseInt(totalAmount.replace(".00", ""));
 				if (total != 0 && total == amount) {
 					LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_DAYS);
@@ -112,6 +113,8 @@ public class PayController {
 						}
 
 						// update balance
+						String receiptAmount = request.getParameter("receipt_amount");
+						logger.info("receipt_amount:" + receiptAmount);
 						String username = order.get(0).getUsername();
 						BigDecimal fee = BigDecimal.valueOf(amount).multiply(new BigDecimal(ALIPAY_RATE)).divide(
 								BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
@@ -121,10 +124,10 @@ public class PayController {
 				result = "success";
 			}
 		} else {
-			logger.info("alipay notify ng.");
+			logger.warn("alipay notify NG");
 			asyncService.deleteOrder(orderno);
 		}
-
+		logger.info("result:" + result);
 		response.getWriter().println(result);
 	}
 }

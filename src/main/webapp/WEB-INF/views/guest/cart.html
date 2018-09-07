@@ -75,7 +75,7 @@
 				[[#{label.cart.total}]]&nbsp;&nbsp;<span id="total"
 					th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span>
 			</button>
-			<a class="btn btn-info" id="btnOrder"
+			<a id="btnOrder" class="btn btn-info" style="min-width: 100px;"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
 				th:href="@{/guest/pay}" role="button">[[#{label.cart.order}]]</a>
 		</div>

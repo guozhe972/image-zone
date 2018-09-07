@@ -7,13 +7,13 @@
 </head>
 <body layout:fragment="body" class="pt-header"
 	th:with="httpStatus=${T(org.springframework.http.HttpStatus).valueOf(#response.status)}">
-	<header layout:insert="~{layout/parts/header::download}"
+	<header layout:insert="~{layout/parts/header::auth}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main">
-		<div class="mw-content mx-auto text-center pt-5">
+		<div class="mx-auto text-center pt-5">
 			<h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|"></h1>
 			<p th:utext="${errorMessage}"></p>
 			<br>

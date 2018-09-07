@@ -11,5 +11,4 @@ public class OrderForm {
 	private String thumbnail;
 	private int price;
 	private int qty;
-	private int amount;
 }

@@ -39,7 +39,7 @@
 					<p class="text-muted"
 						th:text="|*{#numbers.formatInteger(price,1,'COMMA')}#{money.unit} * *{#numbers.formatInteger(qty,1,'COMMA')}#{photo.unit}|"></p>
 					<p class="h4"
-						th:text="|*{#numbers.formatInteger(amount,1,'COMMA')}#{money.unit}|"></p>
+						th:text="|*{#numbers.formatInteger((price*qty),1,'COMMA')}#{money.unit}|"></p>
 				</div>
 			</li>
 		</ul>

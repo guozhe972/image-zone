@@ -490,8 +490,7 @@ public class UserController {
 			form.setThumbnail(order.getThumbnail());
 			form.setPrice(order.getPrice());
 			form.setQty(order.getQty());
-			form.setAmount(order.getAmount());
-			total += order.getAmount();
+			total += order.getPrice() * order.getQty();
 			orders.add(form);
 		}
 
