@@ -400,10 +400,9 @@ public class UserController {
 			qrcode.setExpiredt(folder.getExpiredt());
 			model.addAttribute("qrcode", qrcode);
 
-			UriComponentsBuilder ucbLogin = builder.cloneBuilder();
-			model.addAttribute("loginurl", ucbLogin.path("/auth/signin").build().toUriString());
+			model.addAttribute("loginurl", builder.cloneBuilder().path("/auth/signin").build().toUriString());
 
-			String qrcodeurl = builder
+			String qrcodeurl = builder.cloneBuilder()
 					.path("/login/" + qrcode.getUsername() + "/" + String.format("%02d", qrcode.getSeq()) + "/"
 							+ codeParser.queryEncrypt(qrcode.getPassword()))
 					.build().toUriString();
@@ -729,11 +728,10 @@ public class UserController {
 			return "redirect:/user/plans";
 		}
 
-		UriComponentsBuilder ucbLogin = builder.cloneBuilder();
-		model.addAttribute("loginurl", ucbLogin.path("/auth/signin").build().toUriString());
+		model.addAttribute("loginurl", builder.cloneBuilder().path("/auth/signin").build().toUriString());
 
 		FolderForm qrcode = (FolderForm) model.asMap().get("qrcode");
-		String qrcodeurl = builder
+		String qrcodeurl = builder.cloneBuilder()
 				.path("/login/" + qrcode.getUsername() + "/" + String.format("%02d", qrcode.getSeq()) + "/"
 						+ codeParser.queryEncrypt(qrcode.getPassword()))
 				.build().toUriString();

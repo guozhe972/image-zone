@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -39,10 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.FlashMap;
-import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.alipay.api.AlipayApiException;
@@ -257,14 +253,13 @@ public class GuestController {
 	}
 
 	@PostMapping("/alipay")
-	public void alipay(@ModelAttribute PayForm form, BindingResult result, Model model,
-			RedirectAttributes redirectAttributes, HttpServletRequest request, HttpServletResponse response,
-			UriComponentsBuilder builder, Locale locale) throws AlipayApiException, IOException {
+	public String alipay(@ModelAttribute PayForm form, BindingResult result, Model model,
+			RedirectAttributes redirectAttributes, UriComponentsBuilder builder, Locale locale)
+			throws AlipayApiException, IOException {
 		@SuppressWarnings("unchecked")
 		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
 		if (cart.isEmpty()) {
-			response.sendRedirect(request.getContextPath() + "/guest/home");
-			return;
+			return "redirect:/guest/home";
 		}
 
 		String email = form.getEmail();
@@ -279,16 +274,9 @@ public class GuestController {
 			result.rejectValue("email", "validation.signup.email");
 		}
 		if (result.hasErrors()) {
-			FlashMap flashMap = new FlashMap();
-			flashMap.put("payForm", form);
-			flashMap.put(BindingResult.MODEL_KEY_PREFIX + "payForm", result);
-
-			String redirectPath = request.getContextPath() + "/guest/pay";
-			flashMap.setTargetRequestPath(redirectPath);
-			FlashMapManager flashMapManager = RequestContextUtils.getFlashMapManager(request);
-			flashMapManager.saveOutputFlashMap(flashMap, request, response);
-			response.sendRedirect(redirectPath);
-			return;
+			redirectAttributes.addFlashAttribute("payForm", form);
+			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "payForm", result);
+			return "redirect:/guest/pay";
 		}
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -336,16 +324,8 @@ public class GuestController {
 				// price changed. or photo deleted. or no disk space.
 				List<String> errors = new ArrayList<String>();
 				errors.add(messageSource.getMessage("error.photo.changed", null, locale));
-
-				FlashMap flashMap = new FlashMap();
-				flashMap.put("errors", errors);
-
-				String redirectPath = request.getContextPath() + "/guest/pay";
-				flashMap.setTargetRequestPath(redirectPath);
-				FlashMapManager flashMapManager = RequestContextUtils.getFlashMapManager(request);
-				flashMapManager.saveOutputFlashMap(flashMap, request, response);
-				response.sendRedirect(redirectPath);
-				return;
+				redirectAttributes.addFlashAttribute("errors", errors);
+				return "redirect:/guest/pay";
 			} else {
 				amount += entity.getPrice();
 			}
@@ -389,11 +369,9 @@ public class GuestController {
 		paramMap.put("product_code", "FAST_INSTANT_TRADE_PAY");
 		ObjectMapper objMapper = new ObjectMapper();
 		alipayRequest.setBizContent(objMapper.writeValueAsString(paramMap));
-
-		response.setContentType("text/html;charset=utf-8");
-		response.getWriter().write(alipayClient.pageExecute(alipayRequest).getBody());
-		response.getWriter().flush();
-		response.getWriter().close();
+		String body = alipayClient.pageExecute(alipayRequest).getBody();
+		model.addAttribute("fomAlipay", body);
+		return "/guest/alipay";
 	}
 
 	@GetMapping("/alipay/{token}")

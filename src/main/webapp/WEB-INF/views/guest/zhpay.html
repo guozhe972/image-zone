@@ -100,18 +100,18 @@
 				</div>
 			</div>
 			<div class="form-group row mb-0">
-				<label for="number" class="col-sm-4 col-form-label text-sm-right">支払方法</label>
+				<label for="grpType" class="col-sm-4 col-form-label text-sm-right">[[#{label.pay.type}]]</label>
 				<div class="col-sm-8">
-					<div class="btn-group d-flex" role="group">
+					<div id="grpType" class="btn-group d-flex" role="group">
 						<button id="btnAlipay" type="button"
 							th:data-action="@{/guest/alipay}"
 							class="submit btn btn-info w-100">
-							<i class="fab fa-alipay"></i>&nbsp;支付宝
+							<i class="fab fa-alipay"></i>&nbsp;[[#{label.pay.alipay}]]
 						</button>
 						<button id="btnWxpay" type="button"
 							th:data-action="@{/guest/wxpay}"
 							class="submit btn btn-secondary w-100" disabled>
-							<i class="fab fa-weixin"></i>&nbsp;微信
+							<i class="fab fa-weixin"></i>&nbsp;[[#{label.pay.wechat}]]
 						</button>
 					</div>
 				</div>
