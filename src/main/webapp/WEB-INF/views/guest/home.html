@@ -23,18 +23,15 @@
 						cache : false,
 						data : $('#fomPhoto').serialize(),
 						beforeSend : function() {
-							//$('#mdlWaiting').modal('show');
+							$('#btnAdd' + target).prop('disabled', true);
 						}
 					}).done(
 							function(data, textStatus, jqXHR) {
 								$('.bagCart').text(data);
-								$('#btnAdd' + target).prop('disabled', true);
 								$('#btnAdd' + target).addClass('btn-secondary')
 										.removeClass('btn-info');
 							}).fail(function(jqXHR, textStatus, errorThrown) {
-						// do nothing
-					}).always(function() {
-						//$('#mdlWaiting').modal('hide');
+						$('#btnAdd' + target).prop('disabled', false);
 					});
 				});
 	});
@@ -46,8 +43,8 @@
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div id="imgView" class="container-fluid bg-main">
-		<div class="row pr-3 pb-3">
+	<div class="container-fluid bg-main">
+		<div id="imgView" class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				th:id="|photo${stat.count}|"
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
@@ -55,8 +52,8 @@
 					<div class="card-body p-0 text-center photo">
 						<a
 							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
-							title=""> <img class="lazyload img-fluid mh-100"
-							th:src="@{/images/loading.gif}"
+							th:data-index="${stat.count}"> <img
+							class="lazyload img-fluid mh-100" th:src="@{/images/loading.gif}"
 							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
 						</a>

@@ -39,6 +39,12 @@ public class PayController {
 	@Value("${alipay.cost.rate}")
 	private String ALIPAY_RATE;
 
+	@Value("${alipay.app.id}")
+	private String ALIPAY_APPID;
+
+	@Value("${alipay.seller.id}")
+	private String ALIPAY_SELLER;
+
 	@Value("${order.download.days}")
 	private int DOWNLOAD_DAYS;
 
@@ -60,6 +66,9 @@ public class PayController {
 	@PostMapping("/alipay/notify")
 	public void aliNotify(HttpServletRequest request, HttpServletResponse response,
 			UriComponentsBuilder builder, Locale locale) throws AlipayApiException, IOException {
+		String trade_no = request.getParameter("trade_no");
+		logger.info("trade_no:" + trade_no);
+
 		Map<String, String> params = new HashMap<String, String>();
 		Map<String, String[]> requestParams = request.getParameterMap();
 		for (Iterator<String> iter = requestParams.keySet().iterator(); iter.hasNext();) {
@@ -83,45 +92,47 @@ public class PayController {
 		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
 		if (signVerified) {
 			logger.info("alipay notify OK");
-			//String appId = request.getParameter("app_id");
-			//String sellerId = request.getParameter("seller_id");
-			//String tradeNo = request.getParameter("trade_no");
-
-			String tradeStatus = request.getParameter("trade_status");
-			logger.info("trade_status:" + tradeStatus);
-			if (tradeStatus.equals("TRADE_FINISHED") || tradeStatus.equals("TRADE_SUCCESS")) {
-				int amount = 0;
-				List<OrderEntity> order = orderService.selectOrder(orderno, email);
-				for (OrderEntity entity : order) {
-					amount += entity.getPrice();
-				}
-
-				String totalAmount = request.getParameter("total_amount");
-				logger.info("total_amount:" + totalAmount);
-				int total = Integer.parseInt(totalAmount.replace(".00", ""));
-				if (total != 0 && total == amount) {
-					LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_DAYS);
-					int updCount = orderService.updateOrder(orderno, email, expiredt);
-					if (updCount > 0) {
-						if (!email.equals(orderno)) {
-							// send order mail
-							String[] param = new String[3];
-							param[0] = orderno;
-							param[1] = expiredt.toString();
-							param[2] = builder.path(downlink).build().toUriString();
-							mailHelper.sendOrderDone(email, param);
-						}
-
-						// update balance
-						String receiptAmount = request.getParameter("receipt_amount");
-						logger.info("receipt_amount:" + receiptAmount);
-						String username = order.get(0).getUsername();
-						BigDecimal fee = BigDecimal.valueOf(amount).multiply(new BigDecimal(ALIPAY_RATE)).divide(
-								BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
-						accountService.updateBalance(username, amount, BigDecimal.valueOf(amount).subtract(fee));
+			String appId = request.getParameter("app_id");
+			logger.info("app_id:" + appId);
+			String sellerId = request.getParameter("seller_id");
+			logger.info("seller_id:" + sellerId);
+			if (ALIPAY_APPID.equals(appId) && ALIPAY_SELLER.equals(sellerId)) {
+				String tradeStatus = request.getParameter("trade_status");
+				logger.info("trade_status:" + tradeStatus);
+				if (tradeStatus.equals("TRADE_FINISHED") || tradeStatus.equals("TRADE_SUCCESS")) {
+					int amount = 0;
+					List<OrderEntity> order = orderService.selectOrder(orderno, email, false);
+					for (OrderEntity entity : order) {
+						amount += entity.getPrice();
 					}
+
+					String totalAmount = request.getParameter("total_amount");
+					logger.info("total_amount:" + totalAmount);
+					int total = Integer.parseInt(totalAmount.replace(".00", ""));
+					if (order.size() > 0 && total != 0 && total == amount) {
+						LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_DAYS);
+						int updCount = orderService.updateOrder(orderno, email, expiredt);
+						if (updCount > 0) {
+							if (!email.equals(orderno)) {
+								// send order mail
+								String[] param = new String[3];
+								param[0] = orderno;
+								param[1] = expiredt.toString();
+								param[2] = builder.path(downlink).build().toUriString();
+								mailHelper.sendOrderDone(email, param);
+							}
+
+							// update balance
+							String receiptAmount = request.getParameter("receipt_amount");
+							logger.info("receipt_amount:" + receiptAmount);
+							String username = order.get(0).getUsername();
+							BigDecimal fee = BigDecimal.valueOf(amount).multiply(new BigDecimal(ALIPAY_RATE)).divide(
+									BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
+							accountService.updateBalance(username, amount, BigDecimal.valueOf(amount).subtract(fee));
+						}
+					}
+					result = "success";
 				}
-				result = "success";
 			}
 		} else {
 			logger.warn("alipay notify NG");

@@ -24,6 +24,17 @@
         http://mybatis.org/schema/mybatis-spring.xsd
         ">
 
+	<context:property-placeholder
+		location="classpath:application.properties" />
+	<bean id="applicationProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath:application.properties</value>
+			</list>
+		</property>
+	</bean>
+
 	<mvc:resources mapping="/css/**" location="/WEB-INF/css/" />
 	<mvc:resources mapping="/webfonts/**"
 		location="/WEB-INF/webfonts/" />
@@ -57,16 +68,6 @@
 		base-package="com.cncsys.imgz.service" />
 	<context:component-scan
 		base-package="com.cncsys.imgz.helper" />
-	<context:property-placeholder
-		location="classpath:application.properties" />
-	<bean id="applicationProperties"
-		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="locations">
-			<list>
-				<value>classpath:application.properties</value>
-			</list>
-		</property>
-	</bean>
 
 	<bean id="messageSource"
 		class="org.springframework.context.support.ResourceBundleMessageSource">
@@ -83,7 +84,7 @@
 		<property name="prefix" value="/WEB-INF/views/" />
 		<property name="suffix" value=".html" />
 		<property name="templateMode" value="HTML" />
-		<property name="cacheable" value="false" />
+		<property name="cacheable" value="${thymeleaf.cacheable}" />
 	</bean>
 	<bean id="templateEngine"
 		class="org.thymeleaf.spring4.SpringTemplateEngine">
@@ -100,7 +101,6 @@
 		<property name="templateEngine" ref="templateEngine" />
 		<property name="characterEncoding" value="UTF-8" />
 	</bean>
-
 
 	<bean id="dataSource"
 		class="org.springframework.jndi.JndiObjectFactoryBean">

@@ -12,7 +12,7 @@
 		from "order"
 		where orderno = #{orderno}
 		and email =
-		#{email}
+		#{email} and charged = #{charged}
 	</select>
 
 	<select id="selectByDownload" resultType="OrderEntity">

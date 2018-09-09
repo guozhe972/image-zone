@@ -27,8 +27,8 @@ public class OrderService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<OrderEntity> selectOrder(String orderno, String email) {
-		List<OrderEntity> result = orderMapper.selectOrder(orderno, email);
+	public List<OrderEntity> selectOrder(String orderno, String email, boolean charged) {
+		List<OrderEntity> result = orderMapper.selectOrder(orderno, email, charged);
 		return result;
 	}
 

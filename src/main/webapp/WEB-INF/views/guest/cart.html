@@ -4,9 +4,13 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>[[#{title.guest}]]</title>
+<link rel="stylesheet" th:href="@{/css/imageview.css}">
+<script th:src="@{/js/jquery.imageview.js}"></script>
 <script>
 	var target = 0;
 	$(function() {
+		$('#imgView').imageview();
+
 		$('#fomPhoto')
 				.submit(
 						function(event) {
@@ -19,13 +23,15 @@
 										cache : false,
 										data : $('#fomPhoto').serialize(),
 										beforeSend : function() {
-											//$('#mdlWaiting').modal('show');
+											$('#mdlWaiting').modal('show');
 										}
 									})
 									.done(
 											function(data, textStatus, jqXHR) {
 												$('.bagCart').text(data);
 												$('#photo' + target).remove();
+												$('#imgView').data('imageview')
+														.reload();
 												if (data == '0') {
 													$('#btnOrder').addClass(
 															'disabled');
@@ -56,7 +62,7 @@
 													errorThrown) {
 												// do nothing
 											}).always(function() {
-										//$('#mdlWaiting').modal('hide');
+										$('#mdlWaiting').modal('hide');
 									});
 						});
 	});
@@ -70,32 +76,34 @@
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
 		<div class="pt-3 d-flex justify-content-between">
-			<button type="button" class="btn btn-warning" th:disabled="true"
-				style="opacity: 1;">
-				[[#{label.cart.total}]]&nbsp;&nbsp;<span id="total"
-					th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span>
-			</button>
-			<a id="btnOrder" class="btn btn-info" style="min-width: 100px;"
+			<a class="btn btn-warning" th:href="@{/guest/home}" role="button">
+				[[#{label.cart.total}]]&nbsp;<span id="total"
+				th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span>
+			</a> <a id="btnOrder" class="btn btn-info"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
-				th:href="@{/guest/pay}" role="button">[[#{label.cart.order}]]</a>
+				th:href="@{/guest/pay}" role="button"><i class="fas fa-wallet"></i>&nbsp;[[#{label.cart.order}]]</a>
 		</div>
 		<hr class="mb-0">
-		<div class="row pr-3 pb-3">
+		<div id="imgView" class="row pr-3 pb-3">
 			<div th:each="form,stat : ${cart}" th:object="${form}"
 				th:id="|photo${stat.count}|"
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card">
 					<div class="card-body p-0 text-center photo">
-						<img class="img-fluid mh-100"
+						<a
+							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
+							th:data-index="${stat.count}"> <img class="img-fluid mh-100"
 							th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="thumbnail">
+						</a>
 						<div class="badge badge-warning badge-price"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>
 					</div>
 					<div class="card-footer p-1 bg-white">
 						<button type="button" th:id="|btnDel${stat.count}|"
 							class="btn btn-danger btn-sm w-100" th:disabled="*{incart}"
-							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">[[#{label.cart.delete}]]</button>
+							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">
+							[[#{label.cart.delete}]]</button>
 					</div>
 				</div>
 			</div>
