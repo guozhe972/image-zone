@@ -3,13 +3,17 @@ package com.cncsys.imgz.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import com.cncsys.imgz.entity.FolderEntity;
 
 public interface FolderMapper {
 
 	List<FolderEntity> selectByUser(@Param("username") String username);
+
+	Cursor<FolderEntity> selectByExpiry(@Param("expiredt") LocalDate expiredt);
 
 	FolderEntity selectFolder(@Param("username") String username, @Param("seq") int seq);
 
@@ -23,7 +27,7 @@ public interface FolderMapper {
 	int updateLocked(@Param("username") String username, @Param("seq") int seq, @Param("locked") boolean locked);
 
 	int updateShared(@Param("username") String username, @Param("seq") int seq,
-			@Param("shared") boolean shared, @Param("cipher") String cipher);
+			@Param("shared") boolean shared, @Param("cipher") String cipher, @Param("createdt") DateTime createdt);
 
 	String updateFolder(@Param("username") String username, @Param("seq") int seq, @Param("name") String name);
 }

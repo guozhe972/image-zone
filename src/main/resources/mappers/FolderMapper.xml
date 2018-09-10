@@ -6,72 +6,72 @@
 
 	<select id="selectByUser" resultType="FolderEntity">
 		select folder.username,
-		folder.seq, folder.name,
-		folder.locked, folder.shared, folder.guest,
-		folder.cipher, account.expiredt
-		from folder left join account on
-		folder.guest =
-		account.username
-		where folder.username = #{username}
-		order by folder.seq
-		desc
+		folder.seq, folder.name, folder.locked,
+		folder.shared, folder.guest,
+		folder.cipher, account.expiredt from
+		folder left join account on
+		folder.guest = account.username where
+		folder.username = #{username}
+		order by folder.seq desc
+	</select>
+
+	<select id="selectByExpiry" resultType="FolderEntity">
+		select folder.username,
+		folder.seq, folder.locked, folder.shared,
+		folder.guest, folder.cipher,
+		account.expiredt from folder left join
+		account on folder.guest =
+		account.username where account.expiredt &lt;
+		#{expiredt} order by
+		folder.username, folder.seq
 	</select>
 
 	<select id="selectFolder" resultType="FolderEntity">
 		select folder.username,
-		folder.seq, folder.name,
-		folder.locked, folder.shared, folder.guest,
-		folder.cipher, account.expiredt
-		from folder left join account on
-		folder.guest =
-		account.username
-		where folder.username = #{username} and
-		folder.seq =
-		#{seq}
+		folder.seq, folder.name, folder.locked,
+		folder.shared, folder.guest,
+		folder.cipher, account.expiredt from
+		folder left join account on
+		folder.guest = account.username where
+		folder.username = #{username} and
+		folder.seq = #{seq}
 	</select>
 
 	<select id="selectCount" resultType="int">
-		select count(1)
-		from folder
+		select count(1) from folder
 		where username = #{username}
 	</select>
 
 	<select id="insertFolder" resultType="int">
 		insert into folder
-		(username, name, locked, shared, createdt)
-		values
-		(#{username}, #{name},
-		false, false,
-		#{createdt})
-		returning
-		seq
+		(username, name, locked, shared, createdt) values
+		(#{username},
+		#{name}, false, false, #{createdt}) returning seq
 	</select>
 
 	<update id="updateGuest">
-		update folder set guest = #{guest}
-		where username =
-		#{username} and seq = #{seq}
+		update folder set guest = #{guest} where username =
+		#{username} and seq =
+		#{seq}
 	</update>
 
 	<update id="updateLocked">
-		update folder set locked = #{locked}
-		where username =
-		#{username} and seq = #{seq}
+		update folder set locked = #{locked} where username =
+		#{username} and seq =
+		#{seq}
 	</update>
 
 	<update id="updateShared">
-		update folder set shared =
-		#{shared}, cipher =
-		#{cipher}
-		where username = #{username} and seq =
-		#{seq}
+		update folder set shared = #{shared}, cipher =
+		#{cipher}, createdt =
+		#{createdt} where username = #{username} and seq
+		= #{seq}
 	</update>
 
 	<select id="updateFolder" resultType="String">
 		update folder set name =
-		#{name}
-		where username = #{username} and seq = #{seq}
-		returning name
+		#{name} where username = #{username} and seq =
+		#{seq} returning name
 	</select>
 
 </mapper>

@@ -50,9 +50,4 @@ public class WelcomeController {
 	public String privacyPolicy() {
 		return "/about/privacy";
 	}
-
-	@GetMapping("/about/security")
-	public String aboutSecurity() {
-		return "/about/security";
-	}
 }

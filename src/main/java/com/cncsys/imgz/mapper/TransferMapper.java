@@ -16,4 +16,6 @@ public interface TransferMapper {
 	int insertTransfer(TransferEntity transfer);
 
 	int updateTransfer(@Param("transno") String transno, @Param("fee") int fee, @Param("updatedt") DateTime updatedt);
+
+	void deleteTransfer(@Param("createdt") DateTime createdt);
 }

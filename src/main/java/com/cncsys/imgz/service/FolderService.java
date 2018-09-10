@@ -74,7 +74,7 @@ public class FolderService {
 
 	@Transactional
 	public void shareFolder(String username, int seq, String password, LocalDate expiredt) {
-		folderMapper.updateShared(username, seq, true, password);
+		folderMapper.updateShared(username, seq, true, password, DateTime.now());
 		String guest = username + "." + String.format("%02d", seq);
 
 		AccountEntity account = new AccountEntity();
@@ -91,7 +91,7 @@ public class FolderService {
 
 	@Transactional
 	public void initFolder(String username, int seq) {
-		folderMapper.updateShared(username, seq, false, null);
+		folderMapper.updateShared(username, seq, false, null, DateTime.now());
 		String guest = username + "." + String.format("%02d", seq);
 
 		AccountEntity account = new AccountEntity();

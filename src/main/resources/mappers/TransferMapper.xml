@@ -5,42 +5,41 @@
 <mapper namespace="com.cncsys.imgz.mapper.TransferMapper">
 
 	<select id="selectTransfer" resultType="TransferEntity">
-		select
-		transno, username,
-		bank,
-		branch, actype, acnumber, acname, amount, done, createdt
-		from
-		transfer
-		where done = #{done}
-		order by createdt asc
+		select transno, username,
+		bank, branch, actype, acnumber, acname, amount,
+		done, createdt from
+		transfer where done = #{done} order by createdt
+		asc
 	</select>
 
 	<select id="selectByUser" resultType="TransferEntity">
-		select
-		transno, username,
-		bank,
-		branch, actype, acnumber, acname, amount, done, createdt
-		from
-		transfer
-		where username = #{username} and createdt >= #{createdt}
-		order
+		select transno, username,
+		bank, branch, actype, acnumber, acname, amount,
+		done, createdt from
+		transfer where username = #{username} and createdt
+		>= #{createdt} order
 		by createdt desc
 	</select>
 
 	<insert id="insertTransfer" parameterType="TransferEntity">
 		insert into transfer
-		(transno, username, bank, branch, actype, acnumber, acname, amount,
-		done, createdt)
-		values
-		(#{transno}, #{username}, #{bank}, #{branch},
-		#{actype}, #{acnumber}, #{acname}, #{amount}, false, #{createdt})
+		(transno, username, bank, branch, actype, acnumber,
+		acname, amount,
+		done, createdt) values (#{transno}, #{username},
+		#{bank}, #{branch},
+		#{actype}, #{acnumber}, #{acname}, #{amount},
+		false, #{createdt})
 	</insert>
 
 	<update id="updateTransfer">
 		update transfer set done = true, fee = #{fee},
-		updatedt =
-		#{updatedt}
-		where transno = #{transno}
+		updatedt = #{updatedt} where
+		transno = #{transno}
 	</update>
+
+	<delete id="deleteTransfer">
+		delete from transfer where done = true and createdt
+		&lt; #{createdt}
+	</delete>
 
 </mapper>

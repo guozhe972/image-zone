@@ -5,78 +5,61 @@
 <mapper namespace="com.cncsys.imgz.mapper.PhotoMapper">
 
 	<select id="selectByFolder" resultType="PhotoEntity">
-		select username,
-		folder,
-		thumbnail, original, filename, price, createdt
-		from photo
-		where
-		username
-		=
-		#{username} and folder = #{folder}
-		order by createdt asc
+		select username, folder,
+		thumbnail, original, filename, price, createdt from
+		photo where
+		username = #{username} and folder = #{folder} order by
+		createdt asc
 	</select>
 
 	<select id="selectByGuest" resultType="PhotoEntity">
 		select photo.username,
-		photo.folder,
-		photo.thumbnail, photo.original, photo.filename,
-		photo.price,
-		photo.createdt
-		from photo, folder
-		where
+		photo.folder, photo.thumbnail, photo.original,
+		photo.filename,
+		photo.price, photo.createdt from photo, folder where
 		folder.username =
-		photo.username
-		and folder.seq = photo.folder
-		and folder.guest =
-		#{guest}
-		order by
-		photo.createdt asc
+		photo.username and folder.seq = photo.folder and
+		folder.guest =
+		#{guest} order by photo.createdt asc
 	</select>
 
 	<select id="selectByPublic" resultType="PhotoEntity">
 		select photo.username,
-		photo.folder,
-		photo.thumbnail, photo.original, photo.filename,
-		photo.price,
-		photo.createdt
-		from photo, folder, account
-		where
-		folder.username = photo.username
-		and folder.seq = photo.folder
-		and folder.shared = true
-		and folder.guest = account.username
-		and account.password = ''
-		and account.enabled = true
-		and account.expiredt >= #{expiredt}
-		order by
-		photo.createdt desc
+		photo.folder, photo.thumbnail, photo.original,
+		photo.filename,
+		photo.price, photo.createdt from photo, folder,
+		account where
+		folder.username = photo.username and folder.seq =
+		photo.folder and
+		folder.shared = true and folder.guest =
+		account.username and
+		account.password = '' and account.enabled = true
+		and account.expiredt
+		>= #{expiredt} order by photo.createdt desc
 	</select>
 
 	<select id="selectPhoto" resultType="PhotoEntity">
 		select username, folder,
-		thumbnail, original, filename, price, createdt
-		from photo
-		where username
-		= #{username}
-		and folder = #{folder}
-		and thumbnail = #{thumbnail}
+		thumbnail, original, filename, price, createdt from
+		photo where
+		username = #{username} and folder = #{folder} and
+		thumbnail =
+		#{thumbnail}
 	</select>
 
 	<insert id="insertPhoto" parameterType="PhotoEntity">
 		insert into photo
-		(username, folder, thumbnail, original, filename, price, createdt)
-		values
-		(#{username}, #{folder}, #{thumbnail}, #{original}, #{filename},
-		#{price},
-		#{createdt})
+		(username, folder, thumbnail, original, filename, price,
+		createdt)
+		values (#{username}, #{folder}, #{thumbnail}, #{original},
+		#{filename}, #{price}, #{createdt})
 	</insert>
 
 	<select id="deletePhoto" resultType="String">
 		delete from photo where
-		username = #{username} and
-		folder = #{folder} and thumbnail =
-		#{thumbnail}
-		returning original
+		username = #{username} and folder = #{folder} and
+		thumbnail =
+		#{thumbnail} returning original
 	</select>
 
 	<delete id="deleteByFolder">
@@ -86,19 +69,16 @@
 
 	<select id="updatePrice" resultType="int"
 		parameterType="PhotoEntity">
-		update photo set price = #{price}
-		where username =
-		#{username} and
-		folder = #{folder}
-		and thumbnail = #{thumbnail}
+		update photo set price = #{price} where username =
+		#{username} and folder =
+		#{folder} and thumbnail = #{thumbnail}
 		returning price
 	</select>
 
 	<update id="updateByFolder" parameterType="PhotoEntity">
 		update photo set price
-		= #{price}
-		where username = #{username} and
-		folder = #{folder}
+		= #{price} where username = #{username} and folder =
+		#{folder}
 	</update>
 
 </mapper>

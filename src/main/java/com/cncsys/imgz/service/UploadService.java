@@ -67,8 +67,7 @@ public class UploadService {
 			String newName = args[1];
 			File file = new File(tempPath + "/" + newName);
 			if (file.getName().toLowerCase().endsWith(".zip")) {
-				try {
-					ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName(charset));
+				try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName(charset));) {
 					ZipEntry entry = zis.getNextEntry();
 					while (entry != null) {
 						if (!entry.isDirectory() && entry.getName().toLowerCase().matches(".+(\\.jpg|\\.jpeg)$")) {
@@ -111,7 +110,6 @@ public class UploadService {
 						entry = zis.getNextEntry();
 					}
 					zis.closeEntry();
-					zis.close();
 				} catch (Exception e) {
 					logger.warn("Exception", e);
 				}

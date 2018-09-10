@@ -51,9 +51,9 @@ public class AsyncService {
 	@Transactional
 	public void deleteOrder(String orderno) {
 		try {
-			logger.info("delete " + orderno);
+			logger.info("async delete order: [{}]", orderno);
 			fileHelper.deleteFolder(new File(ORDER_PATH + "/" + orderno));
-			orderMapper.deleteOrder(orderno);
+			orderMapper.deleteOrder(orderno, false);
 		} catch (Exception e) {
 			logger.warn("Exception", e);
 		}
