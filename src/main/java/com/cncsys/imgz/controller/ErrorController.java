@@ -1,5 +1,7 @@
 package com.cncsys.imgz.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,8 +16,12 @@ public class ErrorController {
 
 	@ExceptionHandler(Throwable.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	public String exception(final Throwable throwable, final Model model) {
-		logger.error("Exception", throwable);
+	public String exception(final Throwable throwable, final Model model, HttpServletRequest request) {
+		String ipAddr = request.getHeader("X-Forwarded-For");
+		if (ipAddr == null) {
+			ipAddr = request.getRemoteAddr();
+		}
+		logger.error("Exception - request from " + ipAddr, throwable);
 		String errorMessage = (throwable != null ? throwable.getMessage() : "Unknown error");
 		model.addAttribute("errorMessage", errorMessage);
 		return "/system/error";
