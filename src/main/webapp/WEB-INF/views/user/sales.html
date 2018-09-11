@@ -4,6 +4,12 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>[[#{title.user}]]</title>
+<script th:src="@{/js/jquery.lazyload.min.js}"></script>
+<script>
+	$(function() {
+		$('img.lazyload').lazyload();
+	});
+</script>
 </head>
 <body layout:fragment="body" class="pt-header">
 	<header layout:insert="~{layout/parts/header::user(-1)}"
@@ -31,9 +37,10 @@
 				th:each="form,stat : ${orders}" th:object="${form}">
 				<div class="bg-light text-center float-left border rounded ml-2"
 					style="width: 120px; height: 120px; line-height: 112px;">
-					<img class="img-fluid mh-100"
-						th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
-						alt="thumbnail">
+					<img class="lazyload img-fluid mh-100"
+						th:src="@{/images/loading.gif}"
+						th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
+						alt="">
 				</div>
 				<div class="text-right pr-3">
 					<p class="text-muted"

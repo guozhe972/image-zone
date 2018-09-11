@@ -5,15 +5,14 @@
 <head>
 <title>[[#{title.privacy}]]</title>
 </head>
-<body layout:fragment="body" class="pt-header">
+<body layout:fragment="body" class="pt-header pb-footer">
 	<header layout:insert="~{layout/parts/header::home(true, true)}"
 		class="fixed-top bg-header"></header>
-	<div class="container bg-main">
-		<div class="mw-content mx-auto text-center pt-5">
-			<h1>About Privacy</h1>
+	<div class="container bg-main py-3">
+		<div class="mw-content mx-auto text-center">
+			<h1>[[#{title.privacy}]]</h1>
 		</div>
 	</div>
-	<div class="pb-footer"></div>
 	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>
 </html>

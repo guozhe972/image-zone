@@ -55,7 +55,7 @@
 							th:data-index="${stat.count}"> <img
 							class="lazyload img-fluid mh-100" th:src="@{/images/loading.gif}"
 							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
-							alt="thumbnail">
+							alt="">
 						</a>
 						<div class="badge badge-warning badge-price"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>

@@ -4,7 +4,9 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>[[#{title.user}]]</title>
+<link rel="stylesheet" th:href="@{/css/imageview.css}">
 <script th:src="@{/js/jquery.lazyload.min.js}"></script>
+<script th:src="@{/js/jquery.imageview.js}"></script>
 <style>
 .input-group.is-invalid .input-group-text, .input-group.is-invalid .form-control
 	{
@@ -16,6 +18,7 @@
 	var showWait = false;
 	$(function() {
 		$('img.lazyload').lazyload();
+		$('#imgView').imageview();
 
 		$('#mdlPrice').on('shown.bs.modal', function() {
 			$('#money').trigger('focus');
@@ -90,6 +93,7 @@
 					}
 				}).done(function(data, textStatus, jqXHR) {
 					$('#photo' + target).remove();
+					$('#imgView').data('imageview').reload();
 					if ($('div.card').length == 0) {
 						$('#btnBulk').prop('disabled', true);
 					}
@@ -124,16 +128,19 @@
 					th:text="${shared}?#{label.folder.info}:#{label.folder.share}"></th:block></a>
 		</div>
 		<hr class="mb-0">
-		<div class="row pr-3 pb-3">
+		<div id="imgView" class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				th:id="|photo${stat.count}|"
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card">
 					<div class="card-body p-0 text-center photo">
-						<img class="lazyload img-fluid mh-100"
-							th:src="@{/images/loading.gif}"
+						<a
+							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
+							th:data-index="${stat.count}"> <img
+							class="lazyload img-fluid mh-100" th:src="@{/images/loading.gif}"
 							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
-							alt="thumbnail">
+							alt="">
+						</a>
 						<div th:id="|bagPrice${stat.count}|"
 							class="badge badge-warning badge-price"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>

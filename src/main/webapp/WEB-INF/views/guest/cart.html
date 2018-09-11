@@ -5,10 +5,12 @@
 <head>
 <title>[[#{title.guest}]]</title>
 <link rel="stylesheet" th:href="@{/css/imageview.css}">
+<script th:src="@{/js/jquery.lazyload.min.js}"></script>
 <script th:src="@{/js/jquery.imageview.js}"></script>
 <script>
 	var target = 0;
 	$(function() {
+		$('img.lazyload').lazyload();
 		$('#imgView').imageview();
 
 		$('#fomPhoto')
@@ -92,11 +94,13 @@
 					<div class="card-body p-0 text-center photo">
 						<a
 							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
-							th:data-index="${stat.count}"> <img class="img-fluid mh-100"
-							th:src="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
-							alt="thumbnail">
+							th:data-index="${stat.count}"> <img
+							class="lazyload img-fluid mh-100" th:src="@{/images/loading.gif}"
+							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
+							alt="">
 						</a>
-						<div class="badge badge-warning badge-price"
+						<div th:id="|bagPrice${stat.count}|"
+							class="badge badge-warning badge-price"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>
 					</div>
 					<div class="card-footer p-1 bg-white">

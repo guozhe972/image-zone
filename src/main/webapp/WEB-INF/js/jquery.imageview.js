@@ -13,13 +13,14 @@
 		}
 
 		this.deploy = function() {
-			var html = '<div class="imageview">'
+			var html = '<div class="imageview">' + '<div class="title"></div>'
 					+ '<a href="javascript:;" class="cart"></a>'
 					+ '<a href="javascript:;" class="hide"></a>'
 					+ '<a href="javascript:;" class="prev"></a>'
 					+ '<a href="javascript:;" class="next"></a>'
 					+ '<div class="image"><img src="" /></div>' + '</div>';
 			this.$viewer = $(html).appendTo('body');
+			this.$title = $('.title', this.$viewer);
 			this.$cart = $('.cart', this.$viewer);
 			this.$hide = $('.hide', this.$viewer);
 			this.$prev = $('.prev', this.$viewer);
@@ -135,6 +136,7 @@
 			this.$next.toggle(i < this.last);
 			this.$cart.toggle($('#btnAdd' + this.idx).length > 0
 					&& !$('#btnAdd' + this.idx).is(':disabled'));
+			this.$title.text($('#bagPrice' + this.idx).text());
 			this.$viewer.fadeIn(100);
 			this.$image.hide().attr('src', $target.attr(this.opts.srcAttr));
 		}
