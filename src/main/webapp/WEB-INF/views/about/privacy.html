@@ -9,10 +9,23 @@
 	<header layout:insert="~{layout/parts/header::home(true, true)}"
 		class="fixed-top bg-header"></header>
 	<div class="container bg-main py-3">
-		<div class="mw-content mx-auto text-center">
-			<h1>[[#{title.privacy}]]</h1>
-		</div>
+		<h4>[[#{title.privacy}]]</h4>
+		<hr>
+		<h5>1. 隐私声明</h5>
+		<p>
+			隐私声明123<br> 隐私声明123隐私声明123隐私声明123隐私声明123隐私声明123隐私声明123
+			隐私声明123隐私声明123隐私声明123隐私声明123隐私声明123隐私声明123
+		</p>
+		<h5>2. 免责事项</h5>
+		<p>
+			免责事项456<br> 免责事项456免责事项456免责事项456免责事项456免责事项456免责事项456
+			免责事项456免责事项456免责事项456免责事项456免责事项456免责事项456
+		</p>
 	</div>
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>
 </html>

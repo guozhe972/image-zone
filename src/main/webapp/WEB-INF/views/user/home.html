@@ -388,20 +388,20 @@ label.custom-file-label::after {
 					</div>
 					<div class="form-group btn-group d-flex mb-0" role="group">
 						<button type="button" th:data-target="*{seq}"
-							class="btnUpload btn btn-info text-none w-100 rounded-sm">
+							class="btnUpload btn btn-info w-100 text-none-xs rounded-sm">
 							<i class="fas fa-upload"></i><span>&nbsp;[[#{label.user.upload}]]</span>
 						</button>
-						<a class="btn btn-warning text-none w-100 ml-sm-3 rounded-sm"
+						<a class="btn btn-warning w-100 text-none-xs ml-sm-3 rounded-sm"
 							th:onclick="|return checkFolder(*{seq});|"
 							th:href="@{|/user/folder/*{seq}|}" role="button"> <i
 							class="fas fa-yen-sign"></i><span>&nbsp;[[#{label.user.price}]]</span>
-						</a> <a class="btn text-none w-100 ml-sm-3 rounded-sm"
+						</a> <a class="btn w-100 text-none-xs ml-sm-3 rounded-sm"
 							th:classappend="*{shared}?'btn-success':'btn-secondary disabled'"
 							th:href="@{|/user/sales/*{seq}|}" role="button"> <i
 							class="fas fa-piggy-bank"></i><span>&nbsp;[[#{label.user.sales}]]</span>
 						</a>
 						<button type="button"
-							class="btn btn-danger text-none w-100 ml-sm-3 rounded-sm"
+							class="btn btn-danger w-100 text-none-xs ml-sm-3 rounded-sm"
 							th:onclick="|$('#folder').val(*{seq});|" data-toggle="modal"
 							data-target="#mdlClear">
 							<i class="fas fa-trash-alt"></i><span>&nbsp;[[#{label.user.init}]]</span>

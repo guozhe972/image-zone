@@ -39,6 +39,10 @@ footer {
 	background-color: #ecf0f1;
 }
 
+ol {
+	padding-left: 20px;
+}
+
 #toTop {
 	position: fixed;
 	bottom: 6px;
@@ -52,6 +56,11 @@ footer {
 	-webkit-box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
 	box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
 	*/
+}
+
+.btn.nofocus {
+	-webkit-box-shadow: none;
+	box-shadow: none;
 }
 
 .mw-content {
@@ -86,11 +95,6 @@ input[type=date]::-webkit-clear-button {
 	border-bottom-right-radius: 0px;
 }
 
-.btn.nofocus {
-	-webkit-box-shadow: none;
-	box-shadow: none;
-}
-
 .badge-price {
 	position: absolute;
 	top: 0;
@@ -111,24 +115,15 @@ input[type=date]::-webkit-clear-button {
 }
 
 @media ( max-width : 575px) {
-	.text-none-xs {
+	.w-auto-xs {
 		width: auto !important;
 	}
 	.text-none-xs>span {
 		display: none;
 	}
-	.text-none {
-		width: auto;
-	}
-	.text-none>span {
-		display: none;
-	}
 	.btn-block-xs {
 		display: block !important;
 		width: 100% !important;
-	}
-	.d-none-xs {
-		display: none !important;
 	}
 	.mb-0-xs {
 		margin-bottom: 0 !important;
@@ -138,9 +133,6 @@ input[type=date]::-webkit-clear-button {
 @media ( min-width : 576px) {
 	.rounded-sm {
 		border-radius: .25rem !important;
-	}
-	.d-none-sm {
-		display: none !important;
 	}
 }
 

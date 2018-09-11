@@ -9,10 +9,25 @@
 	<header layout:insert="~{layout/parts/header::home(true, true)}"
 		class="fixed-top bg-header"></header>
 	<div class="container bg-main py-3">
-		<div class="mw-content mx-auto text-center">
-			<h1>[[#{title.terms}]]</h1>
-		</div>
+		<h4>[[#{title.terms}]]</h4>
+		<hr>
+		<h5>第一条</h5>
+		<p>
+			用户协议第一条<br> 用户协议第一条用户协议第一条用户协议第一条用户协议第一条
+			用户协议第一条用户协议第一条用户协议第一条用户协议第一条用户协议第一条用户协议第一条用户协议第一条
+		</p>
+		<h5>第二条</h5>
+		<ol>
+			<li>用户协议第一条<br>用户协议第一条用户协议第一条
+			</li>
+			<li>用户协议第一条</li>
+			<li>用户协议第一条</li>
+		</ol>
 	</div>
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
 	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>
 </html>
