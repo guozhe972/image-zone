@@ -121,6 +121,9 @@ input[type=date]::-webkit-clear-button {
 	.text-none-xs>span {
 		display: none;
 	}
+	.d-none-xs {
+		display: none !important;
+	}
 	.btn-block-xs {
 		display: block !important;
 		width: 100% !important;

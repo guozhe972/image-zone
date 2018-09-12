@@ -13,6 +13,13 @@
 		$('img.lazyload').lazyload();
 		$('#imgView').imageview();
 
+		$('#btnScroll').click(function() {
+			$('html, body').animate({
+				scrollTop : 0
+			}, 300);
+			return false;
+		});
+
 		$('#fomPhoto')
 				.submit(
 						function(event) {
@@ -35,14 +42,15 @@
 												$('#imgView').data('imageview')
 														.reload();
 												if (data == '0') {
-													$('#btnOrder').addClass(
+													$('.btnOrder').addClass(
 															'disabled');
-													$('#total')
+													$('.total')
 															.text(
 																	'[(#{money.mark})]0');
 												} else {
 													var total = Number($(
-															'#total')
+															'.total')
+															.eq(0)
 															.text()
 															.replace(
 																	'[(#{money.mark})]',
@@ -50,7 +58,7 @@
 															.replace(/,/g, ''));
 													total -= Number($('#price')
 															.val());
-													$('#total')
+													$('.total')
 															.text(
 																	'[(#{money.mark})]'
 																			+ total
@@ -71,21 +79,23 @@
 </script>
 </head>
 <body layout:fragment="body" class="pt-header">
-	<header layout:insert="~{layout/parts/header::guest(0)}"
+	<header layout:insert="~{layout/parts/header::guest('back')}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
-		<div class="pt-3 d-flex justify-content-between">
+		<div class="pt-3 d-flex justify-content-between d-none-xs">
 			<a class="btn btn-warning" th:href="@{/guest/home}" role="button">
-				[[#{label.cart.total}]]&nbsp;<span id="total"
-				th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span>
-			</a> <a id="btnOrder" class="btn btn-info"
+				<i class="fas fa-cart-plus"></i>&nbsp;<span
+				class="bagCart badge badge-danger" th:text="${#lists.size(cart)}"></span>
+			</a> <a class="btnOrder btn btn-info"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
-				th:href="@{/guest/pay}" role="button"><i class="fas fa-wallet"></i>&nbsp;[[#{label.cart.order}]]</a>
+				th:href="@{/guest/pay}" role="button"><i class="fas fa-wallet"></i>&nbsp;<span
+				class="total"
+				th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span></a>
 		</div>
-		<hr class="mb-0">
+		<hr class="mb-0 d-none-xs">
 		<div id="imgView" class="row pr-3 pb-3">
 			<div th:each="form,stat : ${cart}" th:object="${form}"
 				th:id="|photo${stat.count}|"
@@ -115,9 +125,28 @@
 	</div>
 
 	<button type="button" id="toTop"
-		class="btn btn-primary rounded-circle nofocus">
+		class="btn btn-primary rounded-circle nofocus d-none-xs">
 		<i class="fas fa-angle-up fa-2x"></i>
 	</button>
+
+	<div class="w-100 d-sm-none" style="height: 38px;">
+		<div class="w-100 btn-group fixed-bottom">
+			<a class="btn btn-warning w-100 rounded-0 nofocus"
+				th:href="@{/guest/home}" role="button"> <i
+				class="fas fa-cart-plus"></i>&nbsp;<span
+				class="bagCart badge badge-danger" th:text="${#lists.size(cart)}"></span>
+			</a> <a class="btnOrder btn btn-info w-100 rounded-0 nofocus"
+				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
+				th:href="@{/guest/pay}" role="button"><i class="fas fa-wallet"></i>&nbsp;<span
+				class="total"
+				th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span></a>
+			<button id="btnScroll" type="button"
+				class="btn btn-primary rounded-0 nofocus"
+				style="padding-left: 13px; padding-right: 13px;">
+				<i class="fas fa-angle-up"></i>
+			</button>
+		</div>
+	</div>
 
 	<form id="fomPhoto" action="#">
 		<input type="hidden" th:name="${_csrf.parameterName}"
