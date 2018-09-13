@@ -34,7 +34,6 @@ html {
 			<h4
 				th:text="${#strings.isEmpty(qrcode.name)}?|#{default.folder.name}${#numbers.formatInteger(qrcode.seq,2)}|:${qrcode.name}"></h4>
 			<hr class="mb-0-xs">
-			<div class="d-none" th:text="${qrcodeurl}"></div>
 			<div class="row">
 				<div class="col-sm-4 text-center">
 					<img id="qrcode" th:src="|data:image/png;base64,${qrcodeimg}|"

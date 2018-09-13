@@ -417,7 +417,6 @@ public class UserController {
 				logger.warn("Exception", e);
 			}
 			model.addAttribute("qrcodeimg", qrcodeimg);
-			model.addAttribute("qrcodeurl", qrcodeurl);
 			return "/user/qrcode";
 		} else {
 			if (!model.containsAttribute("folderForm")) {
@@ -747,7 +746,6 @@ public class UserController {
 			logger.warn("Exception", e);
 		}
 		model.addAttribute("qrcodeimg", qrcodeimg);
-		model.addAttribute("qrcodeurl", qrcodeurl);
 		return "/user/qrcode";
 	}
 }
