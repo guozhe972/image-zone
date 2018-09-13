@@ -437,8 +437,8 @@ public class UserController {
 	}
 
 	@PostMapping("/share")
-	public String share(@ModelAttribute @Validated(Share.class) FolderForm form,
-			BindingResult result, RedirectAttributes redirectAttributes, Locale locale) {
+	public String share(@ModelAttribute @Validated(Share.class) FolderForm form, BindingResult result,
+			RedirectAttributes redirectAttributes, UriComponentsBuilder builder, Locale locale) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
@@ -464,11 +464,13 @@ public class UserController {
 
 		folderService.shareFolder(user.getUsername(), form.getSeq(), form.getPassword(), form.getExpiredt());
 
-		String[] param = new String[4];
+		String[] param = new String[5];
 		param[0] = folderName;
 		param[1] = user.getUsername() + "." + String.format("%02d", form.getSeq());
 		param[2] = form.getPassword();
 		param[3] = form.getExpiredt().toString();
+		param[4] = builder.path("/login/" + user.getUsername() + "/" + String.format("%02d", form.getSeq()) + "/"
+				+ codeParser.queryEncrypt(form.getPassword())).build().toUriString();
 		mailHelper.sendShareFolder(user.getEmail(), param);
 
 		return "redirect:/user/share/" + String.valueOf(form.getSeq());

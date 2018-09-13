@@ -100,7 +100,7 @@
 			<div th:each="form,stat : ${cart}" th:object="${form}"
 				th:id="|photo${stat.count}|"
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
-				<div class="card">
+				<div class="card rounded-0 rounded-top border-bottom-0">
 					<div class="card-body p-0 text-center photo">
 						<a
 							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
@@ -113,12 +113,12 @@
 							class="badge badge-warning badge-price"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>
 					</div>
-					<div class="card-footer p-1 bg-white">
-						<button type="button" th:id="|btnDel${stat.count}|"
-							class="btn btn-danger btn-sm w-100" th:disabled="*{incart}"
-							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">
-							[[#{label.cart.delete}]]</button>
-					</div>
+				</div>
+				<div class="w-100">
+					<button type="button" th:id="|btnDel${stat.count}|"
+						class="btn btn-danger btn-sm w-100 rounded-0 rounded-bottom"
+						th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#price').val(*{price});$('#fomPhoto').submit();|">
+						[[#{label.cart.delete}]]</button>
 				</div>
 			</div>
 		</div>
@@ -129,21 +129,19 @@
 		<i class="fas fa-angle-up fa-2x"></i>
 	</button>
 
-	<div class="w-100 d-sm-none" style="height: 38px;">
-		<div class="w-100 btn-group fixed-bottom">
-			<a class="btn btn-warning w-100 rounded-0 nofocus"
-				th:href="@{/guest/home}" role="button"> <i
-				class="fas fa-cart-plus"></i>&nbsp;<span
+	<div class="w-100 d-sm-none" style="height: 48px;">
+		<div class="w-100 btn-group btn-group-lg fixed-bottom" role="group">
+			<a class="btn btn-warning w-100 rounded-0" th:href="@{/guest/home}"
+				role="button"> <i class="fas fa-cart-plus"></i>&nbsp;<span
 				class="bagCart badge badge-danger" th:text="${#lists.size(cart)}"></span>
-			</a> <a class="btnOrder btn btn-info w-100 rounded-0 nofocus"
+			</a> <a class="btnOrder btn btn-info w-100 rounded-0"
 				th:classappend="${#lists.isEmpty(cart)}?'disabled'"
 				th:href="@{/guest/pay}" role="button"><i class="fas fa-wallet"></i>&nbsp;<span
 				class="total"
 				th:text="${#lists.isEmpty(cart)}?|#{money.mark}0|:|#{money.mark}${#numbers.formatInteger(#aggregates.sum(cart.![price]),1,'COMMA')}|"></span></a>
 			<button id="btnScroll" type="button"
-				class="btn btn-primary rounded-0 nofocus"
-				style="padding-left: 13px; padding-right: 13px;">
-				<i class="fas fa-angle-up"></i>
+				class="btn btn-primary rounded-0 nofocus">
+				<i class="fas fa-angle-up fa-lg"></i>
 			</button>
 		</div>
 	</div>

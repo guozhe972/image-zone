@@ -12,6 +12,14 @@
 	{
 	border-color: #E74C3C;
 }
+
+.rounded-bottom-right {
+	border-bottom-right-radius: 0.25rem !important;
+}
+
+.rounded-bottom-left {
+	border-bottom-left-radius: 0.25rem !important;
+}
 </style>
 <script>
 	var target = 0;
@@ -132,7 +140,7 @@
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				th:id="|photo${stat.count}|"
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
-				<div class="card">
+				<div class="card rounded-0 rounded-top border-bottom-0">
 					<div class="card-body p-0 text-center photo">
 						<a
 							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
@@ -145,14 +153,16 @@
 							class="badge badge-warning badge-price"
 							th:text="|#{money.mark}*{#numbers.formatInteger(price,1,'COMMA')}|"></div>
 					</div>
-					<div class="card-footer p-1 bg-white btn-group d-flex" role="group">
-						<button type="button" class="btn btn-warning btn-sm w-100"
-							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($('#bagPrice${stat.count}').text().replace('#{money.mark}','').replace(/,/g,''));|"
-							data-toggle="modal" data-target="#mdlPrice">[[#{label.folder.price}]]</button>
-						<button type="button" class="btn btn-danger btn-sm w-100"
-							th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');|"
-							data-toggle="modal" data-target="#mdlDelete">[[#{label.folder.delete}]]</button>
-					</div>
+				</div>
+				<div class="w-100 btn-group btn-group-sm" role="group">
+					<button type="button"
+						class="btn btn-warning w-100 rounded-0 rounded-bottom-left"
+						th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');$('#money').val($('#bagPrice${stat.count}').text().replace('#{money.mark}','').replace(/,/g,''));|"
+						data-toggle="modal" data-target="#mdlPrice">[[#{label.folder.price}]]</button>
+					<button type="button"
+						class="btn btn-danger w-100 rounded-0 rounded-bottom-right"
+						th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');|"
+						data-toggle="modal" data-target="#mdlDelete">[[#{label.folder.delete}]]</button>
 				</div>
 			</div>
 		</div>

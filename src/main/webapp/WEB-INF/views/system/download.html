@@ -43,18 +43,18 @@
 		<div class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
-				<div class="card">
+				<div class="card rounded-0 rounded-top border-bottom-0">
 					<div class="card-body p-0 text-center photo">
 						<img class="lazyload img-fluid mh-100"
 							th:src="@{/images/loading.gif}"
 							th:data-original="@{|/order/*{orderno}/thumbnail_*{thumbnail}|}"
 							alt="">
 					</div>
-					<div class="card-footer p-1 bg-white">
-						<a role="button"
-							th:href="@{|/download/img/${stat.count}/*{orderno}|(file=*{thumbnail})}"
-							class="btn btn-info btn-sm w-100">[[#{label.download.button}]]</a>
-					</div>
+				</div>
+				<div class="w-100">
+					<a role="button"
+						th:href="@{|/download/img/${stat.count}/*{orderno}|(file=*{thumbnail})}"
+						class="btn btn-info btn-sm w-100 rounded-0 rounded-bottom">[[#{label.download.button}]]</a>
 				</div>
 			</div>
 		</div>

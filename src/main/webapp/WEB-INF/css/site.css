@@ -85,14 +85,8 @@ input[type=date]::-webkit-clear-button {
 	-webkit-appearance: none;
 }
 
-.rounded-left-0 {
-	border-top-left-radius: 0px;
-	border-bottom-left-radius: 0px;
-}
-
-.rounded-right-0 {
-	border-top-right-radius: 0px;
-	border-bottom-right-radius: 0px;
+.modal-footer .btn {
+	min-width: 60px;
 }
 
 .badge-price {
