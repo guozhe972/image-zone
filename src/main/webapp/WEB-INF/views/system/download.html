@@ -4,12 +4,15 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>[[#{title.download}]]</title>
+<link rel="stylesheet" th:href="@{/css/imageview.css}">
 <link rel="stylesheet" th:href="@{/css/tippy.css}">
-<script th:src="@{/js/tippy.min.js}"></script>
 <script th:src="@{/js/jquery.lazyload.min.js}"></script>
+<script th:src="@{/js/jquery.imageview.js}"></script>
+<script th:src="@{/js/tippy.min.js}"></script>
 <script>
 	$(function() {
 		$('img.lazyload').lazyload();
+		$('#imgView').imageview();
 
 		tippy.one('#tipExpiry', {
 			animation : 'fade',
@@ -40,15 +43,18 @@
 				class="fas fa-download"></i><span>&nbsp;[[#{label.download.bulk}]]</span></a>
 		</div>
 		<hr class="mb-0">
-		<div class="row pr-3 pb-3">
+		<div id="imgView" class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
+				th:id="|photo${stat.count}|"
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card rounded-0 rounded-top border-bottom-0">
 					<div class="card-body p-0 text-center photo">
-						<img class="lazyload img-fluid mh-100"
-							th:src="@{/images/loading.gif}"
+						<a th:href="@{|/order/*{orderno}/*{thumbnail}|}"
+							th:data-index="${stat.count}"> <img
+							class="lazyload img-fluid mh-100" th:src="@{/images/loading.gif}"
 							th:data-original="@{|/order/*{orderno}/thumbnail_*{thumbnail}|}"
 							alt="">
+						</a>
 					</div>
 				</div>
 				<div class="w-100">
