@@ -50,10 +50,10 @@
 				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
 				<div class="card rounded-0 rounded-top border-bottom-0">
 					<div class="card-body p-0 text-center photo">
-						<a
-							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}"
-							th:data-index="${stat.count}"> <img
-							class="lazyload img-fluid mh-100" th:src="@{/images/loading.gif}"
+						<a class="img" th:data-index="${stat.count}"
+							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}">
+							<img class="lazyload img-fluid mh-100"
+							th:src="@{/images/loading.gif}"
 							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
 							alt="">
 						</a>

@@ -146,7 +146,7 @@
 
 	$.fn.imageview = function(options) {
 		var defaults = {
-			targetSelector : 'a',
+			targetSelector : 'a.img',
 			srcAttr : 'href'
 		};
 		var opts = $.extend(defaults, options);
