@@ -66,7 +66,7 @@ public class FolderService {
 		account.setAuthority(Authority.GUEST);
 		account.setCreatedt(sysnow);
 		account.setEnabled(false);
-		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS));
+		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 		if (accountMapper.insertAccount(account) > 0) {
 			folderMapper.updateGuest(username, seq, guest);
 		}
@@ -98,7 +98,7 @@ public class FolderService {
 		account.setUsername(guest);
 		account.setPassword(passwordEncoder.encode(guest));
 		account.setEnabled(false);
-		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS));
+		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 		accountMapper.updateAccount(account);
 
 		photoMapper.deleteByFolder(username, seq);

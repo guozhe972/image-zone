@@ -85,7 +85,7 @@ public class BatchService {
 				account.setUsername(guest);
 				account.setPassword(passwordEncoder.encode(guest));
 				account.setEnabled(false);
-				account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS));
+				account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 				accountMapper.updateAccount(account);
 				photoMapper.deleteByFolder(username, entity.getSeq());
 

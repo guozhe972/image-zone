@@ -76,7 +76,7 @@ public class AccountService {
 		account.setCreatedt(sysnow);
 		account.setEnabled(true);
 		if (accountMapper.insertAccount(account) > 0) {
-			LocalDate expiredt = LocalDate.now().plusDays(EXPIRED_DAYS);
+			LocalDate expiredt = LocalDate.now().plusDays(EXPIRED_DAYS / 2);
 			for (int i = 0; i < FOLDER_COUNT; i++) {
 				int seq = folderMapper.insertFolder(username, "", sysnow);
 				String guest = username + "." + String.format("%02d", seq);
