@@ -5,8 +5,7 @@
 <head>
 <title>[[#{title.error}]]</title>
 </head>
-<body layout:fragment="body" class="pt-header"
-	th:with="httpStatus=${T(org.springframework.http.HttpStatus).valueOf(#response.status)}">
+<body layout:fragment="body" class="pt-header">
 	<header layout:insert="~{layout/parts/header::auth}"
 		class="fixed-top bg-header"></header>
 	<th:block layout:replace="~{layout/parts/dialog::logout}" />
@@ -14,8 +13,7 @@
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main">
 		<div class="mx-auto text-center pt-5">
-			<h1 th:text="|${httpStatus} - ${httpStatus.reasonPhrase}|"></h1>
-			<p th:utext="${errorMessage}"></p>
+			<h1 th:utext="${errorMessage}"></h1>
 			<br>
 			<button class="btn btn-primary" type="button"
 				onclick="history.back(-1);">

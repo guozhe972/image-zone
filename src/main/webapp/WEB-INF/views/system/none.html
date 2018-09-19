@@ -8,6 +8,9 @@
 <body layout:fragment="body" class="pt-header">
 	<header layout:insert="~{layout/parts/header::auth}"
 		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container bg-main">
 		<div class="mx-auto text-center pt-5">
 			<h1>[(#{message.none.page})]</h1>
