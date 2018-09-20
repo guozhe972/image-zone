@@ -40,9 +40,6 @@ public class BatchService {
 	@Value("${folder.expired.days}")
 	private int EXPIRED_DAYS;
 
-	//@Value("${order.download.days}")
-	//private int DOWNLOAD_DAYS;
-
 	//@Value("${transfer.history.months}")
 	//private int HISTORY_MONTHS;
 
@@ -101,7 +98,6 @@ public class BatchService {
 	@Scheduled(cron = "0 0 1 * * *")
 	public void delDummyOrder() {
 		logger.info("start delete dummy order batch.");
-		//DateTime createdt = DateTime.now().minusDays(DOWNLOAD_DAYS).withTimeAtStartOfDay();
 		DateTime createdt = DateTime.now().minusDays(1).withTimeAtStartOfDay();
 		logger.info("delete createdt < [{}]", createdt);
 
@@ -109,7 +105,7 @@ public class BatchService {
 		for (String orderno : orders) {
 			logger.info("delete order: [{}]", orderno);
 			fileHelper.deleteFolder(new File(ORDER_PATH + "/" + orderno));
-			//orderMapper.deleteOrder(orderno, false);
+			orderMapper.deleteOrder(orderno, false);
 		}
 		logger.info("end delete dummy order batch.");
 	}
@@ -129,7 +125,6 @@ public class BatchService {
 		logger.info("end delete expired photo batch.");
 	}
 
-	/*
 	@Transactional
 	@Scheduled(cron = "0 0 1 * * *")
 	public void delOrderData() {
@@ -144,7 +139,6 @@ public class BatchService {
 		}
 		logger.info("end delete expired data batch.");
 	}
-	*/
 
 	/*
 	// 毎月1日の1時に起動

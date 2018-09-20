@@ -84,18 +84,18 @@ public class PayController {
 		}
 
 		String orderno = request.getParameter("out_trade_no");
+		logger.info("order_no:" + orderno);
 		String token = request.getParameter("passback_params");
 		String downlink = "/download/" + orderno + "/" + token;
 		String email = codeParser.decrypt(token);
+		logger.info("email_addr:" + email);
 
 		String result = "failure";
 		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
 		if (signVerified) {
 			logger.info("alipay notify OK");
 			String appId = request.getParameter("app_id");
-			logger.info("app_id:" + appId);
 			String sellerId = request.getParameter("seller_id");
-			logger.info("seller_id:" + sellerId);
 			if (ALIPAY_APPID.equals(appId) && ALIPAY_SELLER.equals(sellerId)) {
 				String tradeStatus = request.getParameter("trade_status");
 				logger.info("trade_status:" + tradeStatus);
@@ -109,27 +109,24 @@ public class PayController {
 					String totalAmount = request.getParameter("total_amount");
 					logger.info("total_amount:" + totalAmount);
 					int total = Integer.parseInt(totalAmount.replace(".00", ""));
-					if (order.size() > 0 && total != 0 && total == amount) {
+					if (order.size() > 0 && total == amount) {
 						LocalDate expiredt = LocalDate.now().plusDays(DOWNLOAD_DAYS);
-						int updCount = orderService.updateOrder(orderno, email, expiredt);
-						if (updCount > 0) {
-							if (!email.equals(orderno)) {
-								// send order mail
-								String[] param = new String[3];
-								param[0] = orderno;
-								param[1] = expiredt.toString();
-								param[2] = builder.path(downlink).build().toUriString();
-								mailHelper.sendOrderDone(email, param);
-							}
+						orderService.updateOrder(orderno, email, expiredt);
 
-							// update balance
-							String receiptAmount = request.getParameter("receipt_amount");
-							logger.info("receipt_amount:" + receiptAmount);
-							String username = order.get(0).getUsername();
-							BigDecimal fee = BigDecimal.valueOf(amount).multiply(new BigDecimal(ALIPAY_RATE)).divide(
-									BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
-							accountService.updateBalance(username, amount, BigDecimal.valueOf(amount).subtract(fee));
+						// send order mail
+						if (!email.equals(orderno)) {
+							String[] param = new String[3];
+							param[0] = orderno;
+							param[1] = expiredt.toString();
+							param[2] = builder.path(downlink).build().toUriString();
+							mailHelper.sendOrderDone(email, param);
 						}
+
+						// update balance
+						String username = order.get(0).getUsername();
+						BigDecimal fee = BigDecimal.valueOf(amount).multiply(new BigDecimal(ALIPAY_RATE)).divide(
+								BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
+						accountService.updateBalance(username, amount, BigDecimal.valueOf(amount).subtract(fee));
 					}
 					result = "success";
 				}
