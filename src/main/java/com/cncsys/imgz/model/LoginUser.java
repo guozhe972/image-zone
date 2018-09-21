@@ -14,6 +14,7 @@ public class LoginUser extends User {
 	private final String email;
 	private final Authority authority;
 	private BigDecimal balance;
+	private final boolean vip;
 	private final LocalDate expiredt;
 
 	public LoginUser(AccountEntity account, boolean nonExpired,
@@ -23,6 +24,7 @@ public class LoginUser extends User {
 		this.email = account.getEmail();
 		this.authority = account.getAuthority();
 		this.balance = account.getBalance();
+		this.vip = account.isVip();
 		this.expiredt = account.getExpiredt();
 	}
 
@@ -40,6 +42,10 @@ public class LoginUser extends User {
 
 	public void setBalance(BigDecimal balance) {
 		this.balance = balance;
+	}
+
+	public boolean isVip() {
+		return vip;
 	}
 
 	public LocalDate getExpiredt() {

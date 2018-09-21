@@ -1,0 +1,439 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>[[#{title.user}]]</title>
+<link rel="stylesheet" th:href="@{/css/tippy.css}">
+<script th:src="@{/js/tippy.min.js}"></script>
+<style>
+label.custom-file-label::after {
+	content: "[(#{input.file.button})]";
+}
+</style>
+<script>
+	var target = 0;
+	var showWait = false;
+	function checkFolder(seq) {
+		var unLocked = true;
+		/*$.ajax({
+			async : false,
+			url : '[(@{/user/check})]',
+			method : 'POST',
+			headers : {
+				'[(${_csrf.headerName})]' : '[(${_csrf.token})]'
+			},
+			cache : false,
+			timeout : 10000,
+			contentType : "application/json",
+			data : JSON.stringify({
+				folder : seq
+			}),
+			success : function(data) {
+				if (data == 'true') {
+					unLocked = false;
+				}
+			}
+		});*/
+		if (!unLocked) {
+			showAlertError([ '[(#{error.folder.uploading})]' ]);
+		}
+		return unLocked;
+	}
+
+	$(function() {
+		tippy('[data-toggle="tooltip"]', {
+			animation : 'fade',
+			arrow : true,
+			placement : 'top-end',
+			hideOnClick : true,
+			trigger : 'click'
+		});
+
+		tippy('.text-folder', {
+			animation : 'fade',
+			arrow : false,
+			dynamicTitle : true,
+			placement : 'top-start',
+			hideOnClick : true,
+			trigger : 'mouseenter',
+			zIndex : 1031
+		});
+
+		function resetFile(obj) {
+			$(obj).val('');
+			$(obj).next('label.custom-file-label').text(
+					'[(#{input.file.content})]');
+		}
+
+		function checkFile(obj) {
+			var size = 0;
+			for (var i = 0; i < obj.files.length; i++) {
+				size += obj.files[i].size;
+				if (!/.+(\.zip|\.jpg|\.jpeg)$/.test(obj.files[i].name
+						.toLowerCase()))
+					return false;
+			}
+
+			if (size > Number('[(${@applicationProperties.getProperty("upload.file.size")})]'))
+				return false;
+
+			return true;
+		}
+
+		$(':file.custom-file-input').change(
+				function() {
+					var files = [];
+					$.each($(this).get(0).files, function(idx, val) {
+						files.push(val.name);
+					});
+					if (files.length == 0) {
+						$(this).next('label.custom-file-label').text(
+								'[(#{input.file.content})]');
+					} else {
+						$(this).next('label.custom-file-label').text(
+								files.join(', '));
+					}
+				});
+
+		$('.btnUpload').click(
+				function() {
+					target = $(this).data('target')
+
+					var selFiles = $('#files' + target);
+					selFiles.removeClass('is-invalid');
+					$('#grpFile' + target).next('.invalid-feedback').remove();
+
+					if (selFiles.get(0).files.length == 0) {
+						selFiles.addClass('is-invalid');
+						$('#grpFile' + target).after($('<div/>', {
+							'class' : 'invalid-feedback d-block',
+							text : '[(#{validation.upload.nofile})]'
+						}));
+						return;
+					}
+
+					if (!checkFile(selFiles.get(0))) {
+						resetFile(selFiles.get(0));
+						selFiles.addClass('is-invalid');
+						$('#grpFile' + target).after($('<div/>', {
+							'class' : 'invalid-feedback d-block',
+							text : '[(#{validation.upload.invalid})]'
+						}));
+						return;
+					}
+
+					var ajaxReq = $.ajax({
+						url : '[(@{/user/upload})]',
+						method : 'POST',
+						cache : false,
+						data : new FormData($('#fomUpload' + target).get(0)),
+						contentType : false,
+						processData : false,
+						dataType : 'json',
+						beforeSend : function(xhr) {
+							$('.progress-bar-title').text(
+									'[(#{modal.upload.header})]');
+							$('.progress-bar').text('');
+							if (navigator.userAgent.toLowerCase().indexOf(
+									'edge') < 0) {
+								$('.progress-bar').css('width', '0%');
+							}
+							$('.progress-bar').addClass('bg-info').removeClass(
+									'bg-warning');
+							$('#mdlUpload').modal('show');
+						},
+						xhr : function() {
+							var xhr = $.ajaxSettings.xhr();
+							xhr.upload.onprogress = function(e) {
+								var perc = Math
+										.round((e.loaded / e.total) * 100);
+								$('.progress-bar').text(perc + '%');
+								$('.progress-bar').css('width', perc + '%');
+								if (perc == 100) {
+									$('.progress-bar-title').text(
+											'[(#{modal.waiting.header})]');
+									$('.progress-bar').text('');
+									$('.progress-bar').addClass('bg-warning')
+											.removeClass('bg-info');
+								}
+							};
+							return xhr;
+						}
+					});
+					ajaxReq.done(function(data) {
+						// do nothing
+					});
+					ajaxReq.fail(function(jqXHR) {
+						if (jqXHR.status == 405) {
+							location.href = '[(@{/system/error})]';
+						} else if (jqXHR.status == 400) {
+							$('#files' + target).addClass('is-invalid');
+							$('#grpFile' + target).after($('<div/>', {
+								'class' : 'invalid-feedback d-block',
+								text : jqXHR.responseText
+							}));
+						} else if (jqXHR.status == 0) {
+							$('#files' + target).addClass('is-invalid');
+							$('#grpFile' + target).after($('<div/>', {
+								'class' : 'invalid-feedback d-block',
+								text : '[(#{validation.upload.invalid})]'
+							}));
+						}
+					});
+					ajaxReq.always(function() {
+						resetFile($('#files' + target).get(0));
+						$('#mdlUpload').modal('hide');
+					});
+				});
+
+		$('#mdlRename').on('shown.bs.modal', function() {
+			$('#name').focus();
+		});
+		$('#mdlRename').on(
+				'hidden.bs.modal',
+				function() {
+					if (showWait) {
+						showWait = false;
+						$.ajax({
+							url : '[(@{/user/rename})]',
+							method : 'POST',
+							cache : false,
+							data : $('#fomRename').serialize(),
+							beforeSend : function() {
+								$('#mdlWaiting').modal('show');
+							}
+						})
+								.done(
+										function(data, textStatus, jqXHR) {
+											$('#lnkName' + $('#seq').val())
+													.text(data);
+											$('#lnkName' + $('#seq').val())
+													.get(0).title = '<small>'
+													+ data + '</small>';
+										})
+								.fail(function(jqXHR, textStatus, errorThrown) {
+									if (textStatus == 'error') {
+										location.href = '[(@{/system/error})]';
+									}
+								}).always(function() {
+									$('#mdlWaiting').modal('hide');
+								});
+					}
+				});
+
+		$('#mdlClearBtn').click(function() {
+			if (checkFolder($('#folder').val())) {
+				showWait = true;
+			}
+			$('#mdlClear').modal('hide');
+		});
+		$('#mdlClear').on('hidden.bs.modal', function() {
+			if (showWait) {
+				showWait = false;
+				$('#mdlWaiting').modal('show');
+				$('#fomClear').submit();
+			}
+		});
+
+		$('#mdlCreate').on('shown.bs.modal', function() {
+			$('#foldernm').focus();
+		});
+		$('#mdlCreateBtn').click(function() {
+			$('#foldernm').removeClass('is-invalid');
+			$('#foldernm').next('.invalid-feedback').remove();
+
+			if ($('#foldernm').val().length == 0) {
+				$('#foldernm').addClass('is-invalid');
+				$('#foldernm').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{validation.folder.name})]'
+				}));
+				return;
+			}
+
+			showWait = true;
+			$('#mdlCreate').modal('hide');
+		});
+		$('#mdlCreate').on('hidden.bs.modal', function() {
+			$('#foldernm').removeClass('is-invalid');
+			$('#foldernm').next('.invalid-feedback').remove();
+			if (showWait) {
+				showWait = false;
+				$('#mdlWaiting').modal('show');
+				$('#fomCreate').submit();
+			}
+		});
+	});
+</script>
+</head>
+<body layout:fragment="body" class="pt-header">
+	<header layout:insert="~{layout/parts/header::user(0)}"
+		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
+	<th:block layout:replace="~{layout/parts/dialog::progress}" />
+	<div class="container bg-main">
+		<th:block layout:replace="~{layout/parts/alert::error}" />
+		<ul class="list-group list-group-flush mw-content mx-auto">
+			<li class="list-group-item px-0 py-3" th:each="form : ${folders}">
+				<form enctype="multipart/form-data" novalidate
+					th:action="@{/user/upload}" method="post" th:object="${form}"
+					th:id="|fomUpload${form.seq}|" autocomplete="off">
+					<input type="hidden" th:id="|seq*{seq}|" name="seq"
+						th:value="*{seq}" /> <input type="hidden" th:id="|price*{seq}|"
+						name="price" th:value="*{price}" />
+					<div class="form-group mb-2 d-flex justify-content-between">
+						<div class="text-truncate" style="max-width: 300px;">
+							<a th:id="|lnkName*{seq}|" class="text-folder" tabindex="-1"
+								href="javascript:;"
+								th:onclick="|$('#name').val($(this).text());$('#seq').val(*{seq});|"
+								data-toggle="modal" data-target="#mdlRename"
+								th:title="*{#strings.isEmpty(name)}?|<small>#{default.folder.name}*{#numbers.formatInteger(seq,2)}</small>|:|<small>*{name}</small>|"
+								th:text="*{#strings.isEmpty(name)}?|#{default.folder.name}*{#numbers.formatInteger(seq,2)}|:*{name}"></a>
+						</div>
+						<div class="text-right" style="width: 180px;">
+							<span class="text-danger" th:text="*{expiredt}"></span>&nbsp;<span
+								data-toggle="tooltip" style="cursor: pointer"
+								th:title="#{tooltip.folder.expiry}"><i
+								class="fas fa-question-circle text-dark"></i></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div th:id="|grpFile*{seq}|" class="custom-file">
+							<input type="file" class="custom-file-input"
+								th:id="|files*{seq}|" name="files"
+								accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
+								multiple required /> <label th:for="|files*{seq}|"
+								class="custom-file-label text-truncate"
+								th:text="#{input.file.content}"></label>
+						</div>
+					</div>
+					<div class="form-group btn-group d-flex mb-0" role="group">
+						<button type="button" th:data-target="*{seq}"
+							class="btnUpload btn btn-info w-100 text-none-xs rounded-sm">
+							<i class="fas fa-upload"></i><span>&nbsp;[[#{label.user.upload}]]</span>
+						</button>
+						<a class="btn btn-warning w-100 text-none-xs ml-sm-3 rounded-sm"
+							th:onclick="|return checkFolder(*{seq});|"
+							th:href="@{|/user/folder/*{seq}|}" role="button"> <i
+							class="fas fa-images"></i><span>&nbsp;[[#{label.user.image}]]</span>
+						</a> <a class="btn btn-success w-100 text-none-xs ml-sm-3 rounded-sm"
+							th:href="@{|/user/share/*{seq}|}" role="button"> <i
+							class="fas fa-share-alt"></i><span>&nbsp;<th:block
+									th:text="*{shared}?#{label.user.info}:#{label.user.share}"></th:block></span>
+						</a>
+						<button type="button"
+							class="btn btn-danger w-100 text-none-xs ml-sm-3 rounded-sm"
+							th:onclick="|$('#folder').val(*{seq});|" data-toggle="modal"
+							data-target="#mdlClear">
+							<i class="fas fa-trash-alt"></i><span>&nbsp;[[#{label.user.init}]]</span>
+						</button>
+					</div>
+				</form>
+			</li>
+		</ul>
+		<div class="mw-content mx-auto py-3">
+			<button type="button" class="btn btn-primary btn-block"
+				th:disabled="${#lists.size(folders)}>=${@applicationProperties.getProperty('folder.count.max')}"
+				onclick="$('#foldernm').val('');" data-toggle="modal"
+				data-target="#mdlCreate">[[#{label.user.create}]]</button>
+			<small class="form-text text-muted"
+				th:utext="${#messages.msg('message.folder.create', #numbers.formatInteger(@applicationProperties.getProperty('folder.count.max'),1,'COMMA'))}"></small>
+		</div>
+	</div>
+
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
+
+	<div id="mdlRename" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">[[#{modal.rename.header}]]</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="fomRename" action="#" autocomplete="off">
+						<input type="hidden" th:name="${_csrf.parameterName}"
+							th:value="${_csrf.token}" /> <input type="hidden" id="seq"
+							name="seq" />
+						<div class="form-group mb-0">
+							<label for="name">[[#{modal.rename.label}]]</label> <input
+								type="text" id="name" name="name" class="form-control"
+								maxlength="50" />
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary"
+						onclick="showWait=true;" data-dismiss="modal">[[#{modal.button.ok}]]</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="mdlClear" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">[[#{modal.clear.header}]]</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>[(#{modal.clear.message})]</p>
+					<form id="fomClear" th:action="@{/user/clear}" method="post">
+						<input type="hidden" id="folder" name="folder" />
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button id="mdlClearBtn" type="button" class="btn btn-primary">[[#{modal.button.yes}]]</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">[[#{modal.button.no}]]</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="mdlCreate" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">[[#{modal.create.header}]]</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form id="fomCreate" th:action="@{/user/create}" method="post"
+						novalidate autocomplete="off">
+						<div class="form-group mb-0">
+							<label for="foldernm">[[#{modal.create.label}]]</label> <input
+								type="text" id="foldernm" name="foldernm" class="form-control"
+								maxlength="50" />
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button id="mdlCreateBtn" type="button" class="btn btn-primary">[[#{modal.button.ok}]]</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">[[#{modal.button.cancel}]]</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

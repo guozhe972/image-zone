@@ -88,7 +88,7 @@ public class UploadService {
 								String thumbId = UUID.randomUUID().toString().replace("-", "") + ext;
 								File preview = new File(thumbPath + "/" + "preview_" + thumbId);
 								File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
-								BufferedImage marked = imageEditor.getPreview(ImageIO.read(original));
+								BufferedImage marked = imageEditor.getPreview(ImageIO.read(original), price);
 								ImageIO.write(marked, "jpeg", preview);
 								BufferedImage scaled = imageEditor.getThumbnail(marked);
 								ImageIO.write(scaled, "jpeg", thumbnail);
@@ -126,7 +126,7 @@ public class UploadService {
 					String thumbId = UUID.randomUUID().toString().replace("-", "") + ext;
 					File preview = new File(thumbPath + "/" + "preview_" + thumbId);
 					File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
-					BufferedImage marked = imageEditor.getPreview(ImageIO.read(original));
+					BufferedImage marked = imageEditor.getPreview(ImageIO.read(original), price);
 					ImageIO.write(marked, "jpeg", preview);
 					BufferedImage scaled = imageEditor.getThumbnail(marked);
 					ImageIO.write(scaled, "jpeg", thumbnail);

@@ -8,6 +8,7 @@ CREATE TABLE account
     balance decimal(11,2) NOT NULL DEFAULT 0,
     createdt timestamp NOT NULL,
     enabled boolean NOT NULL,
+    vip boolean NOT NULL DEFAULT false,
     expiredt date,
     logindt timestamp,
     CONSTRAINT account_pkey PRIMARY KEY (username)

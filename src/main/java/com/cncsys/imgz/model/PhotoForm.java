@@ -11,6 +11,7 @@ public class PhotoForm {
 	private String username;
 	private int folder;
 	private String thumbnail;
+	private String original;
 	private int price;
 	private boolean incart;
 }

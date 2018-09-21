@@ -53,7 +53,7 @@ public class FolderService {
 	}
 
 	@Transactional
-	public void createFolder(String username, String foldername) {
+	public void createFolder(String username, String foldername, boolean vip) {
 		DateTime sysnow = DateTime.now();
 
 		int seq = folderMapper.insertFolder(username, foldername, sysnow);
@@ -66,6 +66,7 @@ public class FolderService {
 		account.setAuthority(Authority.GUEST);
 		account.setCreatedt(sysnow);
 		account.setEnabled(false);
+		account.setVip(vip);
 		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 		if (accountMapper.insertAccount(account) > 0) {
 			folderMapper.updateGuest(username, seq, guest);

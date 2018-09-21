@@ -7,14 +7,14 @@
 	<select id="selectAccount" resultType="AccountEntity">
 		select username, password,
 		email, authority, balance, createdt, enabled,
-		expiredt from account
+		vip, expiredt from account
 		where username = #{username}
 	</select>
 
 	<select id="selectByReset" resultType="AccountEntity">
 		select username, password,
 		email, authority, balance, createdt, enabled,
-		expiredt from account
+		vip, expiredt from account
 		where username = #{username} and password =
 		#{password}
 	</select>
@@ -22,10 +22,10 @@
 	<insert id="insertAccount" parameterType="AccountEntity">
 		insert into account
 		(username, password, email, authority, createdt,
-		enabled, expiredt)
+		enabled, vip, expiredt)
 		values (#{username}, #{password}, #{email},
 		#{authority}, #{createdt},
-		#{enabled}, #{expiredt})
+		#{enabled}, #{vip}, #{expiredt})
 	</insert>
 
 	<update id="updateLogindt">

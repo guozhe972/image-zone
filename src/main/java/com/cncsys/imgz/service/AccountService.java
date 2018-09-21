@@ -75,6 +75,7 @@ public class AccountService {
 		account.setAuthority(Authority.USER);
 		account.setCreatedt(sysnow);
 		account.setEnabled(true);
+		account.setVip(false);
 		if (accountMapper.insertAccount(account) > 0) {
 			LocalDate expiredt = LocalDate.now().plusDays(EXPIRED_DAYS / 2);
 			for (int i = 0; i < FOLDER_COUNT; i++) {
@@ -87,6 +88,7 @@ public class AccountService {
 				account.setAuthority(Authority.GUEST);
 				account.setCreatedt(sysnow);
 				account.setEnabled(false);
+				account.setVip(false);
 				account.setExpiredt(expiredt);
 				if (accountMapper.insertAccount(account) > 0) {
 					folderMapper.updateGuest(username, seq, guest);

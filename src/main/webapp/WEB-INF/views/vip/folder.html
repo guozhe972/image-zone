@@ -1,0 +1,111 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>[[#{title.user}]]</title>
+<link rel="stylesheet" th:href="@{/css/imageview.css}">
+<script th:src="@{/js/jquery.lazyload.min.js}"></script>
+<script th:src="@{/js/jquery.imageview.js}"></script>
+<script>
+	var target = 0;
+	var showWait = false;
+	$(function() {
+		$('img.lazyload').lazyload();
+		$('#imgView').imageview();
+
+		$('#mdlDelete').on('hidden.bs.modal', function() {
+			if (showWait) {
+				showWait = false;
+				$.ajax({
+					url : '[(@{/user/delete})]',
+					method : 'POST',
+					cache : false,
+					data : $('#fomSubmit').serialize(),
+					beforeSend : function() {
+						$('#mdlWaiting').modal('show');
+					}
+				}).done(function(data, textStatus, jqXHR) {
+					$('#photo' + target).remove();
+					$('#imgView').data('imageview').reload();
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					if (textStatus == 'error') {
+						location.href = '[(@{/system/error})]';
+					}
+				}).always(function() {
+					$('#mdlWaiting').modal('hide');
+				});
+			}
+		});
+	});
+</script>
+</head>
+<body layout:fragment="body" class="pt-header">
+	<header layout:insert="~{layout/parts/header::user(-1)}"
+		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
+	<div class="container-fluid bg-main">
+		<div id="imgView" class="row pr-3 pb-3">
+			<div th:each="form,stat : ${photos}" th:object="${form}"
+				th:id="|photo${stat.count}|"
+				class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 pl-3 pr-0 pt-3">
+				<div class="card rounded-0 rounded-top border-bottom-0">
+					<div class="card-body p-0 text-center photo">
+						<a class="img" th:data-index="${stat.count}"
+							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}">
+							<img class="lazyload img-fluid mh-100"
+							th:src="@{/images/loading.gif}"
+							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
+							alt="">
+						</a>
+					</div>
+				</div>
+				<div class="w-100">
+					<button type="button"
+						class="btn btn-danger btn-sm w-100 rounded-0 rounded-bottom"
+						th:onclick="|target=${stat.count};$('#thumbnail').val('*{thumbnail}');|"
+						data-toggle="modal" data-target="#mdlDelete">[[#{label.folder.delete}]]</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<button type="button" id="toTop"
+		class="btn btn-primary rounded-circle nofocus">
+		<i class="fas fa-angle-up fa-2x"></i>
+	</button>
+
+	<form id="fomSubmit" action="#">
+		<input type="hidden" th:name="${_csrf.parameterName}"
+			th:value="${_csrf.token}" /> <input type="hidden" id="folder"
+			name="folder" th:value="${folder}" /> <input type="hidden"
+			id="thumbnail" name="thumbnail" />
+	</form>
+
+	<div id="mdlDelete" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">[[#{modal.delete.header}]]</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p>[(#{modal.delete.message})]</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary"
+						onclick="showWait=true;" data-dismiss="modal">[[#{modal.button.yes}]]</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">[[#{modal.button.no}]]</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

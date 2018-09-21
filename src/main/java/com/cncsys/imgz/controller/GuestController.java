@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
@@ -147,6 +150,11 @@ public class GuestController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
+		String view = "/guest/home";
+		if (user.isVip()) {
+			view = "/vip/download";
+		}
+
 		String[] guest = user.getUsername().split("\\.");
 		model.addAttribute("username", guest[0]);
 		model.addAttribute("folder", Integer.parseInt(guest[1]));
@@ -158,6 +166,9 @@ public class GuestController {
 			form.setUsername(photo.getUsername());
 			form.setFolder(photo.getFolder());
 			form.setThumbnail(photo.getThumbnail());
+			if (user.isVip()) {
+				form.setOriginal(photo.getOriginal());
+			}
 			form.setPrice(photo.getPrice());
 			if (cart.contains(form)) {
 				form.setIncart(true);
@@ -165,7 +176,25 @@ public class GuestController {
 			photos.add(form);
 		}
 		model.addAttribute("photos", photos);
-		return "/guest/home";
+		return view;
+	}
+
+	@GetMapping("/download")
+	public ResponseEntity<byte[]> download(@RequestParam("idx") int idx, @RequestParam("file") String file)
+			throws IOException {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		String[] guest = user.getUsername().split("\\.");
+		String username = guest[0];
+		int folder = Integer.parseInt(guest[1]);
+		String filePath = ORIGINAL_PATH + "/" + username + "/" + String.valueOf(folder) + "/" + file;
+
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.setContentType(MediaType.IMAGE_JPEG);
+		responseHeaders.set("Content-Disposition",
+				"attachment;filename=IMG" + String.format("%05d", idx) + fileHelper.getExtension(file));
+		return new ResponseEntity<>(Files.readAllBytes(Paths.get(filePath)), responseHeaders, HttpStatus.OK);
 	}
 
 	@PostMapping("/cart/add")

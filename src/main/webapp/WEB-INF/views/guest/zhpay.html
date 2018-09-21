@@ -56,10 +56,6 @@
 			}
 		});
 
-		$('#mdlTermsBtn').click(function() {
-			showWait = true;
-			$('#mdlTerms').modal('hide');
-		});
 		$('#mdlTerms').on('hidden.bs.modal', function() {
 			if (showWait) {
 				showWait = false;
@@ -144,7 +140,8 @@
 					style="font-size: 85%; max-height: 350px; overflow: auto;">
 					[(#{modal.terms.message})]</div>
 				<div class="modal-footer">
-					<button id="mdlTermsBtn" type="button" class="btn btn-primary">[[#{modal.terms.agree}]]</button>
+					<button type="button" class="btn btn-primary"
+						onclick="showWait=true;" data-dismiss="modal">[[#{modal.terms.agree}]]</button>
 					<button type="button" class="btn btn-secondary"
 						data-dismiss="modal">[[#{modal.terms.oppose}]]</button>
 				</div>

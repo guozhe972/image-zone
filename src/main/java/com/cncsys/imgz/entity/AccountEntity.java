@@ -21,6 +21,7 @@ public class AccountEntity {
 	private BigDecimal balance;
 	private DateTime createdt;
 	private boolean enabled;
+	private boolean vip;
 	private LocalDate expiredt;
 	private DateTime logindt;
 }

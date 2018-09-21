@@ -24,7 +24,7 @@ public class ImageEditor {
 	@Value("${image.watermark.text}")
 	private String WATERMARK_TEXT;
 
-	public BufferedImage getPreview(BufferedImage source) throws IOException {
+	public BufferedImage getPreview(BufferedImage source, int price) throws IOException {
 		int sWidth, sHeight;
 		if (source.getWidth() > source.getHeight()) {
 			sWidth = PREVIEW_SCALE;
@@ -35,36 +35,38 @@ public class ImageEditor {
 		}
 
 		BufferedImage marked = new BufferedImage(sWidth, sHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D g2d = marked.createGraphics();
 		double xScale = (double) sWidth / source.getWidth();
 		double yScale = (double) sHeight / source.getHeight();
 		AffineTransform at = AffineTransform.getScaleInstance(xScale, yScale);
+		Graphics2D g2d = marked.createGraphics();
 		g2d.drawRenderedImage(source, at);
 
-		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
-		g2d.setColor(Color.DARK_GRAY);
-		g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
-		g2d.setTransform(AffineTransform.getRotateInstance(Math.atan2(sHeight, sWidth)));
-		int tWidth = (int) Math.sqrt(sWidth * sWidth + sHeight * sHeight);
-		int tHeight = sWidth * sHeight / tWidth;
-		Rectangle2D rect = g2d.getFontMetrics().getStringBounds(WATERMARK_TEXT, g2d);
-		int rHeight = (int) rect.getHeight();
-		int rWidth = (int) rect.getWidth();
+		if (price > 0) {
+			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+			g2d.setColor(Color.DARK_GRAY);
+			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 36));
+			g2d.setTransform(AffineTransform.getRotateInstance(Math.atan2(sHeight, sWidth)));
+			int tWidth = (int) Math.sqrt(sWidth * sWidth + sHeight * sHeight);
+			int tHeight = sWidth * sHeight / tWidth;
+			Rectangle2D rect = g2d.getFontMetrics().getStringBounds(WATERMARK_TEXT, g2d);
+			int rHeight = (int) rect.getHeight();
+			int rWidth = (int) rect.getWidth();
 
-		//int centerX = (tWidth - rWidth) / 2;
-		//g2d.drawString(WATERMARK_TEXT, centerX, 0);
+			//int centerX = (tWidth - rWidth) / 2;
+			//g2d.drawString(WATERMARK_TEXT, centerX, 0);
 
-		int row = 0, x = 0, y = -tHeight;
-		while (y < tHeight) {
-			x = 0;
-			if (row % 2 == 1)
-				x += rWidth;
-			while (x < tWidth) {
-				g2d.drawString(WATERMARK_TEXT, x, y);
-				x += rWidth * 2;
+			int row = 0, x = 0, y = -tHeight;
+			while (y < tHeight) {
+				x = 0;
+				if (row % 2 == 1)
+					x += rWidth;
+				while (x < tWidth) {
+					g2d.drawString(WATERMARK_TEXT, x, y);
+					x += rWidth * 2;
+				}
+				y += rHeight * 2;
+				row++;
 			}
-			y += rHeight * 2;
-			row++;
 		}
 
 		g2d.dispose();

@@ -174,6 +174,13 @@ public class UserController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
+		String view = "/user/home";
+		int price = DEFAULT_PRICE;
+		if (user.isVip()) {
+			view = "/vip/home";
+			price = 0;
+		}
+
 		List<FolderForm> folders = new ArrayList<FolderForm>();
 		List<FolderEntity> entity = folderService.getUserFolders(user.getUsername());
 		for (FolderEntity folder : entity) {
@@ -182,12 +189,12 @@ public class UserController {
 			form.setName(folder.getName());
 			form.setShared(folder.isShared());
 			form.setExpiredt(folder.getExpiredt());
-			form.setPrice(DEFAULT_PRICE);
+			form.setPrice(price);
 			folders.add(form);
 		}
 
 		model.addAttribute("folders", folders);
-		return "/user/home";
+		return view;
 	}
 
 	@PostMapping("/rename")
@@ -264,6 +271,9 @@ public class UserController {
 		} else if (price > PRICE_MAX) {
 			price = PRICE_MAX;
 		}
+		if (user.isVip()) {
+			price = 0;
+		}
 		uploadService.upload(user.getUsername(), form.getSeq(), fileList, price);
 
 		// unlock folder
@@ -303,7 +313,7 @@ public class UserController {
 
 		int count = folderService.getFolderCount(user.getUsername());
 		if (count < FOLDER_MAX) {
-			folderService.createFolder(user.getUsername(), foldernm);
+			folderService.createFolder(user.getUsername(), foldernm, user.isVip());
 		} else {
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.folder.create", null, locale));
@@ -317,6 +327,11 @@ public class UserController {
 	public String photo(@PathVariable("seq") int seq, Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
+
+		String view = "/user/folder";
+		if (user.isVip()) {
+			view = "/vip/folder";
+		}
 
 		FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
 		model.addAttribute("shared", folder.isShared());
@@ -334,7 +349,7 @@ public class UserController {
 
 		model.addAttribute("photos", photos);
 		model.addAttribute("folder", seq);
-		return "/user/folder";
+		return view;
 	}
 
 	@PostMapping("/price")
