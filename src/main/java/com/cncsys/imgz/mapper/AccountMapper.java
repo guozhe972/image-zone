@@ -19,6 +19,8 @@ public interface AccountMapper {
 
 	int updateAccount(AccountEntity account);
 
+	int updateVip(@Param("username") String username);
+
 	String updatePassword(@Param("username") String username, @Param("password") String password);
 
 	BigDecimal updateBalance(@Param("username") String username, @Param("balance") BigDecimal balance);

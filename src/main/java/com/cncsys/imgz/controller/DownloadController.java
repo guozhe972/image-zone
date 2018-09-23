@@ -72,15 +72,15 @@ public class DownloadController {
 		return "/system/download";
 	}
 
-	@GetMapping("/download/img/{seq}/{order}")
-	public ResponseEntity<byte[]> img(@PathVariable("seq") int seq, @PathVariable("order") String order,
+	@GetMapping("/download/img/{order}")
+	public ResponseEntity<byte[]> img(@PathVariable("order") String order, @RequestParam("idx") int idx,
 			@RequestParam("file") String file) throws IOException {
 		String filePath = ORDER_PATH + "/" + order + "/" + file;
 
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.setContentType(MediaType.IMAGE_JPEG);
 		responseHeaders.set("Content-Disposition",
-				"attachment;filename=IMG" + String.format("%05d", seq) + fileHelper.getExtension(file));
+				"attachment;filename=IMG" + String.format("%05d", idx) + fileHelper.getExtension(file));
 		return new ResponseEntity<>(Files.readAllBytes(Paths.get(filePath)), responseHeaders, HttpStatus.OK);
 	}
 

@@ -6,26 +6,21 @@
 
 	<select id="selectAccount" resultType="AccountEntity">
 		select username, password,
-		email, authority, balance, createdt, enabled,
-		vip, expiredt from account
-		where username = #{username}
+		email, authority, balance, createdt, enabled, vip, expiredt from
+		account where username = #{username}
 	</select>
 
 	<select id="selectByReset" resultType="AccountEntity">
 		select username, password,
-		email, authority, balance, createdt, enabled,
-		vip, expiredt from account
-		where username = #{username} and password =
-		#{password}
+		email, authority, balance, createdt, enabled, vip, expiredt from
+		account where username = #{username} and password = #{password}
 	</select>
 
 	<insert id="insertAccount" parameterType="AccountEntity">
 		insert into account
-		(username, password, email, authority, createdt,
-		enabled, vip, expiredt)
-		values (#{username}, #{password}, #{email},
-		#{authority}, #{createdt},
-		#{enabled}, #{vip}, #{expiredt})
+		(username, password, email, authority, createdt, enabled, vip,
+		expiredt) values (#{username}, #{password}, #{email}, #{authority},
+		#{createdt}, #{enabled}, #{vip}, #{expiredt})
 	</insert>
 
 	<update id="updateLogindt">
@@ -38,6 +33,11 @@
 		password = #{password}, email = #{email}, enabled =
 		#{enabled},
 		expiredt = #{expiredt} where username = #{username}
+	</update>
+
+	<update id="updateVip">
+		update account set vip = true where username =
+		#{username} or username like '${username}.%'
 	</update>
 
 	<select id="updatePassword" resultType="String">

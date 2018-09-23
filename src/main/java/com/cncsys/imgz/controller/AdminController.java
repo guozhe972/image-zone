@@ -2,8 +2,10 @@ package com.cncsys.imgz.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.cncsys.imgz.entity.AccountEntity;
 import com.cncsys.imgz.entity.TransferEntity;
@@ -29,6 +32,9 @@ public class AdminController {
 
 	@Autowired
 	private TransferService transferService;
+
+	@Autowired
+	private MessageSource messageSource;
 
 	@GetMapping("/home")
 	public String home(Model model) {
@@ -61,5 +67,33 @@ public class AdminController {
 	public String transfer(@RequestParam("transno") String transno, @RequestParam("fee") int fee) {
 		transferService.doneTransfer(transno, Math.abs(fee));
 		return "redirect:/admin/home";
+	}
+
+	@GetMapping("/vip")
+	public String vip(Model model) {
+		return "/admin/vip";
+	}
+
+	@PostMapping("/upgrade")
+	public String upgrade(@RequestParam("usernm") String usernm, RedirectAttributes redirectAttributes,
+			Locale locale) {
+		if (usernm == null || usernm.isEmpty()) {
+			List<String> errors = new ArrayList<String>();
+			errors.add(messageSource.getMessage("error.signin.username", null, locale));
+			redirectAttributes.addFlashAttribute("errors", errors);
+			return "redirect:/admin/vip";
+		}
+
+		int result = accountService.updateVip(usernm);
+		if (result > 0) {
+			List<String> infos = new ArrayList<String>();
+			infos.add(messageSource.getMessage("info.vip.success", new Object[] { usernm }, locale));
+			redirectAttributes.addFlashAttribute("infos", infos);
+		} else {
+			List<String> errors = new ArrayList<String>();
+			errors.add(messageSource.getMessage("error.vip.failure", null, locale));
+			redirectAttributes.addFlashAttribute("errors", errors);
+		}
+		return "redirect:/admin/vip";
 	}
 }

@@ -114,4 +114,9 @@ public class AccountService {
 	public void updateLogindt(String username) {
 		accountMapper.updateLogindt(username, DateTime.now());
 	}
+
+	@Transactional
+	public int updateVip(String username) {
+		return accountMapper.updateVip(username);
+	}
 }

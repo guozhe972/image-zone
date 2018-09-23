@@ -37,7 +37,7 @@
 					</div>
 				</div>
 				<div class="w-100">
-					<a th:id="|btnDown${stat.count}|" role="button"
+					<a th:id="|btnDown${stat.count}|" role="button" target="_blank"
 						th:href="@{/guest/download(idx=${stat.count},file=*{original})}"
 						class="btn btn-info btn-sm w-100 rounded-0 rounded-bottom">[[#{label.download.button}]]</a>
 				</div>

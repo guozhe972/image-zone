@@ -98,7 +98,7 @@ public class BatchService {
 	@Scheduled(cron = "0 0 1 * * *")
 	public void delDummyOrder() {
 		logger.info("start delete dummy order batch.");
-		DateTime createdt = DateTime.now().minusDays(1).withTimeAtStartOfDay();
+		DateTime createdt = DateTime.now().minusDays(2).withTimeAtStartOfDay();
 		logger.info("delete createdt < [{}]", createdt);
 
 		List<String> orders = orderMapper.selectByDummy(createdt);

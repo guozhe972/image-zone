@@ -15,24 +15,24 @@ html {
 		function isValidForm() {
 			var isValid = true;
 			$('.is-invalid').removeClass('is-invalid');
-			//$('.invalid-feedback').remove();
+			$('.invalid-feedback').remove();
 
 			if ($('#passwd').val().length == 0) {
 				$('#passwd').addClass('is-invalid');
-				//$('#passwd').after($('<div/>', {
-				//	'class' : 'invalid-feedback',
-				//	text : '[(#{error.signin.password})]'
-				//}));
+				$('#passwd').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{error.signin.password})]'
+				}));
 				$('#passwd').focus();
 				isValid = false;
 			}
 
 			if ($('#usernm').val().length == 0) {
 				$('#usernm').addClass('is-invalid');
-				//$('#usernm').after($('<div/>', {
-				//	'class' : 'invalid-feedback',
-				//	text : '[(#{error.signin.username})]'
-				//}));
+				$('#usernm').after($('<div/>', {
+					'class' : 'invalid-feedback',
+					text : '[(#{error.signin.username})]'
+				}));
 				$('#usernm').focus();
 				isValid = false;
 			}
