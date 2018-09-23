@@ -36,6 +36,8 @@
 				data : JSON.stringify({
 					email : $('#email').val()
 				})
+			}).done(function(data, textStatus, jqXHR) {
+				showAlertInfo([ '[(#{info.email.confirm})]' ]);
 			});
 		});
 
@@ -130,6 +132,7 @@
 		</div>
 	</div>
 	<div class="container bg-main">
+		<th:block layout:replace="~{layout/parts/alert::info}" />
 		<th:block layout:replace="~{layout/parts/alert::error}" />
 		<form id="fomPay" class="mw-content mx-auto py-3" novalidate
 			th:action="@{/guest/credit}" th:object="${payForm}" method="post">
