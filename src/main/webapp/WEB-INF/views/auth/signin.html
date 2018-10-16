@@ -94,7 +94,7 @@ html {
 		class="fixed-top bg-header"></header>
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
-	<div class="container bg-main pb-footer my-md-auto">
+	<div class="container bg-main pb-md-5 my-md-auto">
 		<th:block layout:replace="~{layout/parts/alert::info}" />
 		<div th:if="${param.error}"
 			class="alert alert-danger alert-dismissible fade show mw-content mx-auto mt-3 mb-0"
@@ -164,7 +164,5 @@ html {
 			</div>
 		</div>
 	</div>
-
-	<footer layout:replace="~{layout/parts/footer::footer}"></footer>
 </body>
 </html>

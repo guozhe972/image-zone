@@ -6,6 +6,7 @@
 <title>[[#{title.guest}]]</title>
 <script th:src="@{/js/omise.min.js}"></script>
 <script>
+	var showWait = false;
 	$(function() {
 		// for test =====
 		$('#number').val('4111111111111111');
@@ -87,6 +88,13 @@
 
 		$('#btnPay').click(function() {
 			if (isValidForm()) {
+				$('#mdlTerms').modal('show');
+			}
+		});
+
+		$('#mdlTerms').on('hidden.bs.modal', function() {
+			if (showWait) {
+				showWait = false;
 				$('#mdlWaiting').modal('show');
 
 				var card = {
@@ -214,6 +222,28 @@
 				</div>
 			</div>
 		</form>
+	</div>
+	<div id="mdlTerms" class="modal fade" tabindex="-1" role="dialog"
+		data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">[[#{modal.terms.header}]]</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body"
+					style="font-size: 85%; max-height: 350px; overflow: auto;">
+					[(#{modal.terms.message})]</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary"
+						onclick="showWait=true;" data-dismiss="modal">[[#{modal.terms.agree}]]</button>
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">[[#{modal.terms.oppose}]]</button>
+				</div>
+			</div>
+		</div>
 	</div>
 	<script>
 		Omise

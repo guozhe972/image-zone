@@ -37,8 +37,8 @@ public class WelcomeController {
 	}
 
 	@GetMapping("/about/site")
-	public String aboutSite() {
-		return "/about/about";
+	public String aboutSite(Locale locale) {
+		return "/about/about_" + locale.getLanguage().toLowerCase();
 	}
 
 	@GetMapping("/about/terms")
