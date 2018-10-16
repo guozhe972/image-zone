@@ -77,6 +77,7 @@ public class BatchService {
 
 				// clear db
 				folderMapper.updateShared(username, entity.getSeq(), false, null, DateTime.now());
+				folderMapper.updateFolder(username, entity.getSeq(), "");
 				String guest = entity.getGuest();
 				AccountEntity account = new AccountEntity();
 				account.setUsername(guest);

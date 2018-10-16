@@ -93,6 +93,7 @@ public class FolderService {
 	@Transactional
 	public void initFolder(String username, int seq) {
 		folderMapper.updateShared(username, seq, false, null, DateTime.now());
+		folderMapper.updateFolder(username, seq, "");
 		String guest = username + "." + String.format("%02d", seq);
 
 		AccountEntity account = new AccountEntity();
