@@ -31,7 +31,12 @@ public class WelcomeController {
 			return "/system/none";
 		}
 
-		model.addAttribute("username", usernm + "." + folder);
+		String username = usernm;
+		if (!"00".equals(folder)) {
+			username = usernm + "." + folder;
+		}
+
+		model.addAttribute("username", username);
 		model.addAttribute("password", passwd);
 		return "/auth/login";
 	}
