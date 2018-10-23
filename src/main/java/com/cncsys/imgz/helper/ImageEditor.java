@@ -6,11 +6,22 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
 
 @Component
 public class ImageEditor {
@@ -88,5 +99,76 @@ public class ImageEditor {
 		g2d.drawRenderedImage(source, at);
 		g2d.dispose();
 		return scaled;
+	}
+
+	public BufferedImage rotateImage(File img) throws IOException, ImageProcessingException, MetadataException {
+		BufferedImage srcImage = ImageIO.read(img);
+
+		Metadata metadata = ImageMetadataReader.readMetadata(img);
+		if (metadata != null) {
+			if (metadata.containsDirectoryOfType(ExifIFD0Directory.class)) {
+				Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+				int orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+
+				int width = srcImage.getWidth();
+				int height = srcImage.getHeight();
+				int temp = 0;
+
+				AffineTransform at = new AffineTransform();
+				switch (orientation) {
+				case 1: // Normal
+					return srcImage;
+				case 2: // Flip X
+					at.scale(-1.0, 1.0);
+					at.translate(-width, 0);
+					break;
+				case 3: // PI rotation
+					at.translate(width, height);
+					at.rotate(Math.PI);
+					break;
+				case 4: // Flip Y
+					at.scale(1.0, -1.0);
+					at.translate(0, -height);
+					break;
+				case 5: // - PI/2 and Flip X
+					at.rotate(-Math.PI / 2);
+					at.scale(-1.0, 1.0);
+					temp = width;
+					width = height;
+					height = temp;
+					break;
+				case 6: // -PI/2 and -width
+					at.translate(height, 0);
+					at.rotate(Math.PI / 2);
+					temp = width;
+					width = height;
+					height = temp;
+					break;
+				case 7: // PI/2 and Flip
+					at.scale(-1.0, 1.0);
+					at.rotate(Math.PI / 2);
+					at.translate(width, height);
+					at.rotate(Math.PI);
+					temp = width;
+					width = height;
+					height = temp;
+					break;
+				case 8: // PI / 2
+					at.translate(0, width);
+					at.rotate(3 * Math.PI / 2);
+					temp = width;
+					width = height;
+					height = temp;
+					break;
+				}
+
+				AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+				BufferedImage dstImage = new BufferedImage(width, height, srcImage.getType());
+				op.filter(srcImage, dstImage);
+				return dstImage;
+			}
+		}
+
+		return srcImage;
 	}
 }

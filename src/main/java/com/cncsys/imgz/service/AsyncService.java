@@ -40,7 +40,7 @@ public class AsyncService {
 			try {
 				File original = new File(photo);
 				File thumbnail = new File(original.getParent() + "/" + "thumbnail_" + original.getName());
-				BufferedImage scaled = imageEditor.getThumbnail(ImageIO.read(original));
+				BufferedImage scaled = imageEditor.getThumbnail(imageEditor.rotateImage(original));
 				ImageIO.write(scaled, "jpeg", thumbnail);
 			} catch (Exception e) {
 				logger.warn("Exception", e);

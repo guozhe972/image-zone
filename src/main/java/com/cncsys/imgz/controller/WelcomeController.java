@@ -47,12 +47,12 @@ public class WelcomeController {
 	}
 
 	@GetMapping("/about/terms")
-	public String siteTerms() {
-		return "/about/terms";
+	public String siteTerms(Locale locale) {
+		return "/about/terms_" + locale.getLanguage().toLowerCase();
 	}
 
 	@GetMapping("/about/privacy")
-	public String privacyPolicy() {
-		return "/about/privacy";
+	public String privacyPolicy(Locale locale) {
+		return "/about/privacy_" + locale.getLanguage().toLowerCase();
 	}
 }
