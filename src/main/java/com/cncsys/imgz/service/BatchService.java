@@ -76,13 +76,13 @@ public class BatchService {
 				logger.info("init folder: [{}], [{}]", username, seq);
 
 				// clear db
-				folderMapper.updateShared(username, entity.getSeq(), false, null, DateTime.now());
-				folderMapper.updateFolder(username, entity.getSeq(), "");
+				folderMapper.initFolder(username, entity.getSeq(), DateTime.now());
 				String guest = entity.getGuest();
 				AccountEntity account = new AccountEntity();
 				account.setUsername(guest);
 				account.setPassword(passwordEncoder.encode(guest));
 				account.setEnabled(false);
+				account.setCreatedt(LocalDate.now().toDateTimeAtStartOfDay());
 				account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 				accountMapper.updateAccount(account);
 				photoMapper.deleteByFolder(username, entity.getSeq());

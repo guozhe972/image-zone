@@ -13,6 +13,14 @@
 		#{email} and charged = #{charged}
 	</select>
 
+	<select id="selectByNumber" resultType="OrderEntity">
+		select orderno, email,
+		username, folder, thumbnail, original, filename,
+		price, createdt,
+		charged, expiredt from "order" where orderno =
+		#{orderno}
+	</select>
+
 	<select id="selectByDownload" resultType="OrderEntity">
 		select orderno, email,
 		username, folder, thumbnail, original, price,

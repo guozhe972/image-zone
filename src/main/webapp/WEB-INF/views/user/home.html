@@ -362,6 +362,10 @@ label.custom-file-label::after {
 						name="price" th:value="*{price}" />
 					<div class="form-group mb-2 d-flex justify-content-between">
 						<div class="text-truncate" style="max-width: 300px;">
+							<th:block th:if="*{shared}">
+								<span class="text-warning"><i
+									class="fas fa-share-alt-square"></i></span>&nbsp;
+							</th:block>
 							<a th:id="|lnkName*{seq}|" class="text-folder" tabindex="-1"
 								href="javascript:;"
 								th:onclick="|$('#name').val($(this).text());$('#seq').val(*{seq});|"
@@ -394,17 +398,17 @@ label.custom-file-label::after {
 						<a class="btn btn-warning w-100 text-none-xs ml-sm-3 rounded-sm"
 							th:onclick="|return checkFolder(*{seq});|"
 							th:href="@{|/user/folder/*{seq}|}" role="button"> <i
-							class="fas fa-yen-sign"></i><span>&nbsp;[[#{label.user.price}]]</span>
-						</a> <a class="btn w-100 text-none-xs ml-sm-3 rounded-sm"
-							th:classappend="*{shared}?'btn-success':'btn-secondary disabled'"
-							th:href="@{|/user/sales/*{seq}|}" role="button"> <i
-							class="fas fa-piggy-bank"></i><span>&nbsp;[[#{label.user.sales}]]</span>
+							class="fas fa-images"></i><span>&nbsp;[[#{label.user.price}]]</span>
+						</a> <a class="btn btn-success w-100 text-none-xs ml-sm-3 rounded-sm"
+							th:href="@{|/user/share/*{seq}|}" role="button"> <i
+							class="fas fa-share-alt"></i><span>&nbsp;<th:block
+									th:text="*{shared}?#{label.user.info}:#{label.user.share}"></th:block></span>
 						</a>
 						<button type="button"
 							class="btn btn-danger w-100 text-none-xs ml-sm-3 rounded-sm"
 							th:onclick="|$('#folder').val(*{seq});|" data-toggle="modal"
 							data-target="#mdlClear">
-							<i class="fas fa-trash-alt"></i><span>&nbsp;[[#{label.user.init}]]</span>
+							<i class="fas fa-recycle"></i><span>&nbsp;[[#{label.user.init}]]</span>
 						</button>
 					</div>
 				</form>

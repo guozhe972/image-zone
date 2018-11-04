@@ -5,6 +5,7 @@ import java.util.Locale;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.http.CacheControl;
@@ -72,10 +73,13 @@ public class AuthController {
 		AccountEntity account = accountService.getAccountInfo(username);
 		if (account != null) {
 			if (account.getAuthority() == Authority.USER && account.isEnabled()) {
-				String[] param = new String[1];
-				String link = "/auth/reset/" + account.getUsername() + "/" + codeParser.encrypt(account.getPassword());
-				param[0] = builder.path(link).build().toUriString();
-				mailHelper.sendForgotPass(account.getEmail(), param);
+				LocalDate expiredt = account.getExpiredt();
+				if (expiredt == null || !LocalDate.now().isAfter(expiredt)) {
+					String[] param = new String[1];
+					String link = "/auth/reset/" + account.getUsername() + "/" + codeParser.encrypt(account.getPassword());
+					param[0] = builder.path(link).build().toUriString();
+					mailHelper.sendForgotPass(account.getEmail(), param);
+				}
 			}
 		}
 		return ResponseEntity.ok()

@@ -21,9 +21,6 @@ public class FolderForm {
 	public static interface Share {
 	};
 
-	public static interface Plans {
-	};
-
 	private int seq;
 	private String username;
 	private String name;

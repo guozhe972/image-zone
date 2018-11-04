@@ -79,8 +79,6 @@ public class SignupController {
 		return "/auth/signup";
 	}
 
-	//@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	//public @ResponseBody SignupForm check(@RequestBody Map<String, Object> json) {
 	@PostMapping(path = "/check", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
 	public @ResponseBody String check(@RequestBody Map<String, Object> json) {
 		return String.valueOf(accountService.isExistUser(json.get("username").toString()));

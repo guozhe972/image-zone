@@ -13,6 +13,8 @@ public interface FolderMapper {
 
 	List<FolderEntity> selectByUser(@Param("username") String username);
 
+	List<FolderEntity> selectByShared(@Param("username") String username);
+
 	Cursor<FolderEntity> selectByExpiry(@Param("expiredt") LocalDate expiredt);
 
 	FolderEntity selectFolder(@Param("username") String username, @Param("seq") int seq);
@@ -26,8 +28,10 @@ public interface FolderMapper {
 
 	int updateLocked(@Param("username") String username, @Param("seq") int seq, @Param("locked") boolean locked);
 
-	int updateShared(@Param("username") String username, @Param("seq") int seq,
-			@Param("shared") boolean shared, @Param("cipher") String cipher, @Param("createdt") DateTime createdt);
+	int shareFolder(@Param("username") String username, @Param("seq") int seq, @Param("cipher") String cipher,
+			@Param("createdt") DateTime createdt);
+
+	int initFolder(@Param("username") String username, @Param("seq") int seq, @Param("createdt") DateTime createdt);
 
 	String updateFolder(@Param("username") String username, @Param("seq") int seq, @Param("name") String name);
 }

@@ -1,0 +1,179 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/base}">
+<head>
+<title>[[#{title.admin}]]</title>
+<style>
+html {
+	height: 100%;
+}
+</style>
+<script>
+	$(function() {
+		$('#btnSearch')
+				.click(
+						function() {
+							if ($("#orderno").prop('readonly')) {
+								// reset
+								$("#orderno").prop('readonly', false);
+								$("#orderno").val('');
+								$('#email').text('');
+								$('#amount').text('');
+								$('#status').text('');
+								$('#btnSearch').text(
+										'[(#{label.order.search})]');
+								$('#btnCharged').prop('disabled', true);
+								$("#orderno").focus();
+								return;
+							}
+
+							if (!isValidForm()) {
+								return;
+							}
+
+							$
+									.ajax(
+											{
+												url : '[(@{/admin/search})]',
+												method : 'POST',
+												headers : {
+													'[(${_csrf.headerName})]' : '[(${_csrf.token})]'
+												},
+												cache : false,
+												contentType : "application/json",
+												data : JSON.stringify({
+													orderno : $('#orderno')
+															.val()
+												})
+											})
+									.done(
+											function(data, textStatus, jqXHR) {
+												if (data.orderno != null) {
+													$("#orderno").prop(
+															'readonly', true);
+													$('#btnSearch')
+															.text(
+																	'[(#{label.order.cancel})]');
+													$('#email')
+															.text(data.email);
+													$('#amount')
+															.text(
+																	data.amount
+																			.toString()
+																			.replace(
+																					/(\d)(?=(\d{3})+$)/g,
+																					'$1,')
+																			+ '[(#{money.unit})]');
+													if (data.charged) {
+														$('#status')
+																.text(
+																		'[(#{label.order.charged})]');
+													} else {
+														$('#status')
+																.text(
+																		'[(#{label.order.uncharge})]');
+													}
+													$('#btnCharged').prop(
+															'disabled', false);
+												} else {
+													$('#orderno').addClass(
+															'is-invalid');
+													$('#grpOrderno')
+															.after(
+																	$(
+																			'<div/>',
+																			{
+																				'class' : 'invalid-feedback d-block',
+																				text : '[(#{error.order.none})]'
+																			}));
+												}
+											});
+						});
+
+		function isValidForm() {
+			var isValid = true;
+			$('.is-invalid').removeClass('is-invalid');
+			$('.invalid-feedback').remove();
+
+			if ($('#orderno').val().length != 20) {
+				$('#orderno').addClass('is-invalid');
+				$('#grpOrderno').after($('<div/>', {
+					'class' : 'invalid-feedback d-block',
+					text : '[(#{validation.order.number})]'
+				}));
+				isValid = false;
+			}
+
+			return isValid;
+		}
+
+		$('#fomOrder').submit(function(event) {
+			if (!isValidForm()) {
+				event.preventDefault();
+				event.stopPropagation();
+			} else {
+				$('#mdlWaiting').modal('show');
+			}
+		});
+	});
+</script>
+</head>
+<body layout:fragment="body"
+	class="pt-header d-flex align-items-start align-items-md-center">
+	<header layout:insert="~{layout/parts/header::admin(1)}"
+		class="fixed-top bg-header"></header>
+	<th:block layout:replace="~{layout/parts/dialog::logout}" />
+
+	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
+	<div class="container bg-main pb-md-5 my-md-auto">
+		<th:block layout:replace="~{layout/parts/alert::info}" />
+		<th:block layout:replace="~{layout/parts/alert::error}" />
+		<form id="fomOrder" class="mw-content mx-auto py-3" novalidate
+			th:action="@{/admin/charge}" method="post" autocomplete="off">
+			<h4>[[#{header.order}]]</h4>
+			<hr>
+			<div class="form-group row">
+				<label for="grpOrderno"
+					class="col-sm-4 col-form-label text-sm-right">[[#{label.order.number}]]</label>
+				<div class="col-sm-8">
+					<div id="grpOrderno" class="input-group">
+						<input type="number" id="orderno" name="orderno"
+							class="form-control num-only rounded-left" pattern="[0-9]+"
+							maxlength="20" autofocus required />
+						<div class="input-group-append">
+							<button type="button" id="btnSearch"
+								class="btn btn-info rounded-right">[[#{label.order.search}]]</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="email" class="col-sm-4 col-form-label text-sm-right">[[#{label.order.email}]]</label>
+				<div class="col-sm-8">
+					<span id="email" class="form-control readonly"></span>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="amount" class="col-sm-4 col-form-label text-sm-right">[[#{label.order.amount}]]</label>
+				<div class="col-sm-8">
+					<span id="amount" class="form-control readonly"></span>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="status" class="col-sm-4 col-form-label text-sm-right">[[#{label.order.status}]]</label>
+				<div class="col-sm-8">
+					<span id="status" class="form-control readonly"></span>
+				</div>
+			</div>
+			<div class="form-group row mb-0">
+				<div class="offset-sm-4 col-sm-8">
+					<button id="btnCharged" type="submit"
+						class="btn btn-primary btn-block-xs" style="width: 150px;"
+						disabled>[[#{label.order.button}]]</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

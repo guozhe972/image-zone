@@ -31,7 +31,7 @@
 	<update id="updateAccount" parameterType="AccountEntity">
 		update account set
 		password = #{password}, email = #{email}, enabled =
-		#{enabled},
+		#{enabled}, createdt = #{createdt},
 		expiredt = #{expiredt} where username = #{username}
 	</update>
 
@@ -39,6 +39,12 @@
 		update account set vip = true where username =
 		#{username} or username like '${username}.%'
 	</update>
+
+	<select id="updateExpiredt" resultType="String">
+		update account set
+		expiredt = #{expiredt} where username = #{username}
+		returning email
+	</select>
 
 	<select id="updatePassword" resultType="String">
 		update account set

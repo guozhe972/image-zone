@@ -43,6 +43,7 @@
 			var self = this;
 			this.$targets.each(function(i) {
 				$(this).click(function(e) {
+					$('body').addClass('iv-open');
 					self.show(i);
 					return false;
 				});
@@ -61,6 +62,7 @@
 			this.$targets.each(function(i) {
 				$(this).off('click');
 				$(this).click(function(e) {
+					$('body').addClass('iv-open');
 					self.show(i);
 					return false;
 				});
@@ -78,6 +80,7 @@
 
 		this.hide = function() {
 			this.$viewer.fadeOut(100);
+			$('body').removeClass('iv-open');
 		}
 
 		this.keydown = function(e) {

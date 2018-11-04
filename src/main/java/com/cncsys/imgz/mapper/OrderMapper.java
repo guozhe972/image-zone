@@ -13,6 +13,8 @@ public interface OrderMapper {
 	List<OrderEntity> selectOrder(@Param("orderno") String orderno, @Param("email") String email,
 			@Param("charged") boolean charged);
 
+	List<OrderEntity> selectByNumber(@Param("orderno") String orderno);
+
 	List<OrderEntity> selectByDownload(@Param("orderno") String orderno, @Param("email") String email,
 			@Param("expiredt") LocalDate expiredt);
 

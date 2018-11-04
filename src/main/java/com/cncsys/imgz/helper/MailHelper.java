@@ -60,6 +60,20 @@ public class MailHelper {
 			mailSender.send(mail);
 	}
 
+	public void sendVipUpgrade(String to, String[] param) {
+		Locale locale = LocaleContextHolder.getLocale();
+		String subject = messageSource.getMessage("email.upgrade.subject", null, locale);
+		String text = messageSource.getMessage("email.upgrade.message", param, locale);
+
+		SimpleMailMessage mail = new SimpleMailMessage();
+		mail.setFrom(MAIL_FROM);
+		mail.setTo(to);
+		mail.setSubject(subject);
+		mail.setText(text);
+		if (MAIL_SEND)
+			mailSender.send(mail);
+	}
+
 	public void sendChangeSuccess(String to, String[] param) {
 		Locale locale = LocaleContextHolder.getLocale();
 		String subject = messageSource.getMessage("email.change.subject", null, locale);

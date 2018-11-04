@@ -42,6 +42,12 @@ public class FolderService {
 	}
 
 	@Transactional(readOnly = true)
+	public List<FolderEntity> getSharedFolders(String username) {
+		List<FolderEntity> result = folderMapper.selectByShared(username);
+		return result;
+	}
+
+	@Transactional(readOnly = true)
 	public FolderEntity getUserFolder(String username, int seq) {
 		FolderEntity folder = folderMapper.selectFolder(username, seq);
 		return folder;
@@ -54,9 +60,7 @@ public class FolderService {
 
 	@Transactional
 	public void createFolder(String username, String foldername, boolean vip) {
-		DateTime sysnow = DateTime.now();
-
-		int seq = folderMapper.insertFolder(username, foldername, sysnow);
+		int seq = folderMapper.insertFolder(username, foldername, DateTime.now());
 		String guest = username + "." + String.format("%02d", seq);
 
 		AccountEntity account = new AccountEntity();
@@ -64,7 +68,7 @@ public class FolderService {
 		account.setPassword(passwordEncoder.encode(guest));
 		account.setEmail(null);
 		account.setAuthority(Authority.GUEST);
-		account.setCreatedt(sysnow);
+		account.setCreatedt(LocalDate.now().toDateTimeAtStartOfDay());
 		account.setEnabled(false);
 		account.setVip(vip);
 		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
@@ -74,8 +78,9 @@ public class FolderService {
 	}
 
 	@Transactional
-	public void shareFolder(String username, int seq, String password, LocalDate expiredt) {
-		folderMapper.updateShared(username, seq, true, password, DateTime.now());
+	public void shareFolder(String username, int seq, String password,
+			LocalDate plansdt, LocalDate expiredt) {
+		folderMapper.shareFolder(username, seq, password, DateTime.now());
 		String guest = username + "." + String.format("%02d", seq);
 
 		AccountEntity account = new AccountEntity();
@@ -86,20 +91,21 @@ public class FolderService {
 			account.setPassword(passwordEncoder.encode(password));
 		}
 		account.setEnabled(true);
+		account.setCreatedt(plansdt.toDateTimeAtStartOfDay());
 		account.setExpiredt(expiredt);
 		accountMapper.updateAccount(account);
 	}
 
 	@Transactional
 	public void initFolder(String username, int seq) {
-		folderMapper.updateShared(username, seq, false, null, DateTime.now());
-		folderMapper.updateFolder(username, seq, "");
+		folderMapper.initFolder(username, seq, DateTime.now());
 		String guest = username + "." + String.format("%02d", seq);
 
 		AccountEntity account = new AccountEntity();
 		account.setUsername(guest);
 		account.setPassword(passwordEncoder.encode(guest));
 		account.setEnabled(false);
+		account.setCreatedt(LocalDate.now().toDateTimeAtStartOfDay());
 		account.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 		accountMapper.updateAccount(account);
 

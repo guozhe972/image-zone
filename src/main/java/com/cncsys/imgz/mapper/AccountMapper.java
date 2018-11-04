@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import org.apache.ibatis.annotations.Param;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 
 import com.cncsys.imgz.entity.AccountEntity;
 
@@ -20,6 +21,8 @@ public interface AccountMapper {
 	int updateAccount(AccountEntity account);
 
 	int updateVip(@Param("username") String username);
+
+	String updateExpiredt(@Param("username") String username, @Param("expiredt") LocalDate expiredt);
 
 	String updatePassword(@Param("username") String username, @Param("password") String password);
 

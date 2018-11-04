@@ -12,7 +12,19 @@
 		folder left join account on
 		folder.guest = account.username where
 		folder.username = #{username}
-		order by folder.seq desc
+		order by folder.createdt desc, folder.seq desc
+	</select>
+
+	<select id="selectByShared" resultType="FolderEntity">
+		select folder.username,
+		folder.seq, folder.name, folder.locked,
+		folder.shared, folder.guest, folder.cipher,
+		account.createdt, account.expiredt from
+		folder left join account on
+		folder.guest = account.username where
+		folder.username = #{username}
+		and folder.shared = true
+		order by folder.seq
 	</select>
 
 	<select id="selectByExpiry" resultType="FolderEntity">
@@ -29,8 +41,8 @@
 	<select id="selectFolder" resultType="FolderEntity">
 		select folder.username,
 		folder.seq, folder.name, folder.locked,
-		folder.shared, folder.guest,
-		folder.cipher, account.expiredt from
+		folder.shared, folder.guest, folder.cipher,
+		account.createdt, account.expiredt from
 		folder left join account on
 		folder.guest = account.username where
 		folder.username = #{username} and
@@ -61,9 +73,16 @@
 		#{seq}
 	</update>
 
-	<update id="updateShared">
-		update folder set shared = #{shared}, cipher =
+	<update id="shareFolder">
+		update folder set shared = true, cipher =
 		#{cipher}, createdt =
+		#{createdt} where username = #{username} and seq
+		= #{seq}
+	</update>
+
+	<update id="initFolder">
+		update folder set shared = false, cipher =
+		null, name = '', createdt =
 		#{createdt} where username = #{username} and seq
 		= #{seq}
 	</update>

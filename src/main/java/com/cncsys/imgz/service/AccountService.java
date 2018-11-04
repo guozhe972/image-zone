@@ -77,6 +77,7 @@ public class AccountService {
 		account.setEnabled(true);
 		account.setVip(false);
 		if (accountMapper.insertAccount(account) > 0) {
+			DateTime createdt = LocalDate.now().toDateTimeAtStartOfDay();
 			LocalDate expiredt = LocalDate.now().plusDays(EXPIRED_DAYS / 2);
 			for (int i = 0; i < FOLDER_COUNT; i++) {
 				int seq = folderMapper.insertFolder(username, "", sysnow);
@@ -86,7 +87,7 @@ public class AccountService {
 				account.setPassword(passwordEncoder.encode(guest));
 				account.setEmail(null);
 				account.setAuthority(Authority.GUEST);
-				account.setCreatedt(sysnow);
+				account.setCreatedt(createdt);
 				account.setEnabled(false);
 				account.setVip(false);
 				account.setExpiredt(expiredt);
@@ -116,7 +117,12 @@ public class AccountService {
 	}
 
 	@Transactional
-	public int updateVip(String username) {
-		return accountMapper.updateVip(username);
+	public String updateVip(String username, LocalDate expiredt) {
+		int result = accountMapper.updateVip(username);
+		if (result > 0) {
+			return accountMapper.updateExpiredt(username, expiredt);
+		} else {
+			return null;
+		}
 	}
 }

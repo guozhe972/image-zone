@@ -96,3 +96,4 @@ CREATE INDEX transfer_idx1 ON transfer (username);
 INSERT INTO account(
     username, password, email, authority, createdt, enabled)
     VALUES ('admin', '$2a$10$u150rp5eJSHI7t/T9Y1Jne4rdZPxzkelqtyplkb25LSmjZIVplDi.', NULL, 'ADMIN', CURRENT_TIMESTAMP, true);
+--UPDATE account SET password = '' WHERE username = 'admin';

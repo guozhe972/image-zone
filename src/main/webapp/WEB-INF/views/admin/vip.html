@@ -4,13 +4,36 @@
 	layout:decorate="~{layout/base}">
 <head>
 <title>[[#{title.admin}]]</title>
+<link rel="stylesheet" th:href="@{/css/flatpickr.css}">
+<script th:src="@{/js/flatpickr.min.js}"></script>
+<script th:if="${#locale.language}=='ja'"
+	th:src="@{/js/flatpickr.ja.js}"></script>
+<script th:if="${#locale.language}=='zh'"
+	th:src="@{/js/flatpickr.zh.js}"></script>
 <style>
 html {
 	height: 100%;
 }
+
+#expiredt[readonly] {
+	background-color: #fff !important;
+}
 </style>
 <script>
 	$(function() {
+		flatpickr('#grpExpiredt', {
+			locale : '[(${#locale.language})]',
+			dateFormat : 'Y-m-d',
+			allowInput : false,
+			disableMobile : false,
+			prevArrow : '<i class="fas fa-chevron-left"></i>',
+			nextArrow : '<i class="fas fa-chevron-right"></i>',
+			minDate : '[(${minExpiredt})]',
+			maxDate : '[(${maxExpiredt})]',
+			defaultDate : '[(${expiredt})]',
+			wrap : true
+		});
+
 		function isValidForm() {
 			var isValid = true;
 			$('.is-invalid').removeClass('is-invalid');
@@ -59,6 +82,24 @@ html {
 				<div class="col-sm-8">
 					<input type="text" id="usernm" name="usernm" class="form-control"
 						maxlength="20" autofocus required />
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="grpExpiredt"
+					class="col-sm-4 col-form-label text-sm-right">[[#{label.vip.expiredt}]]</label>
+				<div class="col-sm-8">
+					<div id="grpExpiredt" class="input-group">
+						<input type="date" id="expiredt" name="expiredt"
+							class="form-control rounded-left" th:min="${minExpiredt}"
+							th:max="${maxExpiredt}" pattern="[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}"
+							maxlength="10" data-input required />
+						<div class="input-group-append">
+							<button type="button" class="btn btn-info rounded-right"
+								data-toggle>
+								<i class="fas fa-calendar-alt"></i>
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="form-group row mb-0">

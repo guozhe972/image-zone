@@ -54,7 +54,6 @@ import com.cncsys.imgz.model.BankForm;
 import com.cncsys.imgz.model.ChangeForm;
 import com.cncsys.imgz.model.ChangeForm.Input;
 import com.cncsys.imgz.model.FolderForm;
-import com.cncsys.imgz.model.FolderForm.Plans;
 import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
 import com.cncsys.imgz.model.LoginUser;
@@ -333,9 +332,6 @@ public class UserController {
 			view = "/vip/folder";
 		}
 
-		FolderEntity folder = folderService.getUserFolder(user.getUsername(), seq);
-		model.addAttribute("shared", folder.isShared());
-
 		List<PhotoForm> photos = new ArrayList<PhotoForm>();
 		List<PhotoEntity> entity = photoService.getPhotosByFolder(user.getUsername(), seq);
 		for (PhotoEntity photo : entity) {
@@ -412,9 +408,9 @@ public class UserController {
 			qrcode.setName(folder.getName());
 			qrcode.setGuest(folder.getGuest());
 			qrcode.setPassword(folder.getCipher());
+			qrcode.setPlansdt(folder.getCreatedt().toLocalDate());
 			qrcode.setExpiredt(folder.getExpiredt());
 			model.addAttribute("qrcode", qrcode);
-
 			model.addAttribute("loginurl", builder.cloneBuilder().path("/auth/signin").build().toUriString());
 
 			String qrcodeurl = builder.cloneBuilder()
@@ -431,6 +427,7 @@ public class UserController {
 			} catch (Exception e) {
 				logger.warn("Exception", e);
 			}
+			model.addAttribute("qrcodeurl", qrcodeurl);
 			model.addAttribute("qrcodeimg", qrcodeimg);
 			return "/user/qrcode";
 		} else {
@@ -440,12 +437,19 @@ public class UserController {
 				form.setName(folder.getName());
 				form.setGuest(folder.getGuest());
 				form.setPassword("");
+				form.setPlansdt(LocalDate.now());
 				form.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 				model.addAttribute("folderForm", form);
+				model.addAttribute("minExpiredt", LocalDate.now());
+				model.addAttribute("maxExpiredt", LocalDate.now().plusDays(EXPIRED_DAYS));
+			} else {
+				FolderForm form = (FolderForm) model.asMap().get("folderForm");
+				model.addAttribute("minExpiredt", form.getPlansdt());
+				model.addAttribute("maxExpiredt", form.getPlansdt().plusDays(EXPIRED_DAYS));
 			}
 
-			model.addAttribute("mindt", LocalDate.now());
-			model.addAttribute("maxdt", LocalDate.now().plusDays(EXPIRED_DAYS));
+			model.addAttribute("minPlansdt", LocalDate.now());
+			model.addAttribute("maxPlansdt", LocalDate.now().plusDays(EXPIRED_DAYS / 2));
 			return "/user/share";
 		}
 	}
@@ -476,14 +480,16 @@ public class UserController {
 			return "redirect:/user/share/" + String.valueOf(form.getSeq());
 		}
 
-		folderService.shareFolder(user.getUsername(), form.getSeq(), form.getPassword(), form.getExpiredt());
+		folderService.shareFolder(user.getUsername(), form.getSeq(), form.getPassword(),
+				form.getPlansdt(), form.getExpiredt());
 
-		String[] param = new String[5];
+		String[] param = new String[6];
 		param[0] = folderName;
 		param[1] = user.getUsername() + "." + String.format("%02d", form.getSeq());
 		param[2] = form.getPassword();
-		param[3] = form.getExpiredt().toString();
-		param[4] = builder.path("/login/" + user.getUsername() + "/" + String.format("%02d", form.getSeq()) + "/"
+		param[3] = form.getPlansdt().toString();
+		param[4] = form.getExpiredt().toString();
+		param[5] = builder.path("/login/" + user.getUsername() + "/" + String.format("%02d", form.getSeq()) + "/"
 				+ codeParser.queryEncrypt(form.getPassword())).build().toUriString();
 		mailHelper.sendShareFolder(user.getEmail(), param);
 
@@ -491,14 +497,28 @@ public class UserController {
 	}
 
 	@GetMapping("/sales/{seq}")
-	public String sales(@PathVariable("seq") int seq, Model model) {
+	public String sales(@PathVariable("seq") int seq, Model model, Locale locale) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		LoginUser user = (LoginUser) auth.getPrincipal();
 
+		String prefix = messageSource.getMessage("default.folder.name", null, locale);
+		Map<Integer, String> folders = new LinkedHashMap<Integer, String>();
+		folders.put(0, messageSource.getMessage("select.content", null, locale));
+		List<FolderEntity> entFolder = folderService.getSharedFolders(user.getUsername());
+		for (FolderEntity folder : entFolder) {
+			String folderName = folder.getName();
+			if (folderName == null || folderName.isEmpty()) {
+				folderName = prefix + String.format("%02d", folder.getSeq());
+			}
+			folders.put(folder.getSeq(), folderName);
+		}
+		model.addAttribute("folders", folders);
+		model.addAttribute("seq", seq);
+
 		int total = 0;
 		List<OrderForm> orders = new ArrayList<OrderForm>();
-		List<OrderEntity> entity = orderService.getOrderByFolder(user.getUsername(), seq);
-		for (OrderEntity order : entity) {
+		List<OrderEntity> entOrder = orderService.getOrderByFolder(user.getUsername(), seq);
+		for (OrderEntity order : entOrder) {
 			OrderForm form = new OrderForm();
 			form.setUsername(order.getUsername());
 			form.setFolder(order.getFolder());
@@ -673,94 +693,5 @@ public class UserController {
 		param[1] = form.getPassword();
 		mailHelper.sendChangeSuccess(email, param);
 		return "redirect:/user/change?info";
-	}
-
-	@GetMapping("/plans")
-	public String plans(Model model, Locale locale) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		LoginUser user = (LoginUser) auth.getPrincipal();
-
-		if (!model.containsAttribute("folderForm")) {
-			FolderForm form = new FolderForm();
-			form.setSeq(0);
-			form.setPassword("");
-			form.setPlansdt(LocalDate.now());
-			form.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
-			model.addAttribute("folderForm", form);
-			model.addAttribute("minExpiredt", LocalDate.now());
-			model.addAttribute("maxExpiredt", LocalDate.now().plusDays(EXPIRED_DAYS));
-		} else {
-			FolderForm form = (FolderForm) model.asMap().get("folderForm");
-			model.addAttribute("minExpiredt", form.getPlansdt());
-			model.addAttribute("maxExpiredt", form.getPlansdt().plusDays(EXPIRED_DAYS));
-		}
-
-		model.addAttribute("minPlansdt", LocalDate.now());
-		model.addAttribute("maxPlansdt", LocalDate.now().plusDays(EXPIRED_DAYS));
-
-		String prefix = messageSource.getMessage("default.folder.name", null, locale);
-		Map<Integer, String> folders = new LinkedHashMap<Integer, String>();
-		folders.put(0, messageSource.getMessage("select.content", null, locale));
-		List<FolderEntity> entity = folderService.getUserFolders(user.getUsername());
-		for (FolderEntity folder : entity) {
-			String folderName = folder.getName();
-			if (folderName == null || folderName.isEmpty()) {
-				folderName = prefix + String.format("%02d", folder.getSeq());
-			}
-			folders.put(folder.getSeq(), folderName);
-		}
-		model.addAttribute("folders", folders);
-
-		return "/user/plans";
-	}
-
-	@PostMapping("/generate")
-	public String generate(@ModelAttribute @Validated(Plans.class) FolderForm form,
-			BindingResult result, RedirectAttributes redirectAttributes) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		LoginUser user = (LoginUser) auth.getPrincipal();
-
-		if (result.hasErrors()) {
-			redirectAttributes.addFlashAttribute("folderForm", form);
-			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "folderForm", result);
-			return "redirect:/user/plans";
-		}
-
-		FolderForm qrcode = new FolderForm();
-		qrcode.setUsername(user.getUsername());
-		qrcode.setSeq(form.getSeq());
-		qrcode.setName(form.getName());
-		qrcode.setGuest(user.getUsername() + "." + String.format("%02d", form.getSeq()));
-		qrcode.setPassword(form.getPassword());
-		qrcode.setPlansdt(form.getPlansdt());
-		qrcode.setExpiredt(form.getExpiredt());
-		redirectAttributes.addFlashAttribute("qrcode", qrcode);
-		return "redirect:/user/qrcode";
-	}
-
-	@GetMapping("/qrcode")
-	public String qrcode(Model model, UriComponentsBuilder builder) {
-		if (!model.containsAttribute("qrcode")) {
-			return "redirect:/user/plans";
-		}
-
-		model.addAttribute("loginurl", builder.cloneBuilder().path("/auth/signin").build().toUriString());
-
-		FolderForm qrcode = (FolderForm) model.asMap().get("qrcode");
-		String qrcodeurl = builder.cloneBuilder()
-				.path("/login/" + qrcode.getUsername() + "/" + String.format("%02d", qrcode.getSeq()) + "/"
-						+ codeParser.queryEncrypt(qrcode.getPassword()))
-				.build().toUriString();
-		String qrcodeimg = null;
-		try (ByteArrayOutputStream bytStream = new ByteArrayOutputStream();) {
-			QRCodeWriter qrCodeWriter = new QRCodeWriter();
-			BitMatrix bitMatrix = qrCodeWriter.encode(qrcodeurl, BarcodeFormat.QR_CODE, QRCODE_WIDTH, QRCODE_HEIGHT);
-			MatrixToImageWriter.writeToStream(bitMatrix, "png", bytStream);
-			qrcodeimg = Base64.encodeBase64String(bytStream.toByteArray());
-		} catch (Exception e) {
-			logger.warn("Exception", e);
-		}
-		model.addAttribute("qrcodeimg", qrcodeimg);
-		return "/user/qrcode";
 	}
 }

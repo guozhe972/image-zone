@@ -1,3 +1,7 @@
+.iv-open {
+	overflow: hidden;
+}
+
 .imageview {
 	display: none;
 	position: fixed;

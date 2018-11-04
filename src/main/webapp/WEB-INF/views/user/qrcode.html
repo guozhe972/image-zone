@@ -36,7 +36,8 @@ html {
 			<hr class="mb-0-xs">
 			<div class="row">
 				<div class="col-sm-4 text-center">
-					<img id="qrcode" th:src="|data:image/png;base64,${qrcodeimg}|"
+					<span class="d-none" th:text="${qrcodeurl}"></span> <img
+						id="qrcode" th:src="|data:image/png;base64,${qrcodeimg}|"
 						alt="QRcdoe" />
 				</div>
 				<div class="col-sm-8">
@@ -55,8 +56,8 @@ html {
 							id="password" class="col-7 form-control-plaintext py-0"
 							th:text="${qrcode.password}"></span>
 					</div>
-					<div th:if="${qrcode.plansdt}" class="form-group row mb-0">
-						<label for="plansdt" class="col-5 col-form-label py-0">[[#{label.plans.plansdt}]]</label><span
+					<div class="form-group row mb-0">
+						<label for="plansdt" class="col-5 col-form-label py-0">[[#{label.share.plansdt}]]</label><span
 							id="plansdt" class="col-7 form-control-plaintext py-0"
 							th:text="${qrcode.plansdt}"></span>
 					</div>
@@ -109,9 +110,9 @@ html {
 								class="col-7 form-control-plaintext py-0"
 								th:text="${qrcode.password}"></span>
 						</div>
-						<div th:if="${qrcode.plansdt}" class="form-group row mb-0">
+						<div class="form-group row mb-0">
 							<label th:for="|plansdt${i*2+1}|"
-								class="col-5 col-form-label py-0">[[#{label.plans.plansdt}]]</label><span
+								class="col-5 col-form-label py-0">[[#{label.share.plansdt}]]</label><span
 								th:id="|plansdt${i*2+1}|"
 								class="col-7 form-control-plaintext py-0"
 								th:text="${qrcode.plansdt}"></span>
@@ -123,6 +124,11 @@ html {
 								class="col-7 form-control-plaintext py-0"
 								th:text="${qrcode.expiredt}"></span>
 						</div>
+					</div>
+				</div>
+				<div th:if="${#locale.language}=='zh'" class="row d-none">
+					<div class="col-8">
+						<small class="text-muted">[(#{message.qrcode.wechat})]</small>
 					</div>
 				</div>
 			</div>
@@ -155,9 +161,9 @@ html {
 								class="col-7 form-control-plaintext py-0"
 								th:text="${qrcode.password}"></span>
 						</div>
-						<div th:if="${qrcode.plansdt}" class="form-group row mb-0">
+						<div class="form-group row mb-0">
 							<label th:for="|plansdt${i*2+2}|"
-								class="col-5 col-form-label py-0">[[#{label.plans.plansdt}]]</label><span
+								class="col-5 col-form-label py-0">[[#{label.share.plansdt}]]</label><span
 								th:id="|plansdt${i*2+2}|"
 								class="col-7 form-control-plaintext py-0"
 								th:text="${qrcode.plansdt}"></span>
@@ -169,6 +175,11 @@ html {
 								class="col-7 form-control-plaintext py-0"
 								th:text="${qrcode.expiredt}"></span>
 						</div>
+					</div>
+				</div>
+				<div th:if="${#locale.language}=='zh'" class="row d-none">
+					<div class="col-8">
+						<small class="text-muted">[(#{message.qrcode.wechat})]</small>
 					</div>
 				</div>
 			</div>

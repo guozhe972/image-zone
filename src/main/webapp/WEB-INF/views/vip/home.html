@@ -286,6 +286,10 @@ label.custom-file-label::after {
 						name="price" th:value="*{price}" />
 					<div class="form-group mb-2 d-flex justify-content-between">
 						<div class="text-truncate" style="max-width: 300px;">
+							<th:block th:if="*{shared}">
+								<span class="text-warning"><i
+									class="fas fa-share-alt-square"></i></span>&nbsp;
+							</th:block>
 							<a th:id="|lnkName*{seq}|" class="text-folder" tabindex="-1"
 								href="javascript:;"
 								th:onclick="|$('#name').val($(this).text());$('#seq').val(*{seq});|"
@@ -328,7 +332,7 @@ label.custom-file-label::after {
 							class="btn btn-danger w-100 text-none-xs ml-sm-3 rounded-sm"
 							th:onclick="|$('#folder').val(*{seq});|" data-toggle="modal"
 							data-target="#mdlClear">
-							<i class="fas fa-trash-alt"></i><span>&nbsp;[[#{label.user.init}]]</span>
+							<i class="fas fa-recycle"></i><span>&nbsp;[[#{label.user.init}]]</span>
 						</button>
 					</div>
 				</form>
