@@ -39,13 +39,13 @@ html {
 			$('.is-invalid').removeClass('is-invalid');
 			$('.invalid-feedback').remove();
 
-			if ($('#usernm').val().length == 0) {
-				$('#usernm').addClass('is-invalid');
-				$('#usernm').after($('<div/>', {
+			if ($('#username').val().length == 0) {
+				$('#username').addClass('is-invalid');
+				$('#username').after($('<div/>', {
 					'class' : 'invalid-feedback',
 					text : '[(#{error.signin.username})]'
 				}));
-				$('#usernm').focus();
+				$('#username').focus();
 				isValid = false;
 			}
 
@@ -78,10 +78,10 @@ html {
 			<h4>[[#{header.vip}]]</h4>
 			<hr>
 			<div class="form-group row">
-				<label for="usernm" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.username}]]</label>
+				<label for="username" class="col-sm-4 col-form-label text-sm-right">[[#{label.signup.username}]]</label>
 				<div class="col-sm-8">
-					<input type="text" id="usernm" name="usernm" class="form-control"
-						maxlength="20" autofocus required />
+					<input type="text" id="username" name="username"
+						class="form-control" maxlength="20" autofocus required />
 				</div>
 			</div>
 			<div class="form-group row">

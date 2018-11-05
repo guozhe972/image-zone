@@ -10,6 +10,8 @@ import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -182,24 +184,25 @@ public class AdminController {
 	}
 
 	@PostMapping("/upgrade")
-	public String upgrade(@RequestParam("usernm") String usernm, @RequestParam("expiredt") LocalDate expiredt,
+	public String upgrade(@RequestParam("username") String username,
+			@RequestParam("expiredt") @DateTimeFormat(iso = ISO.DATE) LocalDate expiredt,
 			RedirectAttributes redirectAttributes, Locale locale) {
-		if (usernm == null || usernm.isEmpty()) {
+		if (username == null || username.isEmpty()) {
 			List<String> errors = new ArrayList<String>();
 			errors.add(messageSource.getMessage("error.signin.username", null, locale));
 			redirectAttributes.addFlashAttribute("errors", errors);
 			return "redirect:/admin/vip";
 		}
 
-		String email = accountService.updateVip(usernm, expiredt);
+		String email = accountService.updateVip(username, expiredt);
 		if (email != null) {
 			String[] param = new String[2];
-			param[0] = usernm;
+			param[0] = username;
 			param[1] = expiredt.toString();
 			mailHelper.sendVipUpgrade(email, param);
 
 			List<String> infos = new ArrayList<String>();
-			infos.add(messageSource.getMessage("info.vip.success", new Object[] { usernm }, locale));
+			infos.add(messageSource.getMessage("info.vip.success", new Object[] { username }, locale));
 			redirectAttributes.addFlashAttribute("infos", infos);
 		} else {
 			List<String> errors = new ArrayList<String>();
