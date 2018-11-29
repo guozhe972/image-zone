@@ -5,12 +5,22 @@
 <head>
 <title>[[#{title.guest}]]</title>
 <link rel="stylesheet" th:href="@{/css/imageview.css}">
+<link rel="stylesheet" th:href="@{/css/tippy.css}">
 <script th:src="@{/js/jquery.lazyload.min.js}"></script>
 <script th:src="@{/js/jquery.imageview.js}"></script>
+<script th:src="@{/js/tippy.min.js}"></script>
 <script>
 	$(function() {
 		$('img.lazyload').lazyload();
 		$('#imgView').imageview();
+
+		tippy.one('#tipExpiry', {
+			animation : 'fade',
+			arrow : true,
+			placement : 'bottom',
+			hideOnClick : true,
+			trigger : 'click'
+		});
 	});
 </script>
 </head>
@@ -21,6 +31,15 @@
 
 	<th:block layout:replace="~{layout/parts/dialog::waiting}" />
 	<div class="container-fluid bg-main">
+		<div class="pt-3 d-flex justify-content-start">
+			<div style="line-height: 38px; font-size: 110%;">
+				[[#{label.download.expiry}]]<span class="text-danger"
+					th:text="${expiredt}"></span>&nbsp;<span id="tipExpiry"
+					style="cursor: pointer" th:title="#{tooltip.download.expiry}"><i
+					class="fas fa-question-circle text-dark"></i></span>
+			</div>
+		</div>
+		<hr class="mb-0">
 		<div id="imgView" class="row pr-3 pb-3">
 			<div th:each="form,stat : ${photos}" th:object="${form}"
 				th:id="|photo${stat.count}|"

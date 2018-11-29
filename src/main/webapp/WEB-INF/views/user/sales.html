@@ -40,15 +40,13 @@
 			<script>
 				$('#selFolder').val('[(${seq})]');
 			</script>
+			<div th:if="${seq gt 0} and ${#lists.isEmpty(orders)}"
+				class="alert alert-info alert-dismissible fade show mt-3 mb-0"
+				role="alert">
+				<div>[(#{info.sales.none})]</div>
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
 		</div>
-		<!--/*
-		<div th:if="${#lists.isEmpty(orders)}"
-			class="alert alert-info alert-dismissible fade show mw-content mx-auto mt-3 mb-0"
-			role="alert">
-			<div>[(#{info.sales.none})]</div>
-			<button type="button" class="close" data-dismiss="alert">&times;</button>
-		</div>
-		*/-->
 		<ul id="imgView" class="list-group mw-content mx-auto py-3">
 			<li
 				class="list-group-item rounded-0 border-left-0 border-right-0 px-0 py-2"

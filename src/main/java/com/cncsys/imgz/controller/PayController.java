@@ -83,9 +83,9 @@ public class PayController {
 			params.put(name, valueStr);
 		}
 
-		String orderno = request.getParameter("out_trade_no");
+		String orderno = params.get("out_trade_no");
 		logger.info("order_no:" + orderno);
-		String token = request.getParameter("passback_params");
+		String token = params.get("passback_params");
 		String downlink = "/download/" + orderno + "/" + token;
 		String email = codeParser.decrypt(token);
 		logger.info("email_addr:" + email);
@@ -94,10 +94,10 @@ public class PayController {
 		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
 		if (signVerified) {
 			logger.info("alipay notify OK");
-			String appId = request.getParameter("app_id");
-			String sellerId = request.getParameter("seller_id");
+			String appId = params.get("app_id");
+			String sellerId = params.get("seller_id");
 			if (ALIPAY_APPID.equals(appId) && ALIPAY_SELLER.equals(sellerId)) {
-				String tradeStatus = request.getParameter("trade_status");
+				String tradeStatus = params.get("trade_status");
 				logger.info("trade_status:" + tradeStatus);
 				if (tradeStatus.equals("TRADE_FINISHED") || tradeStatus.equals("TRADE_SUCCESS")) {
 					int amount = 0;
@@ -106,7 +106,7 @@ public class PayController {
 						amount += entity.getPrice();
 					}
 
-					String totalAmount = request.getParameter("total_amount");
+					String totalAmount = params.get("total_amount");
 					logger.info("total_amount:" + totalAmount);
 					int total = Integer.parseInt(totalAmount.replace(".00", ""));
 					if (order.size() > 0 && total == amount) {

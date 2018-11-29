@@ -47,6 +47,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.cncsys.imgz.entity.OrderEntity;
@@ -61,7 +62,6 @@ import com.cncsys.imgz.service.AccountService;
 import com.cncsys.imgz.service.AsyncService;
 import com.cncsys.imgz.service.OrderService;
 import com.cncsys.imgz.service.PhotoService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.omise.Client;
 import co.omise.ClientException;
@@ -158,6 +158,7 @@ public class GuestController {
 		String[] guest = user.getUsername().split("\\.");
 		model.addAttribute("username", guest[0]);
 		model.addAttribute("folder", Integer.parseInt(guest[1]));
+		model.addAttribute("expiredt", user.getExpiredt());
 
 		List<PhotoForm> photos = new ArrayList<PhotoForm>();
 		List<PhotoEntity> entity = photoService.getPhotosByGuest(user.getUsername());
@@ -379,25 +380,33 @@ public class GuestController {
 		asyncService.makeThumbnail(photos);
 
 		// payment process (go to alipay)
+		AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
+		alipayRequest.setReturnUrl(
+				builder.cloneBuilder().path("/guest/alipay/" + codeParser.encrypt(email)).build().toUriString());
+		alipayRequest.setNotifyUrl(builder.cloneBuilder().path("/alipay/notify").build().toUriString());
+
+		//		Map<String, String> paramMap = new HashMap<>();
+		//		paramMap.put("out_trade_no", orderno);
+		//		paramMap.put("total_amount", String.valueOf(amount) + ".00");
+		//		paramMap.put("subject", ALIPAY_SUBJECT);
+		//		paramMap.put("passback_params", codeParser.encrypt(email));
+		//		paramMap.put("timeout_express", "20m");
+		//		paramMap.put("product_code", form.isMobile() ? "QUICK_WAP_PAY" : "FAST_INSTANT_TRADE_PAY");
+		//		ObjectMapper objMapper = new ObjectMapper();
+		//		alipayRequest.setBizContent(objMapper.writeValueAsString(paramMap));
+
+		AlipayTradePagePayModel alipayModel = new AlipayTradePagePayModel();
+		alipayModel.setOutTradeNo(orderno);
+		alipayModel.setTotalAmount(String.valueOf(amount) + ".00");
+		alipayModel.setSubject(ALIPAY_SUBJECT);
+		alipayModel.setPassbackParams(codeParser.encrypt(email));
+		alipayModel.setTimeoutExpress("20m");
+		alipayModel.setProductCode(form.isMobile() ? "QUICK_WAP_PAY" : "FAST_INSTANT_TRADE_PAY");
+		alipayRequest.setBizModel(alipayModel);
+
 		AlipayClient alipayClient = new DefaultAlipayClient(ALIPAY_GATEWAY, ALIPAY_APPID, ALIPAY_PRIVATE, "json",
 				"utf-8", ALIPAY_PUBLIC, "RSA2");
 
-		String returnUrl = builder.cloneBuilder().path("/guest/alipay/" + codeParser.encrypt(email)).build()
-				.toUriString();
-		String notifyUrl = builder.cloneBuilder().path("/alipay/notify").build().toUriString();
-		AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
-		alipayRequest.setReturnUrl(returnUrl);
-		alipayRequest.setNotifyUrl(notifyUrl);
-
-		Map<String, String> paramMap = new HashMap<>();
-		paramMap.put("out_trade_no", orderno);
-		paramMap.put("total_amount", String.valueOf(amount) + ".00");
-		paramMap.put("subject", ALIPAY_SUBJECT);
-		paramMap.put("passback_params", codeParser.encrypt(email));
-		paramMap.put("timeout_express", "20m");
-		paramMap.put("product_code", "FAST_INSTANT_TRADE_PAY");
-		ObjectMapper objMapper = new ObjectMapper();
-		alipayRequest.setBizContent(objMapper.writeValueAsString(paramMap));
 		String body = alipayClient.pageExecute(alipayRequest).getBody();
 		model.addAttribute("fomAlipay", body);
 		return "/guest/alipay";
@@ -421,7 +430,7 @@ public class GuestController {
 			params.put(name, valueStr);
 		}
 
-		String orderno = request.getParameter("out_trade_no");
+		String orderno = params.get("out_trade_no");
 		String downlink = "/download/" + orderno + "/" + token;
 
 		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
@@ -437,6 +446,109 @@ public class GuestController {
 		redirectAttributes.addFlashAttribute("orderno", orderno);
 		redirectAttributes.addFlashAttribute("downlink", downlink);
 		return "redirect:/guest/done";
+	}
+
+	@PostMapping("/wxpay")
+	public String wxpay(@ModelAttribute PayForm form, BindingResult result, Model model,
+			RedirectAttributes redirectAttributes, UriComponentsBuilder builder, Locale locale)
+			throws AlipayApiException, IOException {
+		@SuppressWarnings("unchecked")
+		List<PhotoForm> cart = (List<PhotoForm>) model.asMap().get(FORM_MODEL_KEY);
+		if (cart.isEmpty()) {
+			return "redirect:/guest/home";
+		}
+
+		String email = form.getEmail();
+		if (email == null) {
+			email = "";
+		} else {
+			email = email.trim();
+		}
+
+		if (email.isEmpty() || !email.matches(
+				"^(([0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*)|(\"[^\"]*\"))@[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+(\\.[0-9a-zA-Z!#\\$%&'\\*\\+\\-/=\\?\\^_`\\{\\}\\|~]+)*$")) {
+			result.rejectValue("email", "validation.signup.email");
+		}
+		if (result.hasErrors()) {
+			redirectAttributes.addFlashAttribute("payForm", form);
+			redirectAttributes.addFlashAttribute(BindingResult.MODEL_KEY_PREFIX + "payForm", result);
+			return "redirect:/guest/pay";
+		}
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LoginUser user = (LoginUser) auth.getPrincipal();
+		String[] guest = user.getUsername().split("\\.");
+		String username = guest[0];
+		int folder = Integer.parseInt(guest[1]);
+
+		// order info
+		int amount = 0;
+		String orderno = orderService.createNumber();
+		if (email.isEmpty()) {
+			email = orderno;
+		}
+
+		// copy photos to order folder
+		List<String> photos = new ArrayList<String>();
+		fileHelper.createDirectory(ORDER_PATH + "/" + orderno);
+		for (PhotoForm photo : cart) {
+			boolean hasError = false;
+			PhotoEntity entity = photoService.getPhoto(username, folder, photo.getThumbnail());
+			if (entity != null) {
+				if (photo.getPrice() == entity.getPrice()) {
+					try {
+						Path srcPath = Paths.get(ORIGINAL_PATH + "/" + entity.getUsername() + "/" +
+								String.valueOf(entity.getFolder()) + "/" + entity.getOriginal());
+						String destFile = ORDER_PATH + "/" + orderno + "/" + entity.getOriginal();
+						Files.copy(srcPath, Paths.get(destFile), StandardCopyOption.REPLACE_EXISTING);
+						photos.add(destFile);
+					} catch (IOException e) {
+						logger.warn("Exception", e);
+						hasError = true;
+						cart.remove(photo);
+					}
+				} else {
+					hasError = true;
+					photo.setPrice(entity.getPrice());
+				}
+			} else {
+				hasError = true;
+				cart.remove(photo);
+			}
+
+			if (hasError) {
+				// price changed. or photo deleted. or no disk space.
+				List<String> errors = new ArrayList<String>();
+				errors.add(messageSource.getMessage("error.photo.changed", null, locale));
+				redirectAttributes.addFlashAttribute("errors", errors);
+				return "redirect:/guest/pay";
+			} else {
+				amount += entity.getPrice();
+			}
+
+			// insert uncharged order
+			OrderEntity order = new OrderEntity();
+			order.setOrderno(orderno);
+			order.setEmail(email);
+			order.setUsername(entity.getUsername());
+			order.setFolder(entity.getFolder());
+			order.setThumbnail(entity.getThumbnail());
+			order.setOriginal(entity.getOriginal());
+			order.setFilename(entity.getFilename());
+			order.setPrice(entity.getPrice());
+			order.setCreatedt(DateTime.now());
+			order.setCharged(false);
+			order.setExpiredt(null);
+			orderService.insertOrder(order);
+		}
+
+		// make thumbnail
+		asyncService.makeThumbnail(photos);
+
+		// payment process
+		// TODO: wechat pay
+
+		return "/guest/wxpay";
 	}
 
 	@PostMapping("/credit")

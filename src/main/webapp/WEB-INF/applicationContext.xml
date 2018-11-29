@@ -216,6 +216,8 @@
 		<property name="javaMailProperties">
 			<props>
 				<prop key="mail.smtp.auth">${email.auth}</prop>
+				<prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+				<prop key="mail.smtp.socketFactory.port">${email.port}</prop>
 				<prop key="mail.smtp.starttls.enable">${email.tls}</prop>
 			</props>
 		</property>

@@ -512,8 +512,13 @@ public class UserController {
 			}
 			folders.put(folder.getSeq(), folderName);
 		}
+
 		model.addAttribute("folders", folders);
-		model.addAttribute("seq", seq);
+		if (folders.containsKey(seq)) {
+			model.addAttribute("seq", seq);
+		} else {
+			model.addAttribute("seq", 0);
+		}
 
 		int total = 0;
 		List<OrderForm> orders = new ArrayList<OrderForm>();

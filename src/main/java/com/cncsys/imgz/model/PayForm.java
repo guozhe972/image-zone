@@ -7,4 +7,5 @@ public class PayForm {
 
 	private String email;
 	private String token;
+	private boolean mobile;
 }

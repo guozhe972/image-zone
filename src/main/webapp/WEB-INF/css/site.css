@@ -101,6 +101,69 @@ input[type=date]::-webkit-clear-button {
 	line-height: 112px;
 }
 
+.btn-alipay {
+  color: #fff;
+  background-color: #3498DB;
+  border-color: #3498DB;
+}
+
+.btn-alipay:hover {
+  color: #fff;
+  background-color: #2384c6;
+  border-color: #217dbb;
+}
+
+.btn-alipay:focus, .btn-alipay.focus {
+  -webkit-box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
+          box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
+}
+
+.btn-alipay {
+  color: #fff;
+  background-color: #3498DB;
+  border-color: #3498DB;
+}
+
+.btn-alipay:hover {
+  color: #fff;
+  background-color: #2384c6;
+  border-color: #217dbb;
+}
+
+.btn-alipay:focus, .btn-alipay.focus {
+  -webkit-box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
+          box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
+}
+
+.btn-alipay.disabled, .btn-alipay:disabled {
+  color: #fff;
+  background-color: #95a5a6;
+  border-color: #95a5a6;
+}
+
+.btn-wxpay {
+  color: #fff;
+  background-color: #44b549;
+  border-color: #44b549;
+}
+
+.btn-wxpay:hover {
+  color: #fff;
+  background-color: #2f9833;
+  border-color: #2d9329;
+}
+
+.btn-wxpay:focus, .btn-wxpay.focus {
+  -webkit-box-shadow: 0 0 0 0.2rem rgba(52, 219, 152, 0.5);
+          box-shadow: 0 0 0 0.2rem rgba(52, 219, 152, 0.5);
+}
+
+.btn-wxpay.disabled, .btn-wxpay:disabled {
+  color: #fff;
+  background-color: #95a5a6;
+  border-color: #95a5a6;
+}
+
 @media ( min-width : 400px) {
 	.photo {
 		height: 200px;
