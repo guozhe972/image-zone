@@ -48,8 +48,10 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayTradePagePayModel;
+import com.alipay.api.domain.AlipayTradeWapPayModel;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.cncsys.imgz.entity.OrderEntity;
 import com.cncsys.imgz.entity.PhotoEntity;
 import com.cncsys.imgz.helper.CodeParser;
@@ -380,35 +382,42 @@ public class GuestController {
 		asyncService.makeThumbnail(photos);
 
 		// payment process (go to alipay)
-		AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
-		alipayRequest.setReturnUrl(
-				builder.cloneBuilder().path("/guest/alipay/" + codeParser.encrypt(email)).build().toUriString());
-		alipayRequest.setNotifyUrl(builder.cloneBuilder().path("/alipay/notify").build().toUriString());
-
-		//		Map<String, String> paramMap = new HashMap<>();
-		//		paramMap.put("out_trade_no", orderno);
-		//		paramMap.put("total_amount", String.valueOf(amount) + ".00");
-		//		paramMap.put("subject", ALIPAY_SUBJECT);
-		//		paramMap.put("passback_params", codeParser.encrypt(email));
-		//		paramMap.put("timeout_express", "20m");
-		//		paramMap.put("product_code", form.isMobile() ? "QUICK_WAP_PAY" : "FAST_INSTANT_TRADE_PAY");
-		//		ObjectMapper objMapper = new ObjectMapper();
-		//		alipayRequest.setBizContent(objMapper.writeValueAsString(paramMap));
-
-		AlipayTradePagePayModel alipayModel = new AlipayTradePagePayModel();
-		alipayModel.setOutTradeNo(orderno);
-		alipayModel.setTotalAmount(String.valueOf(amount) + ".00");
-		alipayModel.setSubject(ALIPAY_SUBJECT);
-		alipayModel.setPassbackParams(codeParser.encrypt(email));
-		alipayModel.setTimeoutExpress("20m");
-		alipayModel.setProductCode(form.isMobile() ? "QUICK_WAP_PAY" : "FAST_INSTANT_TRADE_PAY");
-		alipayRequest.setBizModel(alipayModel);
-
+		String alipayForm = "";
+		String returnUrl = builder.cloneBuilder().path("/guest/alipay/" + codeParser.encrypt(email)).build()
+				.toUriString();
+		String notifyUrl = builder.cloneBuilder().path("/alipay/notify").build().toUriString();
 		AlipayClient alipayClient = new DefaultAlipayClient(ALIPAY_GATEWAY, ALIPAY_APPID, ALIPAY_PRIVATE, "json",
-				"utf-8", ALIPAY_PUBLIC, "RSA2");
+				"UTF-8", ALIPAY_PUBLIC, "RSA2");
 
-		String body = alipayClient.pageExecute(alipayRequest).getBody();
-		model.addAttribute("fomAlipay", body);
+		if (form.isMobile()) {
+			AlipayTradeWapPayRequest alipayRequest = new AlipayTradeWapPayRequest();
+			alipayRequest.setReturnUrl(returnUrl);
+			alipayRequest.setNotifyUrl(notifyUrl);
+			AlipayTradeWapPayModel alipayModel = new AlipayTradeWapPayModel();
+			alipayModel.setOutTradeNo(orderno);
+			alipayModel.setTotalAmount(String.valueOf(amount) + ".00");
+			alipayModel.setSubject(ALIPAY_SUBJECT);
+			alipayModel.setPassbackParams(codeParser.encrypt(email));
+			alipayModel.setTimeoutExpress("20m");
+			alipayModel.setProductCode("QUICK_WAP_PAY");
+			alipayRequest.setBizModel(alipayModel);
+			alipayForm = alipayClient.pageExecute(alipayRequest).getBody();
+		} else {
+			AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
+			alipayRequest.setReturnUrl(returnUrl);
+			alipayRequest.setNotifyUrl(notifyUrl);
+			AlipayTradePagePayModel alipayModel = new AlipayTradePagePayModel();
+			alipayModel.setOutTradeNo(orderno);
+			alipayModel.setTotalAmount(String.valueOf(amount) + ".00");
+			alipayModel.setSubject(ALIPAY_SUBJECT);
+			alipayModel.setPassbackParams(codeParser.encrypt(email));
+			alipayModel.setTimeoutExpress("20m");
+			alipayModel.setProductCode("FAST_INSTANT_TRADE_PAY");
+			alipayRequest.setBizModel(alipayModel);
+			alipayForm = alipayClient.pageExecute(alipayRequest).getBody();
+		}
+
+		model.addAttribute("fomAlipay", alipayForm);
 		return "/guest/alipay";
 	}
 
@@ -426,14 +435,14 @@ public class GuestController {
 				valueStr = (i == values.length - 1) ? valueStr + values[i]
 						: valueStr + values[i] + ",";
 			}
-			//valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+			//valueStr = new String(valueStr.getBytes("ISO-8859-1"), "UTF-8");
 			params.put(name, valueStr);
 		}
 
 		String orderno = params.get("out_trade_no");
 		String downlink = "/download/" + orderno + "/" + token;
 
-		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
+		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "UTF-8", "RSA2");
 		if (!signVerified) {
 			logger.warn("alipay return NG");
 			List<String> errors = new ArrayList<String>();

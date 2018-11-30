@@ -79,7 +79,7 @@ public class PayController {
 				valueStr = (i == values.length - 1) ? valueStr + values[i]
 						: valueStr + values[i] + ",";
 			}
-			//valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+			//valueStr = new String(valueStr.getBytes("ISO-8859-1"), "UTF-8");
 			params.put(name, valueStr);
 		}
 
@@ -91,7 +91,7 @@ public class PayController {
 		logger.info("email_addr:" + email);
 
 		String result = "failure";
-		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "utf-8", "RSA2");
+		boolean signVerified = AlipaySignature.rsaCheckV1(params, ALIPAY_PUBLIC, "UTF-8", "RSA2");
 		if (signVerified) {
 			logger.info("alipay notify OK");
 			String appId = params.get("app_id");
