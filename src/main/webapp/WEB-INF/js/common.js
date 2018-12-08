@@ -13,15 +13,23 @@ $(function() {
 		return false;
 	});
 
-	$('input.num-only').on("input", function() {
+	$('input.num-only').on('input', function() {
 		this.value = this.value.replace(/\D/g, '');
 		this.value = this.value.slice(0, this.maxLength);
+	});
+
+	$('input.dis-enter').keydown(function(e) {
+		if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {
+			return false;
+		} else {
+			return true;
+		}
 	});
 });
 
 function showAlertError(arrMsg) {
 	$(window).scrollTop(0);
-	var msgArea = $('#altError').children("div");
+	var msgArea = $('#altError').children('div');
 	msgArea.empty();
 	var hasMsg = false;
 	$.each(arrMsg, function(idx, val) {
@@ -36,7 +44,7 @@ function showAlertError(arrMsg) {
 
 function showAlertInfo(arrMsg) {
 	$(window).scrollTop(0);
-	var msgArea = $('#altInfo').children("div");
+	var msgArea = $('#altInfo').children('div');
 	msgArea.empty();
 	var hasMsg = false;
 	$.each(arrMsg, function(idx, val) {
@@ -51,7 +59,7 @@ function showAlertInfo(arrMsg) {
 
 function showAlertWarn(arrMsg) {
 	$(window).scrollTop(0);
-	var msgArea = $('#altWarn').children("div");
+	var msgArea = $('#altWarn').children('div');
 	msgArea.empty();
 	var hasMsg = false;
 	$.each(arrMsg, function(idx, val) {

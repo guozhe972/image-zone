@@ -98,7 +98,8 @@
 				<div class="modal-body">
 					<form id="fomTransfer" th:action="@{/admin/transfer}" method="post"
 						novalidate autocomplete="off">
-						<input type="hidden" id="transno" name="transno" />
+						<input type="text" name="dummy" class="d-none" disabled /> <input
+							type="hidden" id="transno" name="transno" />
 						<div class="form-group mb-0">
 							<div id="grpMoney" class="input-group">
 								<div class="input-group-prepend">

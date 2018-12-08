@@ -365,7 +365,8 @@ label.custom-file-label::after {
 				</div>
 				<div class="modal-body">
 					<form id="fomRename" action="#" autocomplete="off">
-						<input type="hidden" th:name="${_csrf.parameterName}"
+						<input type="text" name="dummy" class="d-none" disabled /> <input
+							type="hidden" th:name="${_csrf.parameterName}"
 							th:value="${_csrf.token}" /> <input type="hidden" id="seq"
 							name="seq" />
 						<div class="form-group mb-0">
@@ -423,6 +424,7 @@ label.custom-file-label::after {
 				<div class="modal-body">
 					<form id="fomCreate" th:action="@{/user/create}" method="post"
 						novalidate autocomplete="off">
+						<input type="text" name="dummy" class="d-none" disabled />
 						<div class="form-group mb-0">
 							<label for="foldernm">[[#{modal.create.label}]]</label> <input
 								type="text" id="foldernm" name="foldernm" class="form-control"

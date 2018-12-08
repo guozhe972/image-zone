@@ -148,7 +148,8 @@ html {
 				<div class="modal-body">
 					<p>[(#{modal.forgot.message})]</p>
 					<form id="fomForgot" action="#" novalidate autocomplete="off">
-						<input type="hidden" th:name="${_csrf.parameterName}"
+						<input type="text" name="dummy" class="d-none" disabled /> <input
+							type="hidden" th:name="${_csrf.parameterName}"
 							th:value="${_csrf.token}" />
 						<div class="form-group mb-0">
 							<input type="text" id="username" name="username"
