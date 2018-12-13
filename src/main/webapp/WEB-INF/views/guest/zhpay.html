@@ -110,7 +110,7 @@
 					<div class="invalid-feedback d-block"
 						th:if="${#fields.hasErrors('email')}" th:errors="*{email}">email
 						error</div>
-					<small class="form-text text-muted">[(#{message.email.receive})]</small>
+					<small class="form-text text-danger">[(#{message.email.receive})]</small>
 				</div>
 			</div>
 			<div class="form-group row mb-0">

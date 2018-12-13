@@ -13,6 +13,8 @@ import java.util.zip.ZipInputStream;
 
 import javax.imageio.ImageIO;
 
+import org.jcodec.api.FrameGrab;
+import org.jcodec.scale.AWTUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +72,8 @@ public class UploadService {
 				try (ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName(charset));) {
 					ZipEntry entry = zis.getNextEntry();
 					while (entry != null) {
-						if (!entry.isDirectory() && entry.getName().toLowerCase().matches(".+(\\.jpg|\\.jpeg)$")) {
+						if (!entry.isDirectory()
+								&& entry.getName().toLowerCase().matches(".+(\\.jpg|\\.jpeg|\\.mp4)$")) {
 							fileName = fileHelper.getName(entry.getName());
 							String ext = fileHelper.getExtension(fileName);
 							try {
@@ -85,24 +88,52 @@ public class UploadService {
 								fos.close();
 
 								// make thumbnail image
-								String thumbId = UUID.randomUUID().toString().replace("-", "") + ext;
-								File preview = new File(thumbPath + "/" + "preview_" + thumbId);
-								File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
-								BufferedImage marked = imageEditor.getPreview(imageEditor.rotateImage(original), price);
-								ImageIO.write(marked, "jpeg", preview);
-								BufferedImage scaled = imageEditor.getThumbnail(marked);
-								ImageIO.write(scaled, "jpeg", thumbnail);
+								String thumbId = UUID.randomUUID().toString().replace("-", "");
 
-								// insert to db
-								PhotoEntity photo = new PhotoEntity();
-								photo.setUsername(username);
-								photo.setFolder(folder);
-								photo.setThumbnail(thumbId);
-								photo.setOriginal(originId);
-								photo.setFilename(fileName);
-								photo.setPrice(price);
-								photo.setCreatedt(DateTime.now());
-								photoService.insertPhoto(photo);
+								// if mp4 file.
+								if (".mp4".equals(ext.toLowerCase())) {
+									if (price == 0) {
+										File video = new File(thumbPath + "/" + "preview_" + thumbId + ".mp4");
+										original.renameTo(video);
+										BufferedImage stoped = AWTUtil
+												.toBufferedImage(FrameGrab.getFrameFromFile(video, 60));
+
+										File preview = new File(thumbPath + "/" + "preview_" + thumbId + ".jpg");
+										File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId + ".jpg");
+										BufferedImage marked = imageEditor.getPreview(stoped, 0);
+										ImageIO.write(marked, "jpeg", preview);
+										BufferedImage scaled = imageEditor.getThumbnail(marked);
+										ImageIO.write(scaled, "jpeg", thumbnail);
+
+										originId = thumbId + ".mp4";
+										thumbId += ".jpg";
+									} else {
+										thumbId = null;
+										original.delete();
+									}
+								} else {
+									thumbId += ext;
+									File preview = new File(thumbPath + "/" + "preview_" + thumbId);
+									File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
+									BufferedImage marked = imageEditor.getPreview(imageEditor.rotateImage(original),
+											price);
+									ImageIO.write(marked, "jpeg", preview);
+									BufferedImage scaled = imageEditor.getThumbnail(marked);
+									ImageIO.write(scaled, "jpeg", thumbnail);
+								}
+
+								if (thumbId != null) {
+									// insert to db
+									PhotoEntity photo = new PhotoEntity();
+									photo.setUsername(username);
+									photo.setFolder(folder);
+									photo.setThumbnail(thumbId);
+									photo.setOriginal(originId);
+									photo.setFilename(fileName);
+									photo.setPrice(price);
+									photo.setCreatedt(DateTime.now());
+									photoService.insertPhoto(photo);
+								}
 							} catch (Exception e) {
 								logger.warn("Exception", e);
 							}
@@ -123,24 +154,50 @@ public class UploadService {
 					file.renameTo(original);
 
 					// make thumbnail image
-					String thumbId = UUID.randomUUID().toString().replace("-", "") + ext;
-					File preview = new File(thumbPath + "/" + "preview_" + thumbId);
-					File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
-					BufferedImage marked = imageEditor.getPreview(imageEditor.rotateImage(original), price);
-					ImageIO.write(marked, "jpeg", preview);
-					BufferedImage scaled = imageEditor.getThumbnail(marked);
-					ImageIO.write(scaled, "jpeg", thumbnail);
+					String thumbId = UUID.randomUUID().toString().replace("-", "");
 
-					// insert to db
-					PhotoEntity photo = new PhotoEntity();
-					photo.setUsername(username);
-					photo.setFolder(folder);
-					photo.setThumbnail(thumbId);
-					photo.setOriginal(originId);
-					photo.setFilename(fileName);
-					photo.setPrice(price);
-					photo.setCreatedt(DateTime.now());
-					photoService.insertPhoto(photo);
+					// if mp4 file.
+					if (".mp4".equals(ext.toLowerCase())) {
+						if (price == 0) {
+							File video = new File(thumbPath + "/" + "preview_" + thumbId + ".mp4");
+							original.renameTo(video);
+							BufferedImage stoped = AWTUtil.toBufferedImage(FrameGrab.getFrameFromFile(video, 60));
+
+							File preview = new File(thumbPath + "/" + "preview_" + thumbId + ".jpg");
+							File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId + ".jpg");
+							BufferedImage marked = imageEditor.getPreview(stoped, 0);
+							ImageIO.write(marked, "jpeg", preview);
+							BufferedImage scaled = imageEditor.getThumbnail(marked);
+							ImageIO.write(scaled, "jpeg", thumbnail);
+
+							originId = thumbId + ".mp4";
+							thumbId += ".jpg";
+						} else {
+							thumbId = null;
+							original.delete();
+						}
+					} else {
+						thumbId += ext;
+						File preview = new File(thumbPath + "/" + "preview_" + thumbId);
+						File thumbnail = new File(thumbPath + "/" + "thumbnail_" + thumbId);
+						BufferedImage marked = imageEditor.getPreview(imageEditor.rotateImage(original), price);
+						ImageIO.write(marked, "jpeg", preview);
+						BufferedImage scaled = imageEditor.getThumbnail(marked);
+						ImageIO.write(scaled, "jpeg", thumbnail);
+					}
+
+					if (thumbId != null) {
+						// insert to db
+						PhotoEntity photo = new PhotoEntity();
+						photo.setUsername(username);
+						photo.setFolder(folder);
+						photo.setThumbnail(thumbId);
+						photo.setOriginal(originId);
+						photo.setFilename(fileName);
+						photo.setPrice(price);
+						photo.setCreatedt(DateTime.now());
+						photoService.insertPhoto(photo);
+					}
 				} catch (Exception e) {
 					logger.warn("Exception", e);
 				}

@@ -2,6 +2,13 @@
 	overflow: hidden;
 }
 
+video {
+	max-width: 600px;
+	max-height: 600px;
+	width: 100%;
+	height: auto;
+}
+
 .imageview {
 	display: none;
 	position: fixed;
@@ -32,9 +39,12 @@
 
 .imageview .prev, .imageview .next {
 	z-index: 10001;
-	width: 80px;
-	height: 100%;
+	width: 60px;
+	height: 60px;
 	background-size: 30px 30px;
+	top: 0;
+	bottom: 0;
+	margin: auto;
 }
 
 .imageview .prev {

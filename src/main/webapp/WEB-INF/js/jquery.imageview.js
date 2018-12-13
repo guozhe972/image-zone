@@ -13,13 +13,15 @@
 		}
 
 		this.deploy = function() {
-			var html = '<div class="imageview">' + '<div class="title"></div>'
+			var html = '<div class="imageview">'
+					+ '<div class="title"></div>'
 					+ '<a href="javascript:;" class="cart"></a>'
 					+ '<a href="javascript:;" class="down"></a>'
 					+ '<a href="javascript:;" class="hide"></a>'
 					+ '<a href="javascript:;" class="prev"></a>'
 					+ '<a href="javascript:;" class="next"></a>'
-					+ '<div class="image"><img src="" /></div>' + '</div>';
+					+ '<div class="image"><img src="" /><video src="" poster="" preload="metadata" controls /></div>'
+					+ '</div>';
 			this.$viewer = $(html).appendTo('body');
 			this.$title = $('.title', this.$viewer);
 			this.$cart = $('.cart', this.$viewer);
@@ -28,6 +30,7 @@
 			this.$prev = $('.prev', this.$viewer);
 			this.$next = $('.next', this.$viewer);
 			this.$image = $('.image img', this.$viewer);
+			this.$video = $('.image video', this.$viewer);
 			this.$cart.click($.proxy(this.cart, this));
 			this.$down.click($.proxy(this.down, this));
 			this.$hide.click($.proxy(this.hide, this));
@@ -37,6 +40,9 @@
 			this.$viewer.on('touchstart', $.proxy(this.touchstart, this));
 			this.$viewer.on('touchend', $.proxy(this.touchend, this));
 			this.$image.bind('load', function() {
+				$(this).fadeIn(100);
+			});
+			this.$video.bind('loadedmetadata', function() {
 				$(this).fadeIn(100);
 			});
 			$('body').keydown($.proxy(this.keydown, this));
@@ -99,7 +105,7 @@
 		}
 
 		this.touchstart = function(e) {
-			if (!this.$viewer.is(':visible')) {
+			if (!this.$viewer.is(':visible') || this.$video.is(':visible')) {
 				return;
 			}
 			this.x = Math.round(e.originalEvent.changedTouches[0].pageX);
@@ -107,7 +113,7 @@
 		}
 
 		this.touchend = function(e) {
-			if (!this.$viewer.is(':visible')) {
+			if (!this.$viewer.is(':visible') || this.$video.is(':visible')) {
 				return;
 			}
 			var x = Math.round(e.originalEvent.changedTouches[0].pageX);
@@ -149,7 +155,21 @@
 			this.$down.toggle($('#btnDown' + this.idx).length > 0);
 			this.$title.text($('#bagPrice' + this.idx).text());
 			this.$viewer.fadeIn(100);
-			this.$image.hide().attr('src', $target.attr(this.opts.srcAttr));
+			var fnm = $target.attr(this.opts.srcAttr);
+			if (fnm.split('.').pop() == 'mp4') {
+				this.$image.hide().attr('src', '');
+				this.$video.hide().attr({
+					src : fnm,
+					poster : fnm.replace('.mp4', '.jpg')
+				});
+			} else {
+				// this.$video.get(0).pause();
+				this.$video.hide().attr({
+					src : '',
+					poster : ''
+				});
+				this.$image.hide().attr('src', fnm);
+			}
 		}
 
 		this.init(obj, opts);

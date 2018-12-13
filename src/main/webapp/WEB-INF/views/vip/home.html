@@ -63,14 +63,14 @@ label.custom-file-label::after {
 		function resetFile(obj) {
 			$(obj).val('');
 			$(obj).next('label.custom-file-label').text(
-					'[(#{input.file.content})]');
+					'[(#{vip.file.content})]');
 		}
 
 		function checkFile(obj) {
 			var size = 0;
 			for (var i = 0; i < obj.files.length; i++) {
 				size += obj.files[i].size;
-				if (!/.+(\.zip|\.jpg|\.jpeg)$/.test(obj.files[i].name
+				if (!/.+(\.zip|\.jpg|\.jpeg|\.mp4)$/.test(obj.files[i].name
 						.toLowerCase()))
 					return false;
 			}
@@ -89,7 +89,7 @@ label.custom-file-label::after {
 					});
 					if (files.length == 0) {
 						$(this).next('label.custom-file-label').text(
-								'[(#{input.file.content})]');
+								'[(#{vip.file.content})]');
 					} else {
 						$(this).next('label.custom-file-label').text(
 								files.join(', '));
@@ -308,10 +308,10 @@ label.custom-file-label::after {
 						<div th:id="|grpFile*{seq}|" class="custom-file">
 							<input type="file" class="custom-file-input"
 								th:id="|files*{seq}|" name="files"
-								accept=".zip,.jpg,.jpeg,image/jpeg,application/zip,application/x-zip-compressed"
+								accept=".zip,.jpg,.jpeg,.mp4,image/jpeg,video/mp4,application/zip,application/x-zip-compressed"
 								multiple required /> <label th:for="|files*{seq}|"
 								class="custom-file-label text-truncate"
-								th:text="#{input.file.content}"></label>
+								th:text="#{vip.file.content}"></label>
 						</div>
 					</div>
 					<div class="form-group btn-group d-flex mb-0" role="group">

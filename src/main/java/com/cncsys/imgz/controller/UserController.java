@@ -339,6 +339,7 @@ public class UserController {
 			form.setUsername(photo.getUsername());
 			form.setFolder(photo.getFolder());
 			form.setThumbnail(photo.getThumbnail());
+			form.setOriginal(photo.getOriginal());
 			form.setPrice(photo.getPrice());
 			photos.add(form);
 		}
@@ -389,8 +390,14 @@ public class UserController {
 		String folderPath = UPLOAD_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
 		fileHelper.deleteFile(folderPath + "/" + "preview_" + thumbnail);
 		fileHelper.deleteFile(folderPath + "/" + "thumbnail_" + thumbnail);
-		String originPath = ORIGINAL_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
-		fileHelper.deleteFile(originPath + "/" + original);
+
+		String ext = fileHelper.getExtension(original);
+		if (".mp4".equals(ext.toLowerCase())) {
+			fileHelper.deleteFile(folderPath + "/" + "preview_" + original);
+		} else {
+			String originPath = ORIGINAL_PATH + "/" + user.getUsername() + "/" + String.valueOf(folder);
+			fileHelper.deleteFile(originPath + "/" + original);
+		}
 
 		return ResponseEntity.ok().body("ok");
 	}

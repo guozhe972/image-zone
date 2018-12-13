@@ -54,11 +54,11 @@
 				<div class="card rounded-0 rounded-top border-bottom-0">
 					<div class="card-body p-0 text-center photo">
 						<a class="img" th:data-index="${stat.count}"
-							th:href="@{|/upload/*{username}/*{folder}/preview_*{thumbnail}|}">
+							th:href="@{*{video}?|/upload/*{username}/*{folder}/preview_*{original}|:|/upload/*{username}/*{folder}/preview_*{thumbnail}|}">
 							<img class="lazyload img-fluid mh-100"
 							th:src="@{/images/loading.gif}"
 							th:data-original="@{|/upload/*{username}/*{folder}/thumbnail_*{thumbnail}|}"
-							alt="">
+							alt=""><span th:if="*{video}" class="play"></span>
 						</a>
 					</div>
 				</div>

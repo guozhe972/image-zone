@@ -102,66 +102,90 @@ input[type=date]::-webkit-clear-button {
 }
 
 .btn-alipay {
-  color: #fff;
-  background-color: #3498DB;
-  border-color: #3498DB;
+	color: #fff;
+	background-color: #3498DB;
+	border-color: #3498DB;
 }
 
 .btn-alipay:hover {
-  color: #fff;
-  background-color: #2384c6;
-  border-color: #217dbb;
+	color: #fff;
+	background-color: #2384c6;
+	border-color: #217dbb;
 }
 
 .btn-alipay:focus, .btn-alipay.focus {
-  -webkit-box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
-          box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
+	-webkit-box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
+	box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
 }
 
 .btn-alipay {
-  color: #fff;
-  background-color: #3498DB;
-  border-color: #3498DB;
+	color: #fff;
+	background-color: #3498DB;
+	border-color: #3498DB;
 }
 
 .btn-alipay:hover {
-  color: #fff;
-  background-color: #2384c6;
-  border-color: #217dbb;
+	color: #fff;
+	background-color: #2384c6;
+	border-color: #217dbb;
 }
 
 .btn-alipay:focus, .btn-alipay.focus {
-  -webkit-box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
-          box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
+	-webkit-box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
+	box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.5);
 }
 
 .btn-alipay.disabled, .btn-alipay:disabled {
-  color: #fff;
-  background-color: #95a5a6;
-  border-color: #95a5a6;
+	color: #fff;
+	background-color: #95a5a6;
+	border-color: #95a5a6;
 }
 
 .btn-wxpay {
-  color: #fff;
-  background-color: #44b549;
-  border-color: #44b549;
+	color: #fff;
+	background-color: #44b549;
+	border-color: #44b549;
 }
 
 .btn-wxpay:hover {
-  color: #fff;
-  background-color: #2f9833;
-  border-color: #2d9329;
+	color: #fff;
+	background-color: #2f9833;
+	border-color: #2d9329;
 }
 
 .btn-wxpay:focus, .btn-wxpay.focus {
-  -webkit-box-shadow: 0 0 0 0.2rem rgba(52, 219, 152, 0.5);
-          box-shadow: 0 0 0 0.2rem rgba(52, 219, 152, 0.5);
+	-webkit-box-shadow: 0 0 0 0.2rem rgba(52, 219, 152, 0.5);
+	box-shadow: 0 0 0 0.2rem rgba(52, 219, 152, 0.5);
 }
 
 .btn-wxpay.disabled, .btn-wxpay:disabled {
-  color: #fff;
-  background-color: #95a5a6;
-  border-color: #95a5a6;
+	color: #fff;
+	background-color: #95a5a6;
+	border-color: #95a5a6;
+}
+
+span.play {
+	position: absolute;
+	background-image:
+		url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4IiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjQgNEMxMi45NSA0IDQgMTIuOTUgNCAyNHM4Ljk1IDIwIDIwIDIwIDIwLTguOTUgMjAtMjBTMzUuMDUgNCAyNCA0em0tNCAyOVYxNWwxMiA5LTEyIDl6Ii8+PC9zdmc+);
+	background-size: 48px 48px;
+	bottom: 0;
+	color: #fff;
+	left: 0;
+	height: 48px;
+	margin: auto;
+	opacity: 0.8;
+	right: 0;
+	top: 0;
+	width: 48px;
+	-moz-transition: opacity 0.5s;
+	-webkit-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+	cursor: pointer;
+}
+
+span.play:hover {
+	opacity: 1;
 }
 
 @media ( min-width : 400px) {

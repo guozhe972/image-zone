@@ -87,6 +87,9 @@ public class GuestController {
 	@Value("${order.download.days}")
 	private int DOWNLOAD_DAYS;
 
+	@Value("${upload.file.path}")
+	private String UPLOAD_PATH;
+
 	@Value("${upload.file.original}")
 	private String ORIGINAL_PATH;
 
@@ -194,9 +197,17 @@ public class GuestController {
 		String filePath = ORIGINAL_PATH + "/" + username + "/" + String.valueOf(folder) + "/" + file;
 
 		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.setContentType(MediaType.IMAGE_JPEG);
-		responseHeaders.set("Content-Disposition",
-				"attachment;filename=IMG" + String.format("%05d", idx) + fileHelper.getExtension(file));
+		String ext = fileHelper.getExtension(file);
+		if (".mp4".equals(ext.toLowerCase())) {
+			filePath = UPLOAD_PATH + "/" + username + "/" + String.valueOf(folder) + "/" + "preview_" + file;
+			responseHeaders.set("Content-Type", "video/mp4");
+			responseHeaders.set("Content-Disposition",
+					"attachment;filename=VDO" + String.format("%05d", idx) + ext);
+		} else {
+			responseHeaders.setContentType(MediaType.IMAGE_JPEG);
+			responseHeaders.set("Content-Disposition",
+					"attachment;filename=IMG" + String.format("%05d", idx) + ext);
+		}
 		return new ResponseEntity<>(Files.readAllBytes(Paths.get(filePath)), responseHeaders, HttpStatus.OK);
 	}
 

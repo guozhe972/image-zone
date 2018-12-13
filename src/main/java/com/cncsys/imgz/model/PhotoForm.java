@@ -14,4 +14,21 @@ public class PhotoForm {
 	private String original;
 	private int price;
 	private boolean incart;
+
+	private boolean video;
+
+	public boolean isVideo() {
+		this.video = false;
+		if (this.original == null) {
+			return this.video;
+		}
+
+		int point = this.original.lastIndexOf(".");
+		if (point != -1) {
+			if (".mp4".equals(this.original.substring(point).toLowerCase())) {
+				this.video = true;
+			}
+		}
+		return this.video;
+	}
 }

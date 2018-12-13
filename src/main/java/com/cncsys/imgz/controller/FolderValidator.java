@@ -44,7 +44,7 @@ public class FolderValidator implements SmartValidator {
 				}
 
 				size += file.getSize();
-				if (!file.getOriginalFilename().toLowerCase().matches(".+(\\.zip|\\.jpg|\\.jpeg)$")) {
+				if (!file.getOriginalFilename().toLowerCase().matches(".+(\\.zip|\\.jpg|\\.jpeg|\\.mp4)$")) {
 					errors.rejectValue("files", "validation.upload.invalid");
 					return;
 				}
