@@ -37,14 +37,22 @@ body {
 </head>
 <body class="d-flex align-items-center">
 	<div class="m-auto">
-		<img th:src="@{/images/loading.gif}" alt="Loading" />
+		<img id="imgLoad" th:src="@{/images/loading.gif}" alt="Loading" />
+		<h2 id="msgOpen"
+			style="margin-left: 2rem; margin-right: 2rem; display: none;">
+			[(#{info.app.browser})]</h2>
 		<form name="fomLogin" th:action="@{/login}" method="post">
 			<input type="hidden" name="usernm" th:value="${username}" /> <input
 				type="hidden" name="passwd" th:value="${password}" />
 		</form>
 	</div>
 	<script>
-		document.fomLogin.submit();
+		if (!/micromessenger/i.test(navigator.userAgent)) {
+			document.fomLogin.submit();
+		} else {
+			document.getElementById('imgLoad').style.display = 'none';
+			document.getElementById('msgOpen').style.display = 'block';
+		}
 	</script>
 </body>
 </html>
