@@ -20,8 +20,9 @@
 					+ '<a href="javascript:;" class="hide"></a>'
 					+ '<a href="javascript:;" class="prev"></a>'
 					+ '<a href="javascript:;" class="next"></a>'
-					+ '<div class="image"><img src="" /><video src="" poster="" preload="metadata" controls /></div>'
-					+ '</div>';
+					+ '<div class="image"><img src="" />'
+					+ '<video src="" poster="" preload="metadata" type="video/mp4" playsinline controls />'
+					+ '</div></div>';
 			this.$viewer = $(html).appendTo('body');
 			this.$title = $('.title', this.$viewer);
 			this.$cart = $('.cart', this.$viewer);
@@ -105,7 +106,7 @@
 		}
 
 		this.touchstart = function(e) {
-			if (!this.$viewer.is(':visible') || this.$video.is(':visible')) {
+			if (!this.$viewer.is(':visible')) {
 				return;
 			}
 			this.x = Math.round(e.originalEvent.changedTouches[0].pageX);
@@ -113,7 +114,7 @@
 		}
 
 		this.touchend = function(e) {
-			if (!this.$viewer.is(':visible') || this.$video.is(':visible')) {
+			if (!this.$viewer.is(':visible')) {
 				return;
 			}
 			var x = Math.round(e.originalEvent.changedTouches[0].pageX);
@@ -162,8 +163,8 @@
 					src : fnm,
 					poster : fnm.replace('.mp4', '.jpg')
 				});
+				this.$video.get(0).load();
 			} else {
-				// this.$video.get(0).pause();
 				this.$video.hide().attr({
 					src : '',
 					poster : ''
