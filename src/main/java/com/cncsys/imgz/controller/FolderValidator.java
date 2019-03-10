@@ -2,6 +2,8 @@ package com.cncsys.imgz.controller;
 
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -11,6 +13,7 @@ import org.thymeleaf.util.ArrayUtils;
 import com.cncsys.imgz.model.FolderForm;
 import com.cncsys.imgz.model.FolderForm.Share;
 import com.cncsys.imgz.model.FolderForm.Upload;
+import com.cncsys.imgz.model.LoginUser;
 
 @Component
 public class FolderValidator implements SmartValidator {
@@ -82,11 +85,20 @@ public class FolderValidator implements SmartValidator {
 					return;
 				}
 
-				LocalDate mindt = plansdt;
-				LocalDate maxdt = plansdt.plusDays(EXPIRED_DAYS);
-				if (mindt.isAfter(expiredt) || maxdt.isBefore(expiredt)) {
-					errors.rejectValue("expiredt", "validation.share.expiredt",
-							new Object[] { EXPIRED_DAYS }, null);
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				LoginUser user = (LoginUser) auth.getPrincipal();
+				if (user.isVip()) {
+					LocalDate mindt = plansdt;
+					if (mindt.isAfter(expiredt)) {
+						errors.rejectValue("expiredt", "validation.vipshare.expiredt");
+					}
+				} else {
+					LocalDate mindt = plansdt;
+					LocalDate maxdt = plansdt.plusDays(EXPIRED_DAYS);
+					if (mindt.isAfter(expiredt) || maxdt.isBefore(expiredt)) {
+						errors.rejectValue("expiredt", "validation.share.expiredt",
+								new Object[] { EXPIRED_DAYS }, null);
+					}
 				}
 			}
 		}

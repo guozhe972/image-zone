@@ -445,19 +445,29 @@ public class UserController {
 				form.setGuest(folder.getGuest());
 				form.setPassword("");
 				form.setPlansdt(LocalDate.now());
-				form.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
+				if (user.isVip()) {
+					form.setExpiredt(LocalDate.now().plusYears(100));
+				} else {
+					form.setExpiredt(LocalDate.now().plusDays(EXPIRED_DAYS / 2));
+				}
 				model.addAttribute("folderForm", form);
 				model.addAttribute("minExpiredt", LocalDate.now());
-				model.addAttribute("maxExpiredt", LocalDate.now().plusDays(EXPIRED_DAYS));
+				if (!user.isVip())
+					model.addAttribute("maxExpiredt", LocalDate.now().plusDays(EXPIRED_DAYS));
 			} else {
 				FolderForm form = (FolderForm) model.asMap().get("folderForm");
 				model.addAttribute("minExpiredt", form.getPlansdt());
-				model.addAttribute("maxExpiredt", form.getPlansdt().plusDays(EXPIRED_DAYS));
+				if (!user.isVip())
+					model.addAttribute("maxExpiredt", form.getPlansdt().plusDays(EXPIRED_DAYS));
 			}
 
 			model.addAttribute("minPlansdt", LocalDate.now());
 			model.addAttribute("maxPlansdt", LocalDate.now().plusDays(EXPIRED_DAYS / 2));
-			return "/user/share";
+			if (user.isVip()) {
+				return "/vip/share";
+			} else {
+				return "/user/share";
+			}
 		}
 	}
 
